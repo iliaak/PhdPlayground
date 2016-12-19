@@ -23,6 +23,9 @@ class DistanceMatrix(object):
     def printMatrix(self):
         print(numpy.matrix(self.matrix))
 
+    def getMatrix(self):
+        return self.matrix
+
 
 def computeDistance(fi, fj, jarLocation):
 
@@ -57,6 +60,7 @@ if __name__ == '__main__':
     DM = DistanceMatrix(len(inputfiles))
 
     for i in range(len(inputfiles)):
+        sys.stderr.write("INFO: Processing %s of %s.\n" % (i, len(inputfiles)))
         for j in range(len(inputfiles)):
             if i == j:
                 DM.setValue(i, j, 0.0)
@@ -65,7 +69,7 @@ if __name__ == '__main__':
                 dist = computeDistance(inputfiles[i], inputfiles[j], options.jarLocation)
                 DM.setValue(i, j, dist)
 
-    # TODO: now print the matrix, or save in some way
-
+    numpy.savetxt('distanceMatrix.csv', DM.getMatrix(), delimiter=',')
+                
     # TODO: also print the current order of the inputfiles, as perhaps they change or something. In any case it would be good to know what the x and y vars are...
     
