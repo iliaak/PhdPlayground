@@ -9,7 +9,11 @@ import os
 import codecs
 from lxml import etree
 import zss
-   
+import treedist # this script has to be in the same folder as this one
+
+TAXONOMYXML = ""
+DEFAULT_DISTANCE = 0.0
+KNOWNNODES = set()
 
 def weird_dist(A, B):
 
@@ -17,9 +21,13 @@ def weird_dist(A, B):
     if A == B:
         return 0
     else:
-        # do the magic here. Proposal: both A and B are tuples here. Get A[1] and B[1], get taxonomy distance from treedist script (also in this dir), and return that value (TODO: create taxonomy XML from Hovy paper and take it from there). For this to work, make sure that the relations in the taxonomy and those in the parsed text match (this is not the case for the CODRA stuff and the Hovy taxonomy)
-        return 99
-    
+        if len(A) == 2 and len(B) == 2:
+            if A[1] in KNOWNNODES and B[1] in KNOWNNODES:
+                return treedist.getTreeDistance(TAXONOMY, A[1], B[1])
+            else:
+                return DEFAULT_DISTANCE
+    return 0 # to cover all the other cases
+        
 class WeirdNode(object):
 
     def __init__(self, label):
@@ -62,24 +70,42 @@ def traverseTree(zssTree, node):
         traverseTree(zssTree, subnode)
 
         
+def setTaxXML(fh):
+    global TAXONOMYXML
+    TAXONOMYXML = fh
 
+def setDefaultDistance(v):
+    global DEFAULT_DISTANCE
+    DEFAULT_DISTANCE = v
+
+def setKnownNodesList(l):
+    global KNOWNNODES
+    KNOWNNODES = l
+        
 if __name__ == '__main__':
    
     parser = OptionParser("usage: %prog corpus")
     parser.add_option("-a", "--aTree", dest="aTreeXML", help="Specify xml file with a tree.")
     parser.add_option("-b", "--bTree", dest="bTreeXML", help="Specify xml file with another tree for comparison.")
+    parser.add_option("-x", "--taxonomyXML", dest="taxonomyXML", help="XML file with taxonomy of rhetorical relations.")
    
     options, args = parser.parse_args()
     
-    if not options.aTreeXML or not options.bTreeXML:
+    if not options.aTreeXML or not options.bTreeXML or not options.taxonomyXML:
         parser.print_help(sys.stderr)
         sys.exit(1)
 
     A = xml2zss(options.aTreeXML)
     B = xml2zss(options.bTreeXML)
-
     
+    setTaxXML(options.taxonomyXML)
+    setKnownNodesList(treedist.getAllNodes(TAXONOMYXML))
+    setDefaultDistance(treedist.getAverageDistance(TAXONOMYXML, KNOWNNODES)) # this is the average distance between two nodes given the tree
+
+    print("debug a:", A)
+    print("debug b:", B)
     
     dist = zss.simple_distance(A, B, WeirdNode.get_children, WeirdNode.get_label, weird_dist)
 
     print("dist:", dist)
+    #TODO: debug distance measure!

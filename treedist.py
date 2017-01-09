@@ -11,6 +11,39 @@ import codecs
 from lxml import etree
 from zss import Node, simple_distance
 
+def getAllNodes(fh):
+
+    parser = etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding='utf-8')
+    tree = etree.parse(fh, parser=parser)
+    root = tree.getroot()
+    l = []
+    walkTree(root, l)
+    return set(l)
+
+def walkTree(node, l):
+
+    for subnode in node:
+        l.append(subnode.tag)
+        walkTree(subnode, l)
+
+def getAverageDistance(fh, nodeList):
+
+    parser = etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding='utf-8')
+    tree = etree.parse(fh, parser=parser)
+    root = tree.getroot()
+    t = 0
+    c = 0
+    for i in nodeList:
+        for j in nodeList:
+            ancestorChain = traverse(root, i, j, [])
+            lca = ancestorChain[len(ancestorChain)-1]
+            dist = getDistance(lca, i, 0, False) + getDistance(lca, j, 0, False)
+            # whilst doing this, I might as well keep a dictionary of all distances so I do not have to calculate it again later, would be a lot more efficient. But as it is now, it is fast enough already...
+            c += 1
+            t += dist
+    return float(float(t) / float(c))
+            
+
 
 def debug(fh):
 
@@ -24,17 +57,22 @@ def debug(fh):
             dist = getDistance(lca, i, 0, False) + getDistance(lca, j, 0, False)
             print("Distance between %s and %s: %s" % (i, j, dist))
 
+    
 
 def getTreeDistance(taxonomyXML, n1, n2):
 
     parser = etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding='utf-8')
     tree = etree.parse(taxonomyXML, parser=parser)
     root = tree.getroot()
-    ancestorChain = traverse(root, n1, n2, [])
-    lca = ancestorChain[len(ancestorChain)-1]
-    dist = getDistance(lca, n1, 0, False) + getDistance(lca, n2, 0, False)
+    nodeList = getAllNodes(root)
+    if not n1 in nodeList or not n2 in nodeList:
+        return -1
+    else:
+        ancestorChain = traverse(root, n1, n2, [])
+        lca = ancestorChain[len(ancestorChain)-1]
+        dist = getDistance(lca, n1, 0, False) + getDistance(lca, n2, 0, False)
 
-    return dist
+        return dist
     
             
 
