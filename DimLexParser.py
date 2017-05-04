@@ -40,22 +40,26 @@ def parseXML(dimlexml):
         for orth in entry.find('orths').findall('orth'):
             dl.addAlternativeSpelling(orth.find('part').text)
         
-        ambiguity = entry.find('ambiguity') #TODO: check if there can be multiples nodes here
+        ambiguity = entry.find('ambiguity')
         non_connNode = ambiguity.find('non_conn')
         
-        #if non_connNode.text == '1':
-            #p = 1 - (float(non_connNode.get('freq')) / float(non_connNode.get('anno_N')))
-            #dl.setConnectiveReadingProbability(p)
+        if non_connNode.text == '1':
+            if 'freq' in non_connNode.attrib and 'anno_N' in non_connNode.attrib: # this may not be the case for markers which have both readings, but there is no frequency info for one or the other
+                p = 1 - (float(non_connNode.get('freq')) / float(non_connNode.get('anno_N')))
+                dl.setConnectiveReadingProbability(p)
 
         syns = entry.findall('syn')
         for syn in syns:
             dl.addSynCat(syn.find('cat').text)
-            #for sem in syn.findall('sem'):
-                #for sense in sem:
-                    ##pdtb3sense = sense.get('pdtb3_relation sense') # bug in lxml due to whitespace in attrib name, or by design?
-                    #pdtb3sense = sense.get('sense')
-                    #prob = 1 - (float(sense.get('freq')) / float(sense.get('anno_N')))
-                    #dl.addSense(pdtb3sense, prob)
+            for sem in syn.findall('sem'):
+                for sense in sem:
+                    freq = sense.get('freq')
+                    anno = sense.get('anno_N')
+                    if not freq == '0' and not freq == '' and not anno == '0' and not anno == '':
+                        ##pdtb3sense = sense.get('pdtb3_relation sense') # bug in lxml due to whitespace in attrib name, or by design?
+                        pdtb3sense = sense.get('sense')
+                        prob = 1 - (float(freq) / float(anno))
+                        dl.addSense(pdtb3sense, prob)
 
         l.append(dl)
             
