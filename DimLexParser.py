@@ -30,6 +30,8 @@ class DimLex:
     def addSense(self, sense, prob):
         self.sense2Probs[sense] = prob
 
+
+        
 def parseXML(dimlexml):
     
     xmlParser = lxml.etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding = 'utf-8')
