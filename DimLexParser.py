@@ -9,17 +9,21 @@ import os
 import codecs
 import lxml.etree
 
+"""
+Parser for the DiMLex (https://github.com/discourse-lab/dimlex) XML lexicon. Just for some initial playing around and extracting some random stuff.
+"""
+
 class DimLex:
     def __init__(self, entryId, word):
         self.entryId = entryId
         self.word = word
-        self.alternativeSpellings = []
+        self.alternativeSpellings = defaultdict(lambda : defaultdict(str))
         self.syncats = []
         self.connectiveReadingProbability = 1
         self.sense2Probs = defaultdict(float)
         
-    def addAlternativeSpelling(self, alt):
-        self.alternativeSpellings.append(alt)
+    def addAlternativeSpelling(self, alt, singleOrPhrasal, contOrDiscont):
+        self.alternativeSpellings[alt][singleOrPhrasal] = contOrDiscont
         
     def addSynCat(self, syncat):
         self.syncats.append(syncat)
@@ -40,7 +44,11 @@ def parseXML(dimlexml):
     for entry in tree.getroot():
         dl = DimLex(entry.get('id'), entry.get('word'))
         for orth in entry.find('orths').findall('orth'):
-            dl.addAlternativeSpelling(orth.find('part').text)
+            text = orth.find('part').text
+            t1 = orth.find('part').get('type') # single or phrasal
+            t2 = orth.get('type') # cont or discont
+            dl.addAlternativeSpelling(text, t1, t2)
+            
         
         ambiguity = entry.find('ambiguity')
         non_connNode = ambiguity.find('non_conn')
@@ -49,7 +57,7 @@ def parseXML(dimlexml):
             if 'freq' in non_connNode.attrib and 'anno_N' in non_connNode.attrib: # this may not be the case for markers which have both readings, but there is no frequency info for one or the other
                 p = 1 - (float(non_connNode.get('freq')) / float(non_connNode.get('anno_N')))
                 dl.setConnectiveReadingProbability(p)
-
+        
         syns = entry.findall('syn')
         for syn in syns:
             dl.addSynCat(syn.find('cat').text)
@@ -81,6 +89,27 @@ if __name__ == '__main__':
         sys.exit(1)
 
     connectiveList = parseXML(options.dimlexml)
+    single = 0
+    phrasal = 0
+    discontinuous = 0
+    continuous = 0
+    alts = 0
     for conn in connectiveList:
         print(conn.word)
-        
+        for alt in conn.alternativeSpellings:
+            alts += 1
+            t1 = list(conn.alternativeSpellings[alt].keys())[0]
+            t2 = conn.alternativeSpellings[alt][t1]
+            if t1 == 'single':
+                single += 1
+            elif t1 == 'phrasal':
+                phrasal += 1
+                
+            if t2 == 'cont':
+                continuous += 1
+            elif t2 == 'discont':
+                discontinuous += 1    
+
+    print('INFO: %s single, %s phrasal, (%s/%s).' % (str(single), str(phrasal), str(phrasal + single), str(alts)))
+    print('INFO: %s continouos, %s discontinuous, (%s/%s).' % (str(continuous), str(discontinuous), str(continuous + discontinuous), str(alts)))
+    

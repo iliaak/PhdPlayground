@@ -10,6 +10,9 @@ import codecs
 import lxml.etree
 from itertools import chain
 
+"""
+Potsdam Commentary Corpus Parser for some initial playing around with the format
+"""
 
 class EDU:
     def __init__(self, text, isConnective):
@@ -83,7 +86,29 @@ def printConllGold(file2edulist):
                         val = 'I-connective'
                 print('%s\t%s' % (word, val))
         print('\n')
-            
+
+def printStats(file2edulist):
+
+    print('INFO: %i files processed.' % len(file2edulist))
+    cn = 0
+    ct = 0
+    wc = 0
+    educ = 0
+    for f in file2edulist:
+        eduList = file2edulist[f]
+        educ += len(eduList)
+        for edu in eduList:
+            wc += len(edu.text.split(' '))
+            if edu.isConnective:
+                cn += 1
+                ct += len(edu.text.split(' '))
+
+    print('INFO: %i words.' % wc)
+    print('INFO: %i discourse units.' % educ)
+    print('INFO: %i connectors.' % cn)
+    print('INFO: %i connector tokens.' % ct)
+    
+    
 if __name__ == '__main__':
 
     parser = OptionParser('Usage: %prog -options')
@@ -104,6 +129,6 @@ if __name__ == '__main__':
     
     #printPlaintext(file2edulist)
 
-    printConllGold(file2edulist) #TODO: debug this (to see if everything is correct)
+    #printConllGold(file2edulist) #TODO: debug this (to see if everything is correct)
     
-
+    printStats(file2edulist)
