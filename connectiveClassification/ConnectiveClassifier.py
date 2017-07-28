@@ -388,7 +388,6 @@ if __name__ == '__main__':
         parser.print_help(sys.stderr)
         sys.exit(1)
 
-    # MAJOR TODO: try this with the 2016 conll shared task code (on English) to see how this code compares to the scores on the shared task. For that, parse also other formats (write buildFeatureMatrixFromConll or something)
 
     
     cc = ConnectiveClassifier()
@@ -430,4 +429,12 @@ if __name__ == '__main__':
     if options.verbose:
         for item in sanityList:
             sys.stderr.write("VERBOSE: Added \t'%s'\t as connective.\n" % item)
+    """
+
+    """
+    TODO list:
+    - write method to get f-score (in addition to accuracy)
+    - evaluate on conll 2016 shared task data (which is probably english; sufficient to only change the lexparser pointer in settings.conf for this?)
+    - 
+
     """
