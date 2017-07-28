@@ -17,7 +17,7 @@ from nltk import classify
 import csv
 import importlib.util
 import configparser
-
+import pickle
 
 """
 TODO: <description here>
@@ -34,7 +34,8 @@ class ConnectiveClassifier():
 
         # read settings from config file
         Config = configparser.ConfigParser()
-        Config.read("settings.conf")
+        scriptLocation = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+        Config.read(os.path.join(scriptLocation, 'settings.conf'));
         os.environ['JAVAHOME'] = Config.get('JAVA', 'JAVAHOME')
         os.environ['STANFORD_PARSER'] = Config.get('CORENLP', 'STANFORD_PARSER')
         os.environ['STANFORD_MODELS'] = Config.get('CORENLP', 'STANFORD_MODELS')
@@ -64,7 +65,12 @@ class ConnectiveClassifier():
             15:'isConnective'
         }
 
-    
+    def matrixRow2fDict(self, row):
+        
+        fDict = {}
+        for i, feature in enumerate(row[:len(row)-1]):
+            fDict[self.index2FeatureName[i+1]] = feature
+        return fDict
 
     def buildFeatureMatrixFromPCC(self, connectiveFiles):
 
@@ -72,6 +78,17 @@ class ConnectiveClassifier():
             sys.stderr.write("INFO: Parsing file .../%s (%s/%s).\n" % (cxml.split('/')[-1], str(i+1), str(len(connectiveFiles))))
             pccTokens = self.PCCParser.parseConnectorFile(cxml)
             self.getFeaturesForPCCTokens(pccTokens)
+
+        matrix = []
+        for instance in self.matrix:
+            row = self.matrix[instance]
+            fDict = {}
+            fDict = self.matrixRow2fDict(row)
+            label = row[len(row)-1]
+            matrix.append((fDict, label))
+
+        self.classifier = NaiveBayesClassifier.train(matrix)
+       
         
     def getFeaturesForPCCTokens(self, pccTokens):        
 
@@ -304,8 +321,48 @@ class ConnectiveClassifier():
         sys.stderr.write("INFO: Average score over traditional %i-fold validation: %f.\n" % (x, avg))
 
 
-        
+    def classifyText(self, text, classifier):
 
+        if classifier == None and self.classifier == None:
+            sys.stderr.write("ERROR: No classifier available. Please train one first. Dying now.\n")
+            sys.exit(1)
+        elif classifier == None: # if the current one has been trained already in a previous step, or unpickled
+            classifier = self.classifier
+
+        
+        sentences = sent_tokenize(re.sub(r'[()]+', '', text)) # nltk.tree has a problem with parenthesis. look into this, maybe there is a way to escape them when parsing/traversing a tree.
+        tokenizedSents = [sent.split() for sent in sentences]
+        try:
+            forest = self.lexParser.parse_sents(tokenizedSents)
+            for trees in forest:
+                for tree in trees:
+                    featureVectors = self.getVectorsForTree(tree)
+                    for fv in featureVectors:
+                        isConnective = classifier.classify(self.matrixRow2fDict(fv))
+                        if isConnective:
+                            print(fv[0] + '\t' + 'connective')
+                        else:
+                            print(fv[0])
+
+                        
+        except ValueError:
+            sys.stderr.write("WARNING: Failed to parse file. Skipping.\n")
+
+
+
+    def pickleClassifier(self, pickleFileName):
+
+        pf = codecs.open(pickleFileName, 'wb')
+        pickle.dump(self.classifier, pf, 1)
+        pf.close()
+        sys.stderr.write("INFO: Successfully stored trained classifier in %s.\n" % pickleFileName)
+
+    def unpickleClassifier(self, pickleFileName):
+
+        pf = codecs.open(pickleFileName, 'rb')
+        self.classifier = pickle.load(pf)
+        pf.close()
+        sys.stderr.write("INFO: Successfully loaded trained classifier from %s.\n" % pickleFileName)
 
 def getInputfiles(infolder):
 
@@ -336,9 +393,37 @@ if __name__ == '__main__':
     
     cc = ConnectiveClassifier()
     #cc.buildFeatureMatrixFromPCC(getInputfiles(options.connectivesFolder))
+    #cc.pickleClassifier('naiveBayesClassifier.pickle')
+    
     #cc.writeMatrix('tempout.csv')
-    cc.randomCrossValidate('tempout.csv')
-    cc.traditionalCrossValidate('tempout.csv')
+    #cc.randomCrossValidate('tempout.csv')
+    #cc.traditionalCrossValidate('tempout.csv')
+
+    cc.unpickleClassifier('naiveBayesClassifier.pickle')
+
+
+    cc.classifyText("Gejagt Wer es angesichts der Festlichkeiten zum 40. Stadtjubiläum vergessen haben sollte :", None)
+    print('\n')
+    cc.classifyText("In Falkensee ist derzeit vor allem eines - Bürgermeister-Wahlkampf .", None)
+    print('\n')
+    cc.classifyText("Da kündigt Jürgen Bigalke ( SPD ) also an , die mit Finanzdezernentin Ruth Schulz besetzte Stelle der 1. Beigeordneten ( stellvertretende Bürgermeisterin ) nicht öffentlich ausschreiben und dies noch vor dem 11. November bestätigen lassen zu wollen .", None)
+    print('\n')
+    cc.classifyText("Acht weitere Jahre könnte die Sozialdemokratin dann amtieren - selbst dann wenn der Rathauschef abgewählt werden und damit die Ein-Stimmen-Mehrheit der SPD/FDP-Zählgemeinschaft in der Stadtverordenten-Versammlung zusammenbrechen sollte .", None)
+    print('\n')
+    cc.classifyText("Das ist der Knackpunkt :", None)
+    print('\n')
+    cc.classifyText("Grüne und Christdemokraten wären schlechte Herausforderer , würden sie dieses Ansinnen nicht als \" schlechten Stil \" und als \" Erbhof-Sicherung \" zerreißen , auch wenn die Sache rechtlich in Ordnung ginge .", None)
+    print('\n')
+    cc.classifyText("So bleiben Fragen :", None)
+    print('\n')
+    cc.classifyText("Sind Bigalke und die Seinen wirklich so naiv und denken , diese wichtige Personalie geräuschlos durchzukriegen ?", None)
+    print('\n')
+    cc.classifyText("Oder handeln sie kaltschnäuzig nach dem Motto : Augen zu und durch ?", None)
+    print('\n')
+    cc.classifyText("Wie auch immer .", None)
+    print('\n')
+    cc.classifyText("Der Bürgermeister hat aus einer Mücke einen Elefanten gemacht - und ihn in den Porzellanladen gejagt .", None)
+    print('\n')
     
     
     """
