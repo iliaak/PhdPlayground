@@ -11,17 +11,19 @@ from nltk.parse import stanford
 from nltk import sent_tokenize
 from nltk import Tree
 from nltk.tree import ParentedTree
-from nltk import NaiveBayesClassifier
+from nltk import NaiveBayesClassifier, DecisionTreeClassifier, MaxentClassifier
 from nltk import classify
-#import PCCParser
 import csv
 import importlib.util
 import configparser
 import pickle
+import random
 
 """
 TODO: <description here>
 """
+verbose = False
+
 
 class ConnectiveClassifier():
 
@@ -31,6 +33,7 @@ class ConnectiveClassifier():
         self.maxId = 0
         self.sanityList = []
         self.classifier = None
+        self.dictionary = set()
 
         # read settings from config file
         Config = configparser.ConfigParser()
@@ -72,10 +75,11 @@ class ConnectiveClassifier():
             fDict[self.index2FeatureName[i+1]] = feature
         return fDict
 
-    def buildFeatureMatrixFromPCC(self, connectiveFiles):
+    def buildFeatureMatrixFromPCC(self, connectiveFiles, alg):
 
         for i, cxml in enumerate(connectiveFiles):
-            sys.stderr.write("INFO: Parsing file .../%s (%s/%s).\n" % (cxml.split('/')[-1], str(i+1), str(len(connectiveFiles))))
+            if verbose:
+                sys.stderr.write("INFO: Parsing file .../%s (%s/%s).\n" % (cxml.split('/')[-1], str(i+1), str(len(connectiveFiles))))
             pccTokens = self.PCCParser.parseConnectorFile(cxml)
             self.getFeaturesForPCCTokens(pccTokens)
 
@@ -87,8 +91,14 @@ class ConnectiveClassifier():
             label = row[len(row)-1]
             matrix.append((fDict, label))
 
-        self.classifier = NaiveBayesClassifier.train(matrix)
-       
+        if alg == 'NaiveBayes':
+            self.classifier = NaiveBayesClassifier.train(matrix)
+        elif alg == 'DecisionTree':
+            self.classifier = DecisionTreeClassifier.train(matrix)
+        elif alg == 'Maxent':
+            self.classifier = MaxentClassifier.train(matrix)
+        else:
+            sys.stderr.write("ERROR: Algorithm '%s' not supported. Please pick one from 'NaiveBayes', 'DecisionTree' or 'Maxent'.\n")
         
     def getFeaturesForPCCTokens(self, pccTokens):        
 
@@ -99,6 +109,7 @@ class ConnectiveClassifier():
         for i, t in enumerate(pccTokens):
             if t.isConnective:
                 localId2class[i] = True
+                self.dictionary.add(t.token)
             else:
                 localId2class[i] = False
         
@@ -323,6 +334,7 @@ class ConnectiveClassifier():
 
     def classifyText(self, text, classifier):
 
+        cd = []
         if classifier == None and self.classifier == None:
             sys.stderr.write("ERROR: No classifier available. Please train one first. Dying now.\n")
             sys.exit(1)
@@ -339,16 +351,16 @@ class ConnectiveClassifier():
                     featureVectors = self.getVectorsForTree(tree)
                     for fv in featureVectors:
                         isConnective = classifier.classify(self.matrixRow2fDict(fv))
-                        if isConnective:
-                            print(fv[0] + '\t' + 'connective')
+                        if isConnective and fv[0]:# in self.dictionary: # This improved precision quite a bit at the cost of some recall of course. Play with this to get a final setting...
+                            cd.append((fv[0], True))
                         else:
-                            print(fv[0])
-
+                            cd.append((fv[0], False))
+                            
                         
         except ValueError:
             sys.stderr.write("WARNING: Failed to parse file. Skipping.\n")
 
-
+        return cd
 
     def pickleClassifier(self, pickleFileName):
 
@@ -373,8 +385,95 @@ def getInputfiles(infolder):
     return filelist
 
 
+def customEvaluation(flist, alg):
 
+    numIterations = 10
+    accuracyScores = []
+    precisionScores = []
+    recallScores = []
+    fScores = []
+    for i in range(1,numIterations+1):
+        trainingClassifier = ConnectiveClassifier()
+        testClassifier = ConnectiveClassifier()
+        total = 0
+        correct = 0
+        fp = 0
+        tp = 0
+        fn = 0
+        tn = 0
+        sys.stderr.write("INFO: Starting iteration %i of %i for algorithm '%s'.\n" % (i, numIterations, alg))
+        random.shuffle(flist)
+        p = int(len(flist) / 10)
+        trainingData = flist[p:]
+        testData = flist[:p]
 
+        trainingClassifier.buildFeatureMatrixFromPCC(trainingData, alg)
+
+        for q, f in enumerate(testData):
+            if verbose:
+                sys.stderr.write("INFO: Classifying file .../%s (%s/%s).\n" % (f.split('/')[-1], str(q+1), str(len(testData))))
+            pccTokens = testClassifier.PCCParser.parseConnectorFile(f)
+            testClassifier.getFeaturesForPCCTokens(pccTokens)
+            # now the info is in testClassifier.matrix, next feed it the sentence and check
+            td = defaultdict(str)
+            flatString = ''
+            for ii in testClassifier.matrix:
+                td[ii] = testClassifier.matrix[ii][-1]
+                flatString += ' ' + testClassifier.matrix[ii][0]
+            flatString = flatString.strip()
+            cd = trainingClassifier.classifyText(flatString, None)
+            for l, tupl in enumerate(cd):
+                w = tupl[0]
+                classifiedClass = tupl[1]
+                realClass = td[l]
+                total += 1
+                #print("DEBUGGING Word, realClass, classClass:", w, realClass, classifiedClass)
+                # redundancy below for readability...
+                #print("realClass:", realClass)
+                #print("classClass:", classifiedClass)
+                if realClass == True:
+                    if classifiedClass == True:
+                        correct += 1
+                        tp += 1
+                    elif classifiedClass == False:
+                        fn += 1
+                        #print("FALSE NEGATIVE!!!")
+                elif realClass == False:
+                    if classifiedClass == False:
+                        correct += 1
+                        tn += 1
+                    elif classifiedClass == True:
+                        fp += 1
+                        #print("FALSE POSITIVE!!!")
+                
+        accuracy = correct / float(total)
+        precision = 0
+        recall = 0
+        f1 = 0
+        #print("DEBUG TOTAL:", total)
+        #print("DEBUG CORRECT:", correct)
+        #print("DEBUG TP:", tp)
+        #print("DEBUG fP:", fp)
+        #print("DEBUG Tn:", tn)
+        #print("DEBUG fn:", fn)
+        if not tp + fp == 0 and not tp + fn == 0: # division by zero probably only ever happens on small test set, but in any case...
+            precision = tp / float(tp + fp)
+            recall = tp / float(tp + fn)
+            f1 = 2 * ((precision * recall) / (precision + recall))
+        accuracyScores.append(accuracy)
+        precisionScores.append(precision)
+        recallScores.append(recall)
+        fScores.append(f1)
+
+    avgAccuracy = sum(accuracyScores) / float(numIterations)
+    avgPrecision = sum(precisionScores) / float(numIterations)
+    avgRecall = sum(recallScores) / float(numIterations)
+    avgF = sum(fScores) / float(numIterations)
+    print("INFO: Average accuracy over %i runs for '%s': %f." % (numIterations, alg, avgAccuracy))
+    print("INFO: Average precision over %i runs for '%s': %f." % (numIterations, alg, avgPrecision))
+    print("INFO: Average recall over %i runs for '%s': %f." % (numIterations, alg, avgRecall))
+    print("INFO: Average f1 over %i runs for '%s': %f." % (numIterations, alg, avgF))
+            
 if __name__ == '__main__':
 
     parser = OptionParser('Usage: %prog -options')
@@ -387,10 +486,14 @@ if __name__ == '__main__':
     if not options.connectivesFolder:
         parser.print_help(sys.stderr)
         sys.exit(1)
-
-
+    if options.verbose:
+        verbose = True
+        
+    customEvaluation(getInputfiles(options.connectivesFolder), 'NaiveBayes')
+    customEvaluation(getInputfiles(options.connectivesFolder), 'DecisionTree')
+    customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent')
     
-    cc = ConnectiveClassifier()
+    #cc = ConnectiveClassifier()
     #cc.buildFeatureMatrixFromPCC(getInputfiles(options.connectivesFolder))
     #cc.pickleClassifier('naiveBayesClassifier.pickle')
     
@@ -398,9 +501,9 @@ if __name__ == '__main__':
     #cc.randomCrossValidate('tempout.csv')
     #cc.traditionalCrossValidate('tempout.csv')
 
-    cc.unpickleClassifier('naiveBayesClassifier.pickle')
+    #cc.unpickleClassifier('naiveBayesClassifier.pickle')
 
-
+    """
     cc.classifyText("Gejagt Wer es angesichts der Festlichkeiten zum 40. Stadtjubiläum vergessen haben sollte :", None)
     print('\n')
     cc.classifyText("In Falkensee ist derzeit vor allem eines - Bürgermeister-Wahlkampf .", None)
@@ -423,7 +526,7 @@ if __name__ == '__main__':
     print('\n')
     cc.classifyText("Der Bürgermeister hat aus einer Mücke einen Elefanten gemacht - und ihn in den Porzellanladen gejagt .", None)
     print('\n')
-    
+    """
     
     """
     if options.verbose:
