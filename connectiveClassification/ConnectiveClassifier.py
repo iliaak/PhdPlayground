@@ -27,13 +27,14 @@ verbose = False
 
 class ConnectiveClassifier():
 
-    def __init__(self):
+    def __init__(self, alg):
 
         self.matrix = defaultdict(list)
         self.maxId = 0
         self.sanityList = []
         self.classifier = None
         self.dictionary = set()
+        self.alg = alg
 
         # read settings from config file
         Config = configparser.ConfigParser()
@@ -75,7 +76,7 @@ class ConnectiveClassifier():
             fDict[self.index2FeatureName[i+1]] = feature
         return fDict
 
-    def buildFeatureMatrixFromPCC(self, connectiveFiles, alg):
+    def buildFeatureMatrixFromPCC(self, connectiveFiles):
 
         for i, cxml in enumerate(connectiveFiles):
             if verbose:
@@ -91,15 +92,54 @@ class ConnectiveClassifier():
             label = row[len(row)-1]
             matrix.append((fDict, label))
 
-        if alg == 'NaiveBayes':
+        if self.alg == 'NaiveBayes':
             self.classifier = NaiveBayesClassifier.train(matrix)
-        elif alg == 'DecisionTree':
+        elif self.alg == 'DecisionTree':
             self.classifier = DecisionTreeClassifier.train(matrix)
-        elif alg == 'Maxent':
+        elif self.alg == 'Maxent':
             self.classifier = MaxentClassifier.train(matrix)
         else:
             sys.stderr.write("ERROR: Algorithm '%s' not supported. Please pick one from 'NaiveBayes', 'DecisionTree' or 'Maxent'.\n")
+
+    def getFeaturesForTokenList(self, tokenTupleList):
+
+        # in this case, list is not assumed to be pccTokens, but a list of tuples, word first, true class second
+       
+        localId2class = defaultdict(bool)
+        filteredTokens = self.filterTokenTuples(tokenTupleList)
+        for i, t in enumerate(filteredTokens):
+            if t[1]:
+                localId2class[i] = True
+            else:
+                localId2class[i] = False
+
+        sentences = sent_tokenize(' '.join([re.sub(r'[()]+', '', t[0]) for t in filteredTokens])) # have to do the same ugly fix here because nltk.tree messed up any word with parenthesis in it
+        tokenizedSents = [sent.split() for sent in sentences]
+        try:
+            forest = self.lexParser.parse_sents(tokenizedSents)
+            tokenId = 0
+            for trees in forest:
+                for tree in trees:
+                    featureVectors = self.getVectorsForTree(tree)
+                    for fv in featureVectors:
+                        nfv = list(fv)
+                        nfv.append(localId2class[tokenId])
+                        if (localId2class[tokenId]):
+                            self.sanityList.append(nfv[0])
+                        self.matrix[self.maxId] = nfv
+                        self.maxId += 1
+                        tokenId += 1
+                    
+        except ValueError:
+            sys.stderr.write("WARNING: Failed to parse file. Skipping.\n")
+            """
+            # Got the following error for some file, coming from deep down the nltk parser somewhere...
+            ValueError: Tree.read(): expected ')' but got 'end-of-string'
+                at index 121.
+                    "...JD 2.)))))"
+            """
         
+            
     def getFeaturesForPCCTokens(self, pccTokens):        
 
         # NOTE: The bookkeeping here is a bit complicated, due to the conano inline xml format. Need to keep track of token id's to know if they are connective or not, and link this to the current node in the tree
@@ -237,6 +277,10 @@ class ConnectiveClassifier():
         skipSet = ['(', ')']
         return [t for t in tokens if not t.token in skipSet]
 
+    def filterTokenTuples(self, tuples):
+        skipSet = ['(', ')']
+        return [t for t in tuples if not t[0] in skipSet]
+        
 
     def writeMatrix(self, outputfilename):
 
@@ -351,7 +395,7 @@ class ConnectiveClassifier():
                     featureVectors = self.getVectorsForTree(tree)
                     for fv in featureVectors:
                         isConnective = classifier.classify(self.matrixRow2fDict(fv))
-                        if isConnective and fv[0]:# in self.dictionary: # This improved precision quite a bit at the cost of some recall of course. Play with this to get a final setting...
+                        if isConnective:# and fv[0] in self.dictionary: # something like this can be included if precision is too low
                             cd.append((fv[0], True))
                         else:
                             cd.append((fv[0], False))
@@ -387,14 +431,14 @@ def getInputfiles(infolder):
 
 def customEvaluation(flist, alg):
 
-    numIterations = 10
+    numIterations = 1
     accuracyScores = []
     precisionScores = []
     recallScores = []
     fScores = []
     for i in range(1,numIterations+1):
-        trainingClassifier = ConnectiveClassifier()
-        testClassifier = ConnectiveClassifier()
+        trainingClassifier = ConnectiveClassifier(alg)
+        testClassifier = ConnectiveClassifier(alg)
         total = 0
         correct = 0
         fp = 0
@@ -407,7 +451,7 @@ def customEvaluation(flist, alg):
         trainingData = flist[p:]
         testData = flist[:p]
 
-        trainingClassifier.buildFeatureMatrixFromPCC(trainingData, alg)
+        trainingClassifier.buildFeatureMatrixFromPCC(trainingData)
 
         for q, f in enumerate(testData):
             if verbose:
@@ -489,13 +533,14 @@ if __name__ == '__main__':
     if options.verbose:
         verbose = True
         
-    customEvaluation(getInputfiles(options.connectivesFolder), 'NaiveBayes')
-    customEvaluation(getInputfiles(options.connectivesFolder), 'DecisionTree')
-    customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent')
-    
-    #cc = ConnectiveClassifier()
-    #cc.buildFeatureMatrixFromPCC(getInputfiles(options.connectivesFolder))
-    #cc.pickleClassifier('naiveBayesClassifier.pickle')
+    #customEvaluation(getInputfiles(options.connectivesFolder), 'NaiveBayes')
+    #customEvaluation(getInputfiles(options.connectivesFolder), 'DecisionTree')
+    #customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent')
+
+    alg = 'Maxent'
+    cc = ConnectiveClassifier(alg)
+    cc.buildFeatureMatrixFromPCC(getInputfiles(options.connectivesFolder))
+    cc.pickleClassifier(alg + 'Classifier.pickle')
     
     #cc.writeMatrix('tempout.csv')
     #cc.randomCrossValidate('tempout.csv')
@@ -536,7 +581,6 @@ if __name__ == '__main__':
 
     """
     TODO list:
-    - write method to get f-score (in addition to accuracy)
     - evaluate on conll 2016 shared task data (which is probably english; sufficient to only change the lexparser pointer in settings.conf for this?)
     - 
 
