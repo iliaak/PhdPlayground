@@ -27,7 +27,7 @@ verbose = False
 
 class ConnectiveClassifier():
 
-    def __init__(self, alg):
+    def __init__(self, alg, lang):
 
         self.matrix = defaultdict(list)
         self.maxId = 0
@@ -43,12 +43,23 @@ class ConnectiveClassifier():
         os.environ['JAVAHOME'] = Config.get('JAVA', 'JAVAHOME')
         os.environ['STANFORD_PARSER'] = Config.get('CORENLP', 'STANFORD_PARSER')
         os.environ['STANFORD_MODELS'] = Config.get('CORENLP', 'STANFORD_MODELS')
-        lexParserPath = Config.get('CORENLP', 'LEXPARSER')
+        lexParserPath = ""
+        if lang == 'de':
+            lexParserPath = Config.get('CORENLP', 'LEXPARSER_DE')
+        elif lang == 'en':
+            lexParserPath = Config.get('CORENLP', 'LEXPARSER_EN')
+        else:
+            sys.stderr.write("ERROR: Language '%s' not supported. Please use one of the supported languages.\n" % lang)
+            sys.exit(1)
         self.lexParser = stanford.StanfordParser(model_path= lexParserPath)
         pccPath = Config.get('MISC', 'PCCPARSER')
         pccLoc = importlib.util.spec_from_file_location("PCCParser", pccPath)
         self.PCCParser = importlib.util.module_from_spec(pccLoc)
         pccLoc.loader.exec_module(self.PCCParser)
+        conllPath = Config.get('MISC', 'CONLLPARSER')
+        conllLoc = importlib.util.spec_from_file_location('CONLLPARSER', conllPath)
+        self.CONLLParser = importlib.util.module_from_spec(conllLoc)
+        conllLoc.loader.exec_module(self.CONLLParser)
         self.index2FeatureName = {
             0:'id',
             1:'token',
@@ -76,6 +87,31 @@ class ConnectiveClassifier():
             fDict[self.index2FeatureName[i+1]] = feature
         return fDict
 
+    def buildFeatureMatrixFromCONLL(self, connectiveFiles):
+
+        for i, conllFile in enumerate(connectiveFiles):
+            if verbose:
+                sys.stderr.write("INFO: Parsing file .../%s (%s/%s).\n" % (conllFile.split('/')[-1], str(i+1), str(len(connectiveFiles))))
+            conllTokens = self.CONLLParser.parsePDTBFile(conllFile)
+            self.getFeaturesForCONLLTokens(conllTokens)
+
+        matrix = []
+        for instance in self.matrix:
+            row = self.matrix[instance]
+            fDict = {}
+            fDict = self.matrixRow2fDict(row)
+            label = row[len(row)-1]
+            matrix.append((fDict, label))
+
+        if self.alg == 'NaiveBayes':
+            self.classifier = NaiveBayesClassifier.train(matrix)
+        elif self.alg == 'DecisionTree':
+            self.classifier = DecisionTreeClassifier.train(matrix)
+        elif self.alg == 'Maxent':
+            self.classifier = MaxentClassifier.train(matrix)
+        else:
+            sys.stderr.write("ERROR: Algorithm '%s' not supported. Please pick one from 'NaiveBayes', 'DecisionTree' or 'Maxent'.\n")
+    
     def buildFeatureMatrixFromPCC(self, connectiveFiles):
 
         for i, cxml in enumerate(connectiveFiles):
@@ -138,6 +174,46 @@ class ConnectiveClassifier():
                 at index 121.
                     "...JD 2.)))))"
             """
+
+
+    def getFeaturesForCONLLTokens(self, conllTokens):
+
+        localId2class = defaultdict(bool)
+        # ugly fix: filtering for parenthesis, as these are skipped by nltk.Tree traversal (probably because this symbol is used in internal representation)
+        conllTokens = self.filterTokens(conllTokens)
+        for i, t in enumerate(conllTokens):
+            if t.isConnective:
+                localId2class[i] = True
+                self.dictionary.add(t.token)
+            else:
+                localId2class[i] = False
+        
+        sentences = sent_tokenize(' '.join([re.sub(r'[()]+', '', t.token) for t in conllTokens]))
+        tokenizedSents = [sent.split() for sent in sentences]
+        try:
+            forest = self.lexParser.parse_sents(tokenizedSents)
+            tokenId = 0
+            for trees in forest:
+                for tree in trees:
+                    featureVectors = self.getVectorsForTree(tree)
+                    for fv in featureVectors:
+                        nfv = list(fv)
+                        nfv.append(localId2class[tokenId])
+                        if (localId2class[tokenId]):
+                            self.sanityList.append(nfv[0])
+                        self.matrix[self.maxId] = nfv
+                        self.maxId += 1
+                        tokenId += 1
+                    
+        except ValueError:
+            sys.stderr.write("WARNING: Failed to parse file. Skipping.\n")
+            """
+            # Got the following error for some file, coming from deep down the nltk parser somewhere...
+            ValueError: Tree.read(): expected ')' but got 'end-of-string'
+                at index 121.
+                    "...JD 2.)))))"
+            """
+
         
             
     def getFeaturesForPCCTokens(self, pccTokens):        
@@ -308,6 +384,13 @@ class ConnectiveClassifier():
 
         sys.stderr.write("INFO: csv output written to: %s.\n" % outputfilename)
 
+    def readMatrix(self, csvFile):
+
+        matrix =  []
+        for line in codecs.open(csvFile, 'r').readlines():
+            matrix.append(line.split(','))
+        return matrix
+                        
 
     def parseFeatureMatrixFromCSV(self, csvFile):
 
@@ -324,15 +407,20 @@ class ConnectiveClassifier():
 
         return matrix
         
-    def trainClassifierFromCSV(self, csvFile):
+    def trainClassifierFromCSV(self, csvFile, alg):
 
         matrix = self.parseFeatureMatrixFromCSV(csvFile)
-        alg = 'NaiveBayes' # TODO: may want to do other algorithms; plugin here
         if alg == 'NaiveBayes':
             self.classifier = NaiveBayesClassifier.train(matrix)
-        
+        elif alg == 'Maxent':
+            self.classifier = MaxentClassifier.train(matrix)
+        elif alg == 'DecisionTree':
+            self.classifier = DecisionTreeClassifier.train(matrix)
+        else:
+            sys.stderr.write("ERROR: Algorithm '%s' not supported. Dying now.\n")
+            sys.exit(1)
 
-    def randomCrossValidate(self, csvFile):
+    def randomCrossValidate(self, csvFile, alg):
 
         import random
         matrix = self.parseFeatureMatrixFromCSV(csvFile)
@@ -343,7 +431,17 @@ class ConnectiveClassifier():
             si = len(matrix) / 10
             testSet = matrix[:int(si)]
             trainSet = matrix[int(si):]
-            classifier = NaiveBayesClassifier.train(trainSet)
+            classifier = None
+            if alg == 'NaiveBayes':
+                classifier = NaiveBayesClassifier.train(trainset)
+            elif alg == 'Maxent':
+                classifier = MaxentClassifier.train(trainset)
+            elif alg == 'DecisionTree':
+                classifier = DecisionTreeClassifier.train(trainset)
+            else:
+                sys.stderr.write("ERROR: Algorithm '%s' not supported. Dying now.\n")
+                sys.exit(1)
+
             accuracy = classify.accuracy(classifier, testSet)
             scores.append(accuracy)
             
@@ -352,7 +450,7 @@ class ConnectiveClassifier():
 
 
 
-    def traditionalCrossValidate(self, csvFile):
+    def traditionalCrossValidate(self, csvFile, alg):
 
         matrix = self.parseFeatureMatrixFromCSV(csvFile)
         x = 10
@@ -367,7 +465,16 @@ class ConnectiveClassifier():
                     testSet.append(matrix[k])
                 else:
                     trainSet.append(matrix[k])
-            classifier = NaiveBayesClassifier.train(trainSet)
+            classifier = None
+            if alg == 'NaiveBayes':
+                classifier = NaiveBayesClassifier.train(trainset)
+            elif alg == 'Maxent':
+                classifier = MaxentClassifier.train(trainset)
+            elif alg == 'DecisionTree':
+                classifier = DecisionTreeClassifier.train(trainset)
+            else:
+                sys.stderr.write("ERROR: Algorithm '%s' not supported. Dying now.\n")
+                sys.exit(1)
             accuracy = classify.accuracy(classifier, testSet)
             scores.append(accuracy)
             j = si
@@ -375,7 +482,14 @@ class ConnectiveClassifier():
         avg = float(sum(scores) / x)
         sys.stderr.write("INFO: Average score over traditional %i-fold validation: %f.\n" % (x, avg))
 
+    def getTopNFeatures(self, n):
 
+        self.classifier.show_most_informative_features(n)
+
+    def explain(self):
+
+        self.classifier.explain()
+        
     def classifyText(self, text, classifier):
 
         cd = []
@@ -429,16 +543,16 @@ def getInputfiles(infolder):
     return filelist
 
 
-def customEvaluation(flist, alg):
+def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
 
     numIterations = 1
     accuracyScores = []
     precisionScores = []
     recallScores = []
     fScores = []
+    trainingClassifier = ConnectiveClassifier(alg, lang)
+    testClassifier = ConnectiveClassifier(alg, lang)
     for i in range(1,numIterations+1):
-        trainingClassifier = ConnectiveClassifier(alg)
-        testClassifier = ConnectiveClassifier(alg)
         total = 0
         correct = 0
         fp = 0
@@ -451,13 +565,40 @@ def customEvaluation(flist, alg):
         trainingData = flist[p:]
         testData = flist[:p]
 
-        trainingClassifier.buildFeatureMatrixFromPCC(trainingData)
-
+        if inputFormat.lower() == 'pcc':
+            trainingClassifier.buildFeatureMatrixFromPCC(trainingData)
+        elif inputFormat.lower() == 'conll':
+            trainingClassifier.buildFeatureMatrixFromCONLL(trainingData)
+        elif preFilledMatrixBool:
+            matrix = trainingClassifier.readMatrix('conll2016SharedTaskDataMatrix.csv') # TODO: make argument!
+            trainingData = matrix[p:]
+            testData = matrix[:p]
+            if alg == 'NaiveBayes':
+                trainingClassifier = NaiveBayesClassifier.train(trainingData)
+            elif alg == 'DecisionTree':
+                trainingClassifier = DecisionTreeClassifier.train(trainingData)
+            elif alg == 'Maxent':
+                trainingClassifier = MaxentClassifier.train(trainingData)
+            else:
+                sys.stderr.write("ERROR: Algorithm '%s' not supported. Please pick one from 'NaiveBayes', 'DecisionTree' or 'Maxent'.\n")
+                
+        else:
+            sys.stderr.write("ERROR: inputFormat '%s' not supported.\n" % inputFormat)
+            sys.exit(1)
+                             
         for q, f in enumerate(testData):
             if verbose:
                 sys.stderr.write("INFO: Classifying file .../%s (%s/%s).\n" % (f.split('/')[-1], str(q+1), str(len(testData))))
-            pccTokens = testClassifier.PCCParser.parseConnectorFile(f)
-            testClassifier.getFeaturesForPCCTokens(pccTokens)
+            if inputFormat.lower() == 'pcc':
+                pccTokens = testClassifier.PCCParser.parseConnectorFile(f)
+                testClassifier.getFeaturesForPCCTokens(pccTokens)
+            elif inputFormat.lower() == 'conll':
+                conllTokens = testClassifier.CONLLParser.parsePDTBFile(f)
+                testClassifier.getFeaturesForCONLLTokens(conllTokens)
+            else:
+                sys.stderr.write("ERROR: inputFormat '%s' not supported.\n" % inputFormat)
+                sys.exit(1)
+                
             # now the info is in testClassifier.matrix, next feed it the sentence and check
             td = defaultdict(str)
             flatString = ''
@@ -471,7 +612,7 @@ def customEvaluation(flist, alg):
                 classifiedClass = tupl[1]
                 realClass = td[l]
                 total += 1
-                #print("DEBUGGING Word, realClass, classClass:", w, realClass, classifiedClass)
+                print("DEBUGGING Word, realClass, classClass:", w, realClass, classifiedClass)
                 # redundancy below for readability...
                 #print("realClass:", realClass)
                 #print("classClass:", classifiedClass)
@@ -481,14 +622,14 @@ def customEvaluation(flist, alg):
                         tp += 1
                     elif classifiedClass == False:
                         fn += 1
-                        #print("FALSE NEGATIVE!!!")
+                        print("FALSE NEGATIVE!!!")
                 elif realClass == False:
                     if classifiedClass == False:
                         correct += 1
                         tn += 1
                     elif classifiedClass == True:
                         fp += 1
-                        #print("FALSE POSITIVE!!!")
+                        print("FALSE POSITIVE!!!")
                 
         accuracy = correct / float(total)
         precision = 0
@@ -517,17 +658,25 @@ def customEvaluation(flist, alg):
     print("INFO: Average precision over %i runs for '%s': %f." % (numIterations, alg, avgPrecision))
     print("INFO: Average recall over %i runs for '%s': %f." % (numIterations, alg, avgRecall))
     print("INFO: Average f1 over %i runs for '%s': %f." % (numIterations, alg, avgF))
+
+    #print("Obtaining explanation:")
+    #trainingClassifier.explain()
+    if verbose:
+        print("Obtaining most informative features:")
+        trainingClassifier.getTopNFeatures(500)
             
 if __name__ == '__main__':
 
     parser = OptionParser('Usage: %prog -options')
     parser.add_option('-c', '--connectivesFolder', dest='connectivesFolder', help='Specify PCC connectives folder to construct a feature matrix for training a classifier.')
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true', default=False, help='Include to get some debug info.')
+    parser.add_option('-l', '--language', dest='language', help='Specify language. Currently supported languages: "de, en".')
+    parser.add_option('-f', '--format', dest='inputFormat', help='Specify input format. Currently supported formats: "pcc, conll".')
     
     
     options, args = parser.parse_args()
 
-    if not options.connectivesFolder:
+    if not options.connectivesFolder or not options.language or not options.inputFormat:
         parser.print_help(sys.stderr)
         sys.exit(1)
     if options.verbose:
@@ -535,14 +684,19 @@ if __name__ == '__main__':
         
     #customEvaluation(getInputfiles(options.connectivesFolder), 'NaiveBayes')
     #customEvaluation(getInputfiles(options.connectivesFolder), 'DecisionTree')
-    #customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent')
+    customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent', options.language, options.inputFormat, False)
 
+    """
     alg = 'Maxent'
-    cc = ConnectiveClassifier(alg)
-    cc.buildFeatureMatrixFromPCC(getInputfiles(options.connectivesFolder))
-    cc.pickleClassifier(alg + 'Classifier.pickle')
+    cc = ConnectiveClassifier(alg, options.language)
+    if options.inputFormat.lower() == 'pcc':
+        cc.buildFeatureMatrixFromPCC(getInputfiles(options.connectivesFolder))
+        #cc.pickleClassifier(alg + 'Classifier.pickle')
+    elif options.inputFormat.lower() == 'conll':
+        cc.buildFeatureMatrixFromCONLL(getInputfiles(options.connectivesFolder))
     
-    #cc.writeMatrix('tempout.csv')
+    cc.writeMatrix('conll2016SharedTaskDataMatrix.csv')
+    """
     #cc.randomCrossValidate('tempout.csv')
     #cc.traditionalCrossValidate('tempout.csv')
 
