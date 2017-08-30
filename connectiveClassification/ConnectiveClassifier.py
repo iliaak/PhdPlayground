@@ -542,28 +542,34 @@ def getInputfiles(infolder):
         filelist.append(abspathFile)
     return filelist
 
-
+            
 def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
 
-    numIterations = 1
+    numIterations = 10
     accuracyScores = []
     precisionScores = []
     recallScores = []
     fScores = []
     trainingClassifier = ConnectiveClassifier(alg, lang)
     testClassifier = ConnectiveClassifier(alg, lang)
-    for i in range(1,numIterations+1):
+    p = int(len(flist) / 10)
+    pl = [int(x) for x in range(0, len(flist), p)]
+    pl.append(int(len(flist))) # think all this casting to int is a bit redundant, but too lazy to debug
+    for i in range(numIterations):
         total = 0
         correct = 0
         fp = 0
         tp = 0
         fn = 0
         tn = 0
-        sys.stderr.write("INFO: Starting iteration %i of %i for algorithm '%s'.\n" % (i, numIterations, alg))
-        random.shuffle(flist)
-        p = int(len(flist) / 10)
-        trainingData = flist[p:]
-        testData = flist[:p]
+        sys.stderr.write("INFO: Starting iteration %i of %i for algorithm '%s'.\n" % (i+1, numIterations, alg))
+        # trying with every portion of the data set as test set once (for 10-fold cv), as deviations with random splits was huge (ranging from f of .77 to f of .96)
+        testData = flist[pl[i]:pl[i+1]]
+        trainingData = [f for f in flist if not f in testData]
+        #random.shuffle(flist)
+        #p = int(len(flist) / 10)
+        #trainingData = flist[p:]
+        #testData = flist[:p]
 
         if inputFormat.lower() == 'pcc':
             trainingClassifier.buildFeatureMatrixFromPCC(trainingData)
@@ -612,7 +618,7 @@ def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
                 classifiedClass = tupl[1]
                 realClass = td[l]
                 total += 1
-                print("DEBUGGING Word, realClass, classClass:", w, realClass, classifiedClass)
+                #print("DEBUGGING Word, realClass, classClass:", w, realClass, classifiedClass)
                 # redundancy below for readability...
                 #print("realClass:", realClass)
                 #print("classClass:", classifiedClass)
@@ -622,14 +628,14 @@ def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
                         tp += 1
                     elif classifiedClass == False:
                         fn += 1
-                        print("FALSE NEGATIVE!!!")
+                        #print("FALSE NEGATIVE!!!")
                 elif realClass == False:
                     if classifiedClass == False:
                         correct += 1
                         tn += 1
                     elif classifiedClass == True:
                         fp += 1
-                        print("FALSE POSITIVE!!!")
+                        #print("FALSE POSITIVE!!!")
                 
         accuracy = correct / float(total)
         precision = 0
@@ -649,7 +655,13 @@ def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
         precisionScores.append(precision)
         recallScores.append(recall)
         fScores.append(f1)
+        if verbose:
+            print("INFO: accuracy for run %s: %s." % (str(i+1), str(accuracy)))
+            print("INFO: precision for run %s: %s." % (str(i+1), str(precision)))
+            print("INFO: recall for run %s: %s." % (str(i+1), str(recall)))
+            print("INFO: f1 for run %s: %s." % (str(i+1), str(f1)))
 
+            
     avgAccuracy = sum(accuracyScores) / float(numIterations)
     avgPrecision = sum(precisionScores) / float(numIterations)
     avgRecall = sum(recallScores) / float(numIterations)
@@ -684,9 +696,8 @@ if __name__ == '__main__':
         
     #customEvaluation(getInputfiles(options.connectivesFolder), 'NaiveBayes')
     #customEvaluation(getInputfiles(options.connectivesFolder), 'DecisionTree')
-    customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent', options.language, options.inputFormat, False)
-
-    """
+    #customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent', options.language, options.inputFormat, False)
+    
     alg = 'Maxent'
     cc = ConnectiveClassifier(alg, options.language)
     if options.inputFormat.lower() == 'pcc':
@@ -695,36 +706,16 @@ if __name__ == '__main__':
     elif options.inputFormat.lower() == 'conll':
         cc.buildFeatureMatrixFromCONLL(getInputfiles(options.connectivesFolder))
     
-    cc.writeMatrix('conll2016SharedTaskDataMatrix.csv')
-    """
+    cc.writeMatrix('pccConnectiveMatrix.csv')
+    cc.pickleClassifier('pccMaxentClassifier.pickle')
     #cc.randomCrossValidate('tempout.csv')
     #cc.traditionalCrossValidate('tempout.csv')
-
+    
+    
     #cc.unpickleClassifier('naiveBayesClassifier.pickle')
 
     """
     cc.classifyText("Gejagt Wer es angesichts der Festlichkeiten zum 40. Stadtjubiläum vergessen haben sollte :", None)
-    print('\n')
-    cc.classifyText("In Falkensee ist derzeit vor allem eines - Bürgermeister-Wahlkampf .", None)
-    print('\n')
-    cc.classifyText("Da kündigt Jürgen Bigalke ( SPD ) also an , die mit Finanzdezernentin Ruth Schulz besetzte Stelle der 1. Beigeordneten ( stellvertretende Bürgermeisterin ) nicht öffentlich ausschreiben und dies noch vor dem 11. November bestätigen lassen zu wollen .", None)
-    print('\n')
-    cc.classifyText("Acht weitere Jahre könnte die Sozialdemokratin dann amtieren - selbst dann wenn der Rathauschef abgewählt werden und damit die Ein-Stimmen-Mehrheit der SPD/FDP-Zählgemeinschaft in der Stadtverordenten-Versammlung zusammenbrechen sollte .", None)
-    print('\n')
-    cc.classifyText("Das ist der Knackpunkt :", None)
-    print('\n')
-    cc.classifyText("Grüne und Christdemokraten wären schlechte Herausforderer , würden sie dieses Ansinnen nicht als \" schlechten Stil \" und als \" Erbhof-Sicherung \" zerreißen , auch wenn die Sache rechtlich in Ordnung ginge .", None)
-    print('\n')
-    cc.classifyText("So bleiben Fragen :", None)
-    print('\n')
-    cc.classifyText("Sind Bigalke und die Seinen wirklich so naiv und denken , diese wichtige Personalie geräuschlos durchzukriegen ?", None)
-    print('\n')
-    cc.classifyText("Oder handeln sie kaltschnäuzig nach dem Motto : Augen zu und durch ?", None)
-    print('\n')
-    cc.classifyText("Wie auch immer .", None)
-    print('\n')
-    cc.classifyText("Der Bürgermeister hat aus einer Mücke einen Elefanten gemacht - und ihn in den Porzellanladen gejagt .", None)
-    print('\n')
     """
     
     """
