@@ -44,7 +44,24 @@ def getInputfiles(infolder):
 def createPrimmark(tokens, node, conn, _type, sid, relation):
 
     primmarkNode = lxml.etree.Element('markable')
-    primmarkNode.attrib['id'] = "markable_" + str(markableCount)
+
+    relationId = None
+    anaphor_antecedentValue = 'empty'
+    if node.tag == 'unit':
+        #print("debugging node here:", lxml.etree.tostring(node))
+        anaphor_antecedentValue = node.attrib['id']
+        relationId = node.attrib['id']
+    elif node.tail and ' '.join(tokens).strip() == node.tail.strip(): # if it is the tail, lxml is a bit nasty and we want the parent tag
+        anaphor_antecedentValue = node.getparent().attrib['id'] # or the parent one, check!
+        relationId =  node.attrib['id']
+    elif node.tag == 'connective':
+        relationId = node.attrib['id']
+    else:
+        relationId = 'dummy' # think somewhere later things are discarded if it's not interesting, check this.
+        
+    primmarkNode.attrib['anaphor_antecedentValue'] = anaphor_antecedentValue
+
+    primmarkNode.attrib['id'] = relationId #"markable_" + str(relationId)
     spanValue = ""
     if len(tokens) == 1:
         spanValue = "word_%s" % str(wordCount)
@@ -54,12 +71,7 @@ def createPrimmark(tokens, node, conn, _type, sid, relation):
         spanValue = "word_%s..word_%s" % (str(wordCount), str(wordCount+len(tokens)))
     primmarkNode.attrib['span'] = spanValue
 
-    anaphor_antecedentValue = 'empty'
-    if node.tag == 'unit':
-        #print("debugging node here:", lxml.etree.tostring(node))
-        anaphor_antecedentValue = node.attrib['id']
-    primmarkNode.attrib['anaphor_antecedentValue'] = anaphor_antecedentValue
-
+    
     if _type:
         primmarkNode.attrib['type'] = _type
     
@@ -161,8 +173,15 @@ def createAnnisXML(annisTokens):
     <markable id="markable_4" span="word_11,word_12" anaphor_antecedent="empty"  type="connective" discourseSense="consequence"/>
     <markable id="markable_7" span="word_18..word_32" anaphor_antecedent="markable_4"  type="extArg"/>
     """
+    """
+    <?xml version="1.0"?>
+    <!DOCTYPE markables SYSTEM "markables.dtd">
+    <markables xmlns="www.eml.org/NameSpaces/primmark">
+    """
     
-    discourseNode = lxml.etree.Element("discourse")
+    #discourseNode = lxml.etree.Element("discourse")
+    markablesRootNode = lxml.etree.Element("markables")
+    markablesRootNode.attrib['xmlns'] = "www.eml.org/NameSpaces/primmark"
     for at in annisTokens:
         markableNode = lxml.etree.Element('markable')
         markableNode.attrib['span'] = at.get('span')
@@ -181,12 +200,11 @@ def createAnnisXML(annisTokens):
             markableNode.attrib['discInfo'] = 'Connective: %s (%s)' % (at.attrib['discourseSense'], at.get('id'))
             add = True
         if add:
-            discourseNode.append(markableNode)
+            #discourseNode.append(markableNode)
+            markablesRootNode.append(markableNode)
+            
+    root = lxml.etree.ElementTree(markablesRootNode)
 
-    root = lxml.etree.ElementTree(discourseNode)
-
-    #TODO: Span ids seem to be ok now. anaphor_antecedent however is not. As is the markable_ id that is used as referrer in discInfo... (extArg and intArg and conn should have the same one, now it just keeps on incrementing (guess this corresponds to the bug in anaphor antecedent markable id...
-    
     return root
 
     
@@ -205,8 +223,8 @@ if __name__ == '__main__':
 
     flist = getInputfiles(options.inputfolder)
 
-    global wordCount
-    global markableCount
+    #global wordCount
+    #global markableCount
     for f in flist:
         xmlParser = lxml.etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding = 'utf-8')
         tree = lxml.etree.parse(f, parser = xmlParser)
@@ -214,8 +232,9 @@ if __name__ == '__main__':
         markableCount = 1 # reset both after every file (TODO; check if wordcount spans should be zero based
         annisTokens = extractTokens(tree.getroot(), [])
         xml = createAnnisXML(annisTokens)
+        
         xml.write(os.path.join(options.outputfolder, os.path.basename(f)), pretty_print=True, encoding='UTF-8')
         #_id = 1 # reset after every doc
     
-    
+        #TODO: write the version declaration and dtd, then it should be done!
     
