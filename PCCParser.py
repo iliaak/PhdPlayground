@@ -50,6 +50,10 @@ class DiscourseToken:
         self.rstParent = val
     def setRelname(self, val):
         self.relname = val
+    def setIsIntArg(self, val):
+        self.isIntArg = val
+    def setIsExtArg(self, val):
+        self.isExtArg = val
 
         
         
@@ -139,6 +143,7 @@ def createDiscourseToken(token, node, conn, multiWordBool):
             if pn is not None and pn.tag == 'unit':
                 segmentType = node.getparent().get('type')
         dt.setIntOrExt(segmentType)
+        
     elif segmentType == 'connective':
         
         dt.setRelation(node.get('relation'))

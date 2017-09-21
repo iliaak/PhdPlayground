@@ -696,8 +696,8 @@ if __name__ == '__main__':
         
     #customEvaluation(getInputfiles(options.connectivesFolder), 'NaiveBayes')
     #customEvaluation(getInputfiles(options.connectivesFolder), 'DecisionTree')
-    #customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent', options.language, options.inputFormat, False)
-    
+    customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent', options.language, options.inputFormat, False)
+    """
     alg = 'Maxent'
     cc = ConnectiveClassifier(alg, options.language)
     if options.inputFormat.lower() == 'pcc':
@@ -710,7 +710,7 @@ if __name__ == '__main__':
     cc.pickleClassifier('pccMaxentClassifier.pickle')
     #cc.randomCrossValidate('tempout.csv')
     #cc.traditionalCrossValidate('tempout.csv')
-    
+    """
     
     #cc.unpickleClassifier('naiveBayesClassifier.pickle')
 
