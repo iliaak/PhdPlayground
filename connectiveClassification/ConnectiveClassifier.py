@@ -766,8 +766,130 @@ def specialOneOffDebuggingMethod2():
     import numpy as np
     from sklearn import svm
 
+    matrixLines = codecs.open('pccConnectiveIntMatrix.csv', 'r').readlines()
+    header = matrixLines[0]
+    matrix = matrixLines[1:]
+
+    accuracyScores = []
+    precisionScores = []
+    recallScores = []
+    fScores = []
+    
+    
+    numIterations = 10
+    p = int(len(matrix) / numIterations)
+    pl = [int(x) for x in range(0, len(matrix), p)]
+    pl.append(int(len(matrix))) # think all this casting to int is a bit redundant, but too lazy to debug
+    for i in range(numIterations):
+        total = 0
+        correct = 0
+        fp = 0
+        tp = 0
+        fn = 0
+        tn = 0
+        sys.stderr.write("INFO: Starting iteration %i of %i.\n" % (i+1, numIterations))
+        # this is stupid (doing this with temp files instead of slicing the numpy array...), but one-off code anyway...
+        testMatrix = matrix[pl[i]:pl[i+1]]
+        trainMatrix = matrix[0:pl[i]] + matrix[pl[i+1]:]
+        tempTest = codecs.open('tempTest.csv', 'w')
+        tempTest.write(header)
+        for line in testMatrix:
+            tempTest.write(line)
+        tempTest.close()
+        tempTrain = codecs.open('tempTrain.csv', 'w')
+        tempTrain.write(header)
+        for line in trainMatrix:
+            tempTrain.write(line)
+        tempTrain.close()
+        sys.stderr.write("INFO: Reading train matrix.\n")
+        train_dataframe = pd.read_csv('tempTrain.csv')
+        sys.stderr.write("INFO: Done.\n")
+        sys.stderr.write("INFO: Preparing data.\n")
+        train_labels = train_dataframe.class_label
+        labels = list(set(train_labels))
+        train_labels = np.array([labels.index(x) for x in train_labels])
+        train_features = train_dataframe.iloc[:,1:]
+        train_features = np.array(train_features)
+        
+    
+        sys.stderr.write("INFO: Done.\n")
+        classifier = svm.SVC()
+        sys.stderr.write("INFO: Training classifier.\n")
+        classifier.fit(train_features, train_labels)
+        sys.stderr.write("INFO: Done.\n")
+
+        sys.stderr.write("INFO: Reading test matrix.\n")
+        test_dataframe = pd.read_csv('tempTest.csv')
+        sys.stderr.write("INFO: Done.\n")
+        sys.stderr.write("INFO: Preparing data.\n")
+        test_labels = test_dataframe.class_label
+        labels = list(set(test_labels))
+        test_labels = np.array([labels.index(x) for x in test_labels])
+        test_features = test_dataframe.iloc[:,1:]
+        test_features = np.array(test_features)
+
+        sys.stderr.write("INFO: Done.\n")
+        sys.stderr.write("INFO: Proceeding with classification.\n")
+        results = classifier.predict(test_features)
+        sys.stderr.write("INFO: Done.\n")
+
+
+        sys.stderr.write("INFO: Starting confusion matrix population.\n")
+        for i, r in enumerate(results):
+            total += 1
+            classifiedClass = r
+            realClass = test_labels[i]
+            # redundancy below for readability...
+            if realClass == True:
+                if classifiedClass == True:
+                    correct += 1
+                    tp += 1
+                elif classifiedClass == False:
+                    fn += 1
+                
+            elif realClass == False:
+                if classifiedClass == False:
+                    correct += 1
+                    tn += 1
+                elif classifiedClass == True:
+                    fp += 1
+    
+
+        accuracy = correct / float(total)
+        precision = 0
+        recall = 0
+        f1 = 0
+        if not tp + fp == 0 and not tp + fn == 0:
+            precision = tp / float(tp + fp)
+            recall = tp / float(tp + fn)
+            f1 = 2 * ((precision * recall) / (precision + recall))
+        accuracyScores.append(accuracy)
+        precisionScores.append(precision)
+        recallScores.append(recall)
+        fScores.append(f1)
+        verbose = True
+        if verbose:
+            print("INFO: accuracy for run %s: %s." % (str(i+1), str(accuracy)))
+            print("INFO: precision for run %s: %s." % (str(i+1), str(precision)))
+            print("INFO: recall for run %s: %s." % (str(i+1), str(recall)))
+            print("INFO: f1 for run %s: %s." % (str(i+1), str(f1)))
+
+
+
+        
+    avgAccuracy = sum(accuracyScores) / float(numIterations)
+    avgPrecision = sum(precisionScores) / float(numIterations)
+    avgRecall = sum(recallScores) / float(numIterations)
+    avgF = sum(fScores) / float(numIterations)
+    print("INFO: Average accuracy over %i runs: %f." % (numIterations, avgAccuracy))
+    print("INFO: Average precision over %i runs: %f." % (numIterations, avgPrecision))
+    print("INFO: Average recall over %i runs: %f." % (numIterations, avgRecall))
+    print("INFO: Average f1 over %i runs: %f." % (numIterations, avgF))
+    
+
+    """
     sys.stderr.write("INFO: Reading train matrix.\n")
-    train_dataframe = pd.read_csv('conllIntTrainMatrix.csv') # if this fails, could be because of headers (first line of csv), check!
+    train_dataframe = pd.read_csv('conllIntTrainMatrix.csv')
     sys.stderr.write("INFO: Done.\n")
     sys.stderr.write("INFO: Preparing data.\n")
     train_labels = train_dataframe.class_label
@@ -835,6 +957,7 @@ def specialOneOffDebuggingMethod2():
     print("INFO: recall: %s." % (str(recall)))
     print("INFO: f1: %s." % (str(f1)))
 
+    """
     """
     Results of one round (first 30k training, last 3.something k test for PCC:
     INFO: accuracy: 0.9645232815964523.
