@@ -20,10 +20,21 @@ import pickle
 import random
 
 """
-TODO: <description here>
+Class for binary classification of words (connective or no connective), features based on Lin et al. 2014.
+Contains several additional functions for training, pickling, unpickling a previously trained classifier and evaluation methods.
+Arguments to this script (when ran stand-alone) should be pretty self-explanatory looking at the optionParser arguments, but are bascially:
+- folder with annotated data, currently PCC (xml inline) and CONLL (typical tab-separated style) formats are supported.
+- language, currently de and en are supported.
+- verbosity flag for more information
+- format of input data (conll or pcc)
+
+To run this successfully, make sure that the required packages are installed and file paths are correct. This is taken from the settings.conf file, which should be in the same location as this script. 
+TODO: document settings.conf a bit!
+
 """
 verbose = False
 
+memoryMap = defaultdict(list)
 
 class ConnectiveClassifier():
 
@@ -492,6 +503,8 @@ class ConnectiveClassifier():
         
     def classifyText(self, text, classifier):
 
+        global memoryMap
+        
         cd = []
         if classifier == None and self.classifier == None:
             sys.stderr.write("ERROR: No classifier available. Please train one first. Dying now.\n")
@@ -499,6 +512,9 @@ class ConnectiveClassifier():
         elif classifier == None: # if the current one has been trained already in a previous step, or unpickled
             classifier = self.classifier
 
+        if memoryMap[text]:
+            return memoryMap[text]
+        #else...
         
         sentences = sent_tokenize(re.sub(r'[()]+', '', text)) # nltk.tree has a problem with parenthesis. look into this, maybe there is a way to escape them when parsing/traversing a tree.
         tokenizedSents = [sent.split() for sent in sentences]
@@ -517,7 +533,8 @@ class ConnectiveClassifier():
                         
         except ValueError:
             sys.stderr.write("WARNING: Failed to parse file. Skipping.\n")
-
+        memoryMap[text] = cd
+            
         return cd
 
     def pickleClassifier(self, pickleFileName):
@@ -618,35 +635,24 @@ def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
                 classifiedClass = tupl[1]
                 realClass = td[l]
                 total += 1
-                #print("DEBUGGING Word, realClass, classClass:", w, realClass, classifiedClass)
                 # redundancy below for readability...
-                #print("realClass:", realClass)
-                #print("classClass:", classifiedClass)
                 if realClass == True:
                     if classifiedClass == True:
                         correct += 1
                         tp += 1
                     elif classifiedClass == False:
                         fn += 1
-                        #print("FALSE NEGATIVE!!!")
                 elif realClass == False:
                     if classifiedClass == False:
                         correct += 1
                         tn += 1
                     elif classifiedClass == True:
                         fp += 1
-                        #print("FALSE POSITIVE!!!")
-                
+                        
         accuracy = correct / float(total)
         precision = 0
         recall = 0
         f1 = 0
-        #print("DEBUG TOTAL:", total)
-        #print("DEBUG CORRECT:", correct)
-        #print("DEBUG TP:", tp)
-        #print("DEBUG fP:", fp)
-        #print("DEBUG Tn:", tn)
-        #print("DEBUG fn:", fn)
         if not tp + fp == 0 and not tp + fn == 0: # division by zero probably only ever happens on small test set, but in any case...
             precision = tp / float(tp + fp)
             recall = tp / float(tp + fn)
@@ -671,12 +677,179 @@ def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
     print("INFO: Average recall over %i runs for '%s': %f." % (numIterations, alg, avgRecall))
     print("INFO: Average f1 over %i runs for '%s': %f." % (numIterations, alg, avgF))
 
-    #print("Obtaining explanation:")
-    #trainingClassifier.explain()
     if verbose:
         print("Obtaining most informative features:")
         trainingClassifier.getTopNFeatures(500)
-            
+
+
+
+def specialOneOffDebuggingMethod1():
+        
+    alg = 'Maxent'
+    tcc = ConnectiveClassifier(alg, 'en')
+    #tcc.buildFeatureMatrixFromCONLL(getInputfiles('/Users/peter/Desktop/osloCoop/conll16/en.train/conll_format/'))
+    #tcc.writeMatrix('conllConnectiveMatrix.csv')
+    #tcc.pickleClassifier('conllMaxentClassifier.pickle')
+    numIterations = 1
+    i = 0
+    tcc.unpickleClassifier('conllMaxentClassifier.pickle')
+    #tcc.unpickleClassifier('conllBayesClassifier.pickle')
+    testData = getInputfiles('/Users/peter/Desktop/osloCoop/conll16/en.test/conll_format/')
+    total = 0
+    correct = 0
+    tp = 0
+    tn = 0
+    fn = 0
+    fp = 0
+    accuracyScores = []
+    precisionScores = []
+    recallScores = []
+    fScores = []
+    for q, f in enumerate(testData):
+        
+        if verbose:
+            sys.stderr.write("INFO: Classifying file .../%s (%s/%s).\n" % (f.split('/')[-1], str(q+1), str(len(testData))))
+        conllTokens = tcc.CONLLParser.parsePDTBFile(f)
+        tcc.getFeaturesForCONLLTokens(conllTokens)
+        td = defaultdict(str)
+        flatString = ''
+        for ii in tcc.matrix:
+            td[ii] = tcc.matrix[ii][-1]
+            flatString += ' ' + tcc.matrix[ii][0]
+        flatString = flatString.strip()
+        cd = tcc.classifyText(flatString, None)
+        for l, tupl in enumerate(cd):
+            w = tupl[0]
+            classifiedClass = tupl[1]
+            realClass = td[l]
+            total += 1
+            # redundancy below for readability...
+            if realClass == True:
+                if classifiedClass == True:
+                    correct += 1
+                    tp += 1
+                elif classifiedClass == False:
+                    fn += 1
+                    print('FALSE NEGATIVE: Did not recognise "%s" in context: "%s"\n' % (w, (cd[max(0, l-8):min(l+8, len(cd)-1)])))
+            elif realClass == False:
+                if classifiedClass == False:
+                    correct += 1
+                    tn += 1
+                elif classifiedClass == True:
+                    fp += 1
+                    print('FALSE POSITIVE: Falsely recognised "%s" in context: "%s"\n' % (w, (cd[max(0, l-8):min(l+8, len(cd)-1)])))
+                    
+    accuracy = correct / float(total)
+    precision = 0
+    recall = 0
+    f1 = 0
+    if not tp + fp == 0 and not tp + fn == 0: # division by zero probably only ever happens on small test set, but in any case...
+        precision = tp / float(tp + fp)
+        recall = tp / float(tp + fn)
+        f1 = 2 * ((precision * recall) / (precision + recall))
+    accuracyScores.append(accuracy)
+    precisionScores.append(precision)
+    recallScores.append(recall)
+    fScores.append(f1)
+    
+    print("INFO: accuracy for run %s: %s." % (str(i+1), str(accuracy)))
+    print("INFO: precision for run %s: %s." % (str(i+1), str(precision)))
+    print("INFO: recall for run %s: %s." % (str(i+1), str(recall)))
+    print("INFO: f1 for run %s: %s." % (str(i+1), str(f1)))
+
+    
+
+def specialOneOffDebuggingMethod2():
+
+    # the following is just a copy from: https://stackoverflow.com/questions/30991592/support-vector-machine-in-python-using-libsvm-example-of-features
+    import pandas as pd
+    import numpy as np
+    from sklearn import svm
+
+    sys.stderr.write("INFO: Reading train matrix.\n")
+    train_dataframe = pd.read_csv('conllIntTrainMatrix.csv') # if this fails, could be because of headers (first line of csv), check!
+    sys.stderr.write("INFO: Done.\n")
+    sys.stderr.write("INFO: Preparing data.\n")
+    train_labels = train_dataframe.class_label
+    labels = list(set(train_labels))
+    train_labels = np.array([labels.index(x) for x in train_labels])
+    train_features = train_dataframe.iloc[:,1:]
+    train_features = np.array(train_features)
+    
+    
+    sys.stderr.write("INFO: Done.\n")
+    classifier = svm.SVC()
+    sys.stderr.write("INFO: Training classifier.\n")
+    classifier.fit(train_features, train_labels)
+    sys.stderr.write("INFO: Done.\n")
+
+    sys.stderr.write("INFO: Reading test matrix.\n")
+    test_dataframe = pd.read_csv('conllIntTestMatrix.csv')
+    sys.stderr.write("INFO: Done.\n")
+    sys.stderr.write("INFO: Preparing data.\n")
+    test_labels = test_dataframe.class_label
+    labels = list(set(test_labels))
+    test_labels = np.array([labels.index(x) for x in test_labels])
+    test_features = test_dataframe.iloc[:,1:]
+    test_features = np.array(test_features)
+
+    sys.stderr.write("INFO: Done.\n")
+    sys.stderr.write("INFO: Proceeding with classification.\n")
+    results = classifier.predict(test_features)
+    sys.stderr.write("INFO: Done.\n")
+
+    tp = 0
+    fn = 0
+    correct = 0
+    tn = 0
+    fp = 0
+    for i, r in enumerate(results):
+        classifiedClass = r
+        realClass = test_labels[i]
+        # redundancy below for readability...
+        if realClass == True:
+            if classifiedClass == True:
+                correct += 1
+                tp += 1
+            elif classifiedClass == False:
+                fn += 1
+                
+        elif realClass == False:
+            if classifiedClass == False:
+                correct += 1
+                tn += 1
+            elif classifiedClass == True:
+                fp += 1
+                
+    accuracy = correct / float(len(test_labels))
+    precision = 0
+    recall = 0
+    f1 = 0
+    if not tp + fp == 0 and not tp + fn == 0:
+        precision = tp / float(tp + fp)
+        recall = tp / float(tp + fn)
+        f1 = 2 * ((precision * recall) / (precision + recall))
+    
+    print("INFO: accuracy: %s." % (str(accuracy)))
+    print("INFO: precision: %s." % (str(precision)))
+    print("INFO: recall: %s." % (str(recall)))
+    print("INFO: f1: %s." % (str(f1)))
+
+    """
+    Results of one round (first 30k training, last 3.something k test for PCC:
+    INFO: accuracy: 0.9645232815964523.
+    INFO: precision: 1.0.
+    INFO: recall: 0.1111111111111111.
+    INFO: f1: 0.19999999999999998.
+    TODO: proper k-fold cv...
+
+    First results of one round for CONLL (first 839544 lines of conllConnectiveMatrix.csv as train, last 93282 lines as test (90-10 split)):
+    
+    
+    """
+
+        
+        
 if __name__ == '__main__':
 
     parser = OptionParser('Usage: %prog -options')
@@ -696,8 +869,8 @@ if __name__ == '__main__':
         
     #customEvaluation(getInputfiles(options.connectivesFolder), 'NaiveBayes')
     #customEvaluation(getInputfiles(options.connectivesFolder), 'DecisionTree')
-    customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent', options.language, options.inputFormat, False)
-    """
+    #customEvaluation(getInputfiles(options.connectivesFolder), 'Maxent', options.language, options.inputFormat, False)
+    
     alg = 'Maxent'
     cc = ConnectiveClassifier(alg, options.language)
     if options.inputFormat.lower() == 'pcc':
@@ -706,17 +879,22 @@ if __name__ == '__main__':
     elif options.inputFormat.lower() == 'conll':
         cc.buildFeatureMatrixFromCONLL(getInputfiles(options.connectivesFolder))
     
-    cc.writeMatrix('pccConnectiveMatrix.csv')
-    cc.pickleClassifier('pccMaxentClassifier.pickle')
+    #cc.writeMatrix('pccConnectiveMatrix.csv')
+    #cc.pickleClassifier('pccMaxentClassifier.pickle')
     #cc.randomCrossValidate('tempout.csv')
     #cc.traditionalCrossValidate('tempout.csv')
-    """
+
+    #specialOneOffDebuggingMethod1()
+    specialOneOffDebuggingMethod2()
+
     
-    #cc.unpickleClassifier('naiveBayesClassifier.pickle')
+    #cc.unpickleClassifier('conllMaxentClassifier.pickle')
+    
 
     """
     cc.classifyText("Gejagt Wer es angesichts der Festlichkeiten zum 40. Stadtjubiläum vergessen haben sollte :", None)
-    """
+    cc.classifyText("Gejagt Wer es angesichts der Festlichkeiten zum 40. Stadtjubiläum vergessen haben sollte :", None)
+b    """
     
     """
     if options.verbose:
@@ -726,7 +904,7 @@ if __name__ == '__main__':
 
     """
     TODO list:
-    - evaluate on conll 2016 shared task data (which is probably english; sufficient to only change the lexparser pointer in settings.conf for this?)
+    - evaluate on conll 2016 shared task data: revisit the f-score of around .86 I got there, as this is way too low.
     - 
 
     """
