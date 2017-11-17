@@ -98,6 +98,24 @@ class ConnectiveClassifier():
             fDict[self.index2FeatureName[i+1]] = feature
         return fDict
 
+    def matrixRow2fDictWithoutLabel(self, row):
+        fDict = {}
+        for i, feature in enumerate(row):
+            fDict[self.index2FeatureName[i+1]] = feature
+        return fDict
+
+    def builfFeatureMatrixFromClassTuples(self, classtuples):
+
+        self.getFeaturesForTokenList(classtuples)
+        matrix = []
+        for instance in self.matrix:
+            row = self.matrix[instance]
+            fDict = self.matrixRow2fDict(row)
+            label = row[len(row)-1]
+            matrix.append((fDict, label))
+        sys.stderr.write('WARNING: No training happening here.\n')
+        
+        
     def buildFeatureMatrixFromCONLL(self, connectiveFiles):
 
         for i, conllFile in enumerate(connectiveFiles):
@@ -500,6 +518,41 @@ class ConnectiveClassifier():
     def explain(self):
 
         self.classifier.explain()
+
+    def convertClassifyText(self, text, m, classifier):
+
+        cd = []
+        if classifier == None and self.classifier == None:
+            sys.stderr.write("ERROR: No classifier available. Please train one first. Dying now.\n")
+            sys.exit(1)
+        elif classifier == None: # if the current one has been trained already in a previous step, or unpickled
+            classifier = self.classifier
+
+        
+        sentences = sent_tokenize(re.sub(r'[()]+', '', text)) # nltk.tree has a problem with parenthesis. look into this, maybe there is a way to escape them when parsing/traversing a tree.
+        tokenizedSents = [sent.split() for sent in sentences]
+        try:
+            forest = self.lexParser.parse_sents(tokenizedSents)
+            for trees in forest:
+                for tree in trees:
+                    featureVectors = self.getVectorsForTree(tree)
+                    for fv in featureVectors:
+                        featuresAsInts = m.convertTestRow(fv, False)
+                        constr = []
+                        for i, j in enumerate(featuresAsInts):
+                            constr.append(m.int2string[i+1][j])
+                        isConnective = self.classifier.classify(self.matrixRow2fDictWithoutLabel(featuresAsInts))
+                        if isConnective:
+                            cd.append((fv[0], True))
+                        else:
+                            cd.append((fv[0], False))
+                            
+                        
+        except ValueError:
+            sys.stderr.write("WARNING: Failed to parse file. Skipping.\n")
+            
+        return cd
+        
         
     def classifyText(self, text, classifier):
 
@@ -537,6 +590,39 @@ class ConnectiveClassifier():
             
         return cd
 
+    def classifySentence(self, sentence, classifier):
+
+        global memoryMap
+        cd = []
+        if classifier == None and self.classifier == None:
+            sys.stderr.write("ERROR: No classifier available. Please train one first. Dying now.\n")
+            sys.exit(1)
+        elif classifier == None: # if the current one has been trained already in a previous step, or unpickled
+            classifier = self.classifier
+
+        if memoryMap[sentence]:
+            return memoryMap[sentence]
+        #else...
+        tokenizedSents = [[sentence]]
+        try:
+            forest = self.lexParser.parse_sents(tokenizedSents)
+            for trees in forest:
+                for tree in trees:
+                    featureVectors = self.getVectorsForTree(tree)
+                    for fv in featureVectors:
+                        isConnective = classifier.classify(self.matrixRow2fDict(fv))
+                        if isConnective:# and fv[0] in self.dictionary: # something like this can be included if precision is too low
+                            cd.append((fv[0], True))
+                        else:
+                            cd.append((fv[0], False))
+                            
+                        
+        except ValueError:
+            sys.stderr.write("WARNING: Failed to parse file. Skipping.\n")
+        memoryMap[sentence] = cd
+
+        return cd
+
     def pickleClassifier(self, pickleFileName):
 
         pf = codecs.open(pickleFileName, 'wb')
@@ -558,7 +644,320 @@ def getInputfiles(infolder):
         abspathFile = os.path.abspath(os.path.join(infolder, f))
         filelist.append(abspathFile)
     return filelist
+"""
+def oneOffPCCClassifierRobinAnnotationsTest():
 
+    alg = 'Maxent'
+    cc = ConnectiveClassifier(alg, 'de')
+    """
+    import matrixMethods
+    m = matrixMethods.Matrix()
+    #m.readFromFile('pccConnectiveMatrix.csv')
+    #m.convertString2Ints(True)
+    #m.pickleMatrix('pccMatrix.pickle')
+    m.unpickleMatrix('pccMatrix.pickle')
+    
+    tm = []
+    for row in m.rows:
+        fDict = {}
+        fDict = cc.matrixRow2fDict(row) # note to self: this function discards the label (as it should, of course!!!)
+        label = row[len(row)-1]
+        print('DEBUGGING TM fv and label:', fDict, label, m.int2string[1][fDict['token']])
+        tm.append((fDict, label))
+    """
+    #cc.classifier = MaxentClassifier.train(tm)
+    #cc.pickleClassifier('pccIntMaxentClassifier.pickle')
+    #cc.unpickleClassifier('pccMaxentClassifier.pickle')
+    
+    
+    #cd = cc.convertClassifyText('Just a simple example', m, None)
+    import parseRobinFormat
+    #flist = getInputfiles('/Users/peter/Desktop/gitlabrepos/AnaKonn/Scripts/robinTest/')
+    flist = getInputfiles('/home/peter/robinTest/')
+    #germanSentences = parseRobinFormat.getGermanSentences(flist)
+    # 159 sents, containing 129 connectives (as of 02-11-2017, 16:25...)
+    germanSentences = []
+    for f in flist:
+        if f.endswith('.txt'):
+            lines = codecs.open(f, 'r').readlines()
+            for l in lines:
+                germanSentences.append(l.strip())
+    
+    classtuples = parseRobinFormat.getGoldFormatTuples(germanSentences)
+    print('debugging classtuples:', classtuples)
+    sys.exit(1)
+    # build feature matrix here
+    cc.buildFeatureMatrixFromClassTuples(classtuples)
+    cc.writeMatrix('robinConnectiveMatrix.csv')
+    # now (in bash) append this one with pccConnectiveMatrix, keep track of length, cut that off as test set and go.
+
+
+    sys.exit(1)
+    total = 0
+    correct = 0
+    tp = 0
+    fn = 0
+    tn = 0
+    fp = 0
+    for tuplelist in classtuples:
+        flatText = ' '.join([x[0] for x in tuplelist])
+        classified = cc.classifyText(flatText, None)
+        if len(tuplelist) == len(classified):
+            for i, j in enumerate(tuplelist):
+                realClass = j[1]
+                classifiedClass = classified[i][1]
+                total += 1
+                #print(j)
+                # redundancy below for readability...
+                if realClass == True:
+                    if classifiedClass == True:
+                        correct += 1
+                        tp += 1
+                    elif classifiedClass == False:
+                        fn += 1
+                
+                elif realClass == False:
+                    if classifiedClass == False:
+                        correct += 1
+                        tn += 1
+                    elif classifiedClass == True:
+                        fp += 1
+    
+
+        else:
+            sys.stderr.write('WARNING: Skipping sentence "%s", probably due to brackets...\n' % ' '.join([x[0] for x in tuplelist]))
+    accuracy = correct / float(total)
+    precision = 0
+    recall = 0
+    f1 = 0
+    print('accuracy:', accuracy)
+    print('tp:', tp)
+    print('fp:', fp)
+    print('tn:', tn)
+    print('fn:', fn)
+    if not tp + fp == 0 and not tp + fn == 0:
+        precision = tp / float(tp + fp)
+        recall = tp / float(tp + fn)
+        f1 = 2 * ((precision * recall) / (precision + recall))
+    print('p:', precision)
+    print('r:', recall)
+    print('f:', f1)
+    
+        
+def getSomeNumbers(correct, tp, fn, tn, fp, realClass, classifiedClass):
+    # redundancy below for readability...
+    if realClass == True:
+        if classifiedClass == True:
+            correct += 1
+            tp += 1
+        elif classifiedClass == False:
+            fn += 1
+            #print('FALSE NEGATIVE: Did not recognise "%s" in context: "%s"\n' % (w, (cd[max(0, l-8):min(l+8, len(cd)-1)])))
+    elif realClass == False:
+        if classifiedClass == False:
+            correct += 1
+            tn += 1
+        elif classifiedClass == True:
+            fp += 1
+            #print('FALSE POSITIVE: Falsely recognised "%s" in context: "%s"\n' % (w, (cd[max(0, l-8):min(l+8, len(cd)-1)])))
+    return correct, tp, fn, tn, fp
+"""
+"""
+def oneOffProperIntConversionTest():
+
+    # TODO: comment out the new matrix creation lines below over lunch sometime, but pretty sure the conllConnectiveMatrix.csv I have now is from conll2016 en.train only.
+    
+    alg = 'Maxent'
+    tcc = ConnectiveClassifier(alg, 'en')
+    #tcc.buildFeatureMatrixFromCONLL(getInputfiles('/Users/peter/Desktop/osloCoop/conll16/en.train/conll_format/'))
+    #tcc.writeMatrix('conllConnectiveMatrix.csv')
+    i = 0
+    
+    import matrixMethods
+    m = matrixMethods.Matrix()
+    m.readFromFile('conllConnectiveMatrix.csv')
+    m.convertString2Ints(True)
+    
+    tm = []
+    for row in m.rows:
+        fDict = {}
+        fDict = tcc.matrixRow2fDict(row) # note to self: this function discards the label (as it should, of course!!!)
+        label = row[len(row)-1]
+        tm.append((fDict, label))
+    
+    tcc.classifier = MaxentClassifier.train(tm)
+    tcc.pickleClassifier('conllIntMaxentClassifier.pickle')
+    
+    testData = getInputfiles('/Users/peter/Desktop/osloCoop/conll16/en.test/conll_format/')
+    for q, f in enumerate(testData):
+        sys.stderr.write("INFO: Classifying file .../%s (%s/%s).\n" % (f.split('/')[-1], str(q+1), str(len(testData))))
+        conllTokens = tcc.CONLLParser.parsePDTBFile(f)
+        tcc.getFeaturesForCONLLTokens(conllTokens)
+    
+        td = defaultdict(str)
+        debugtd = defaultdict(tuple)
+        flatString = ''
+        for ii in tcc.matrix:
+            td[ii] = tcc.matrix[ii][-1]
+            debugtd[ii] = tuple((tcc.matrix[ii][0], tcc.matrix[ii][-1]))
+            flatString += ' ' + tcc.matrix[ii][0]
+        flatString = flatString.strip()
+        #print('Debugging flatString:', flatString)
+        cd = tcc.convertClassifyText(flatString, m, None)
+        for l, tupl in enumerate(cd):
+            w = tupl[0]
+            classifiedClass = tupl[1]
+            realClass = td[l]
+            print('DEBUGGING mine:', tupl)
+            print('DEBUGGING gold:', debugtd[l])
+            total += 1
+            # redundancy below for readability...
+            if realClass == True:
+                if classifiedClass == True:
+                    correct += 1
+                    tp += 1
+                elif classifiedClass == False:
+                    fn += 1
+                    print('FALSE NEGATIVE: Did not recognise "%s" in context: "%s"\n' % (w, (cd[max(0, l-8):min(l+8, len(cd)-1)])))
+            elif realClass == False:
+                if classifiedClass == False:
+                    correct += 1
+                    tn += 1
+                elif classifiedClass == True:
+                    fp += 1
+                    print('FALSE POSITIVE: Falsely recognised "%s" in context: "%s"\n' % (w, (cd[max(0, l-8):min(l+8, len(cd)-1)])))
+
+    accuracy = correct / float(total)
+    precision = 0
+    recall = 0
+    f1 = 0
+    if not tp + fp == 0 and not tp + fn == 0: # division by zero probably only ever happens on small test set, but in any case...
+        precision = tp / float(tp + fp)
+        recall = tp / float(tp + fn)
+        f1 = 2 * ((precision * recall) / (precision + recall))
+    accuracyScores.append(accuracy)
+    precisionScores.append(precision)
+    recallScores.append(recall)
+    fScores.append(f1)
+    
+    print("INFO: accuracy for run %s: %s." % (str(i+1), str(accuracy)))
+    print("INFO: precision for run %s: %s." % (str(i+1), str(precision)))
+    print("INFO: recall for run %s: %s." % (str(i+1), str(recall)))
+    print("INFO: f1 for run %s: %s." % (str(i+1), str(f1)))
+"""
+    
+    
+"""
+def nltkMaxentIntMatrixCheck():
+
+    numIterations = 10
+    accuracyScores = []
+    precisionScores = []
+    recallScores = []
+    fScores = []
+    
+    #matrixLines = [r.strip() for r in codecs.open('pccConnectiveIntMatrix.csv', 'r').readlines()]
+    matrix = []
+    #with open('pccConnectiveIntMatrix.csv', 'r') as intCsv:
+    with open('conllConnectiveIntMatrix.csv', 'r') as intCsv:
+        next(intCsv)#skipping header
+        m = csv.reader(intCsv, delimiter=',')
+        for row in m:
+            matrix.append(row)
+        
+    
+
+    p = int(len(matrix) / 10)
+    pl = [int(x) for x in range(0, len(matrix), p)]
+    pl.append(int(len(matrix))) # think all this casting to int is a bit redundant, but too lazy to debug    
+    for i in range(numIterations):
+        total = 0
+        correct = 0
+        tn = 0
+        tp = 0
+        fp = 0
+        fn = 0
+        testData = matrix[pl[i]:pl[i+1]]
+        #sys.stderr.write('INFO: starting split for iteration %s.\n' % i)
+        #print('debugging testData:', testData)
+        testIds = set([l[0] for l in testData])
+        # remove the ids, because they are not supposed to be there
+        testData = [x[1:] for x in testData]
+        #print('testids:', testIds)
+        trainingData = [l[1:]for l in matrix if not l[0] in testIds]
+        #for row in trainingData:
+            #print(len(row))
+        
+        
+        tcc = ConnectiveClassifier('Maxent', 'en')
+        #trainingClassifier.buildFeatureMatrixFromPCC(getInputfiles('smallConnectors'))  
+        tm = []
+        for row in trainingData:
+            fDict = {}
+            fDict = tcc.matrixRow2fDict(row)
+            label = row[len(row)-1]
+            tm.append((fDict, label))
+    
+        tcc2 = MaxentClassifier.train(tm)
+        testm = []
+        for row in testData:
+            fDict = tcc.matrixRow2fDict(row)
+            label = row[len(row)-1]
+            testm.append((fDict, label))
+        for instance in testm:
+            
+            isConnective = tcc2.classify(instance[0])# guess the testData conversion above was not necessary after all, well...
+            #print('bonobo 1:', instance[1], type(instance[1]))
+            realClass = False
+            #print('bonobo 2:', isConnective, type(isConnective))
+            classifiedClass = False
+            if int(instance[1]) == 1:
+                realClass = True
+            
+            if int(isConnective) == 1:
+                classifiedClass = True
+            total += 1
+            # redundancy below for readability...                                                                 
+            if realClass == True:
+                if classifiedClass == True:
+                    correct += 1
+                    tp += 1
+                elif classifiedClass == False:
+                    fn += 1
+            elif realClass == False:
+                if classifiedClass == False:
+                    correct += 1
+                    tn += 1
+                elif classifiedClass == True:
+                    fp += 1
+        accuracy = correct / float(total)
+        precision = 0
+        recall = 0
+        f1 = 0
+        if not tp + fp == 0 and not tp + fn == 0:
+            precision = tp / float(tp + fp)
+            recall = tp / float(tp + fn)
+            f1 = 2 * ((precision * recall) / (precision + recall))
+        accuracyScores.append(accuracy)
+        precisionScores.append(precision)
+        recallScores.append(recall)
+        fScores.append(f1)
+
+        print("INFO: accuracy for run %s: %s." % (str(i+1), str(accuracy)))
+        print("INFO: precision for run %s: %s." % (str(i+1), str(precision)))
+        print("INFO: recall for run %s: %s." % (str(i+1), str(recall)))
+        print("INFO: f1 for run %s: %s." % (str(i+1), str(f1)))
+
+
+    avgAccuracy = sum(accuracyScores) / float(numIterations)
+    avgPrecision = sum(precisionScores) / float(numIterations)
+    avgRecall = sum(recallScores) / float(numIterations)
+    avgF = sum(fScores) / float(numIterations)
+    print("INFO: Average accuracy over %i runs for '%s': %f." % (numIterations, alg, avgAccuracy))
+    print("INFO: Average precision over %i runs for '%s': %f." % (numIterations, alg, avgPrecision))
+    print("INFO: Average recall over %i runs for '%s': %f." % (numIterations, alg, avgRecall))
+    print("INFO: Average f1 over %i runs for '%s': %f." % (numIterations, alg, avgF))
+"""
             
 def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
 
@@ -681,8 +1080,8 @@ def customEvaluation(flist, alg, lang, inputFormat, preFilledMatrixBool):
         print("Obtaining most informative features:")
         trainingClassifier.getTopNFeatures(500)
 
-
-
+    
+"""
 def specialOneOffDebuggingMethod1():
         
     alg = 'Maxent'
@@ -712,9 +1111,11 @@ def specialOneOffDebuggingMethod1():
         conllTokens = tcc.CONLLParser.parsePDTBFile(f)
         tcc.getFeaturesForCONLLTokens(conllTokens)
         td = defaultdict(str)
+        debugtd = defaultdict(tuple)
         flatString = ''
         for ii in tcc.matrix:
             td[ii] = tcc.matrix[ii][-1]
+            debugtd[ii] = tuple((tcc.matrix[ii][0], tcc.matrix[ii][-1]))
             flatString += ' ' + tcc.matrix[ii][0]
         flatString = flatString.strip()
         cd = tcc.classifyText(flatString, None)
@@ -722,6 +1123,8 @@ def specialOneOffDebuggingMethod1():
             w = tupl[0]
             classifiedClass = tupl[1]
             realClass = td[l]
+            print('DEBUGGING mine:', tupl)
+            print('DEBUGGING gold:', debugtd[l])
             total += 1
             # redundancy below for readability...
             if realClass == True:
@@ -738,7 +1141,7 @@ def specialOneOffDebuggingMethod1():
                 elif classifiedClass == True:
                     fp += 1
                     print('FALSE POSITIVE: Falsely recognised "%s" in context: "%s"\n' % (w, (cd[max(0, l-8):min(l+8, len(cd)-1)])))
-                    
+
     accuracy = correct / float(total)
     precision = 0
     recall = 0
@@ -756,9 +1159,9 @@ def specialOneOffDebuggingMethod1():
     print("INFO: precision for run %s: %s." % (str(i+1), str(precision)))
     print("INFO: recall for run %s: %s." % (str(i+1), str(recall)))
     print("INFO: f1 for run %s: %s." % (str(i+1), str(f1)))
-
+"""
     
-
+"""
 def specialOneOffDebuggingMethod2():
 
     # the following is just a copy from: https://stackoverflow.com/questions/30991592/support-vector-machine-in-python-using-libsvm-example-of-features
@@ -776,7 +1179,7 @@ def specialOneOffDebuggingMethod2():
     fScores = []
     
     
-    numIterations = 10
+    numIterations = 1
     p = int(len(matrix) / numIterations)
     pl = [int(x) for x in range(0, len(matrix), p)]
     pl.append(int(len(matrix))) # think all this casting to int is a bit redundant, but too lazy to debug
@@ -791,18 +1194,18 @@ def specialOneOffDebuggingMethod2():
         # this is stupid (doing this with temp files instead of slicing the numpy array...), but one-off code anyway...
         testMatrix = matrix[pl[i]:pl[i+1]]
         trainMatrix = matrix[0:pl[i]] + matrix[pl[i+1]:]
-        tempTest = codecs.open('tempTest.csv', 'w')
+        tempTest = codecs.open('tempTest1.csv', 'w')
         tempTest.write(header)
         for line in testMatrix:
             tempTest.write(line)
         tempTest.close()
-        tempTrain = codecs.open('tempTrain.csv', 'w')
+        tempTrain = codecs.open('tempTrain1.csv', 'w')
         tempTrain.write(header)
         for line in trainMatrix:
             tempTrain.write(line)
         tempTrain.close()
         sys.stderr.write("INFO: Reading train matrix.\n")
-        train_dataframe = pd.read_csv('tempTrain.csv')
+        train_dataframe = pd.read_csv('tempTrain1.csv')
         sys.stderr.write("INFO: Done.\n")
         sys.stderr.write("INFO: Preparing data.\n")
         train_labels = train_dataframe.class_label
@@ -819,7 +1222,7 @@ def specialOneOffDebuggingMethod2():
         sys.stderr.write("INFO: Done.\n")
 
         sys.stderr.write("INFO: Reading test matrix.\n")
-        test_dataframe = pd.read_csv('tempTest.csv')
+        test_dataframe = pd.read_csv('tempTest1.csv')
         sys.stderr.write("INFO: Done.\n")
         sys.stderr.write("INFO: Preparing data.\n")
         test_labels = test_dataframe.class_label
@@ -885,91 +1288,8 @@ def specialOneOffDebuggingMethod2():
     print("INFO: Average precision over %i runs: %f." % (numIterations, avgPrecision))
     print("INFO: Average recall over %i runs: %f." % (numIterations, avgRecall))
     print("INFO: Average f1 over %i runs: %f." % (numIterations, avgF))
-    
+"""
 
-    """
-    sys.stderr.write("INFO: Reading train matrix.\n")
-    train_dataframe = pd.read_csv('conllIntTrainMatrix.csv')
-    sys.stderr.write("INFO: Done.\n")
-    sys.stderr.write("INFO: Preparing data.\n")
-    train_labels = train_dataframe.class_label
-    labels = list(set(train_labels))
-    train_labels = np.array([labels.index(x) for x in train_labels])
-    train_features = train_dataframe.iloc[:,1:]
-    train_features = np.array(train_features)
-    
-    
-    sys.stderr.write("INFO: Done.\n")
-    classifier = svm.SVC()
-    sys.stderr.write("INFO: Training classifier.\n")
-    classifier.fit(train_features, train_labels)
-    sys.stderr.write("INFO: Done.\n")
-
-    sys.stderr.write("INFO: Reading test matrix.\n")
-    test_dataframe = pd.read_csv('conllIntTestMatrix.csv')
-    sys.stderr.write("INFO: Done.\n")
-    sys.stderr.write("INFO: Preparing data.\n")
-    test_labels = test_dataframe.class_label
-    labels = list(set(test_labels))
-    test_labels = np.array([labels.index(x) for x in test_labels])
-    test_features = test_dataframe.iloc[:,1:]
-    test_features = np.array(test_features)
-
-    sys.stderr.write("INFO: Done.\n")
-    sys.stderr.write("INFO: Proceeding with classification.\n")
-    results = classifier.predict(test_features)
-    sys.stderr.write("INFO: Done.\n")
-
-    tp = 0
-    fn = 0
-    correct = 0
-    tn = 0
-    fp = 0
-    for i, r in enumerate(results):
-        classifiedClass = r
-        realClass = test_labels[i]
-        # redundancy below for readability...
-        if realClass == True:
-            if classifiedClass == True:
-                correct += 1
-                tp += 1
-            elif classifiedClass == False:
-                fn += 1
-                
-        elif realClass == False:
-            if classifiedClass == False:
-                correct += 1
-                tn += 1
-            elif classifiedClass == True:
-                fp += 1
-                
-    accuracy = correct / float(len(test_labels))
-    precision = 0
-    recall = 0
-    f1 = 0
-    if not tp + fp == 0 and not tp + fn == 0:
-        precision = tp / float(tp + fp)
-        recall = tp / float(tp + fn)
-        f1 = 2 * ((precision * recall) / (precision + recall))
-    
-    print("INFO: accuracy: %s." % (str(accuracy)))
-    print("INFO: precision: %s." % (str(precision)))
-    print("INFO: recall: %s." % (str(recall)))
-    print("INFO: f1: %s." % (str(f1)))
-
-    """
-    """
-    Results of one round (first 30k training, last 3.something k test for PCC:
-    INFO: accuracy: 0.9645232815964523.
-    INFO: precision: 1.0.
-    INFO: recall: 0.1111111111111111.
-    INFO: f1: 0.19999999999999998.
-    TODO: proper k-fold cv...
-
-    First results of one round for CONLL (first 839544 lines of conllConnectiveMatrix.csv as train, last 93282 lines as test (90-10 split)):
-    
-    
-    """
 
         
         
@@ -998,7 +1318,6 @@ if __name__ == '__main__':
     cc = ConnectiveClassifier(alg, options.language)
     if options.inputFormat.lower() == 'pcc':
         cc.buildFeatureMatrixFromPCC(getInputfiles(options.connectivesFolder))
-        #cc.pickleClassifier(alg + 'Classifier.pickle')
     elif options.inputFormat.lower() == 'conll':
         cc.buildFeatureMatrixFromCONLL(getInputfiles(options.connectivesFolder))
     
@@ -1007,13 +1326,8 @@ if __name__ == '__main__':
     #cc.randomCrossValidate('tempout.csv')
     #cc.traditionalCrossValidate('tempout.csv')
 
-    #specialOneOffDebuggingMethod1()
-    specialOneOffDebuggingMethod2()
 
     
-    #cc.unpickleClassifier('conllMaxentClassifier.pickle')
-    
-
     """
     cc.classifyText("Gejagt Wer es angesichts der Festlichkeiten zum 40. Stadtjubiläum vergessen haben sollte :", None)
     cc.classifyText("Gejagt Wer es angesichts der Festlichkeiten zum 40. Stadtjubiläum vergessen haben sollte :", None)
@@ -1027,7 +1341,6 @@ b    """
 
     """
     TODO list:
-    - evaluate on conll 2016 shared task data: revisit the f-score of around .86 I got there, as this is way too low.
-    - 
+    - easy fix for the multiword ones; look around you. If on the is not recognised, but other hand is, also annotate on the....
 
     """
