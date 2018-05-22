@@ -23,6 +23,7 @@ class DiscourseToken:
         self.tokenId = tokenId
         self.token = token
 
+    # should do some cleaning up at some point to remove stuff never used
     def setIntOrExt(self, val):
         self.intOrExt = val
     def setMultiWordBoolean(self, val):
@@ -91,6 +92,8 @@ class DiscourseToken:
         self.positionInParagraph = pos
     def setParagraphInitial(self, b):
         self.paragraphInitial = b
+    def setEmbeddedUnits(self, val):
+        self.embeddedUnits = val
         
         
 def addAnnotationLayerToDict(flist, fdict, annname):
@@ -329,8 +332,11 @@ def parseSyntaxFile(syntaxxml, tokenlist):
                 dt.setLeftsiblingCat(leftCat)
                 dt.setRightsiblingCat(rightCat)
                 dt.setRightsiblingContainsVP(rightsiblingContainsVP)
+                #if re.search('maz-00001', syntaxxml):
+                    #print('debugging full sent:', tokenisedSentence)
+                    #print('debugging sid:', elemid)
                 dt.addFullSentence(tokenisedSentence)
-                dt.setSentenceId(sentenceId)
+                dt.setSentenceId(elemid)
                 prevsent = None
                 if elemid == 0:
                     prevsent = ''
@@ -391,6 +397,14 @@ def parseRSTFile(rstxml, tokenlist):
     rstTokenId = 0
     return tokenlist
 
+def getEmbeddedUnits(node, d):
+
+    if node.getparent() is not None:
+        parent = node.getparent()
+        if parent.get('id'):
+            d[parent.get('id')] = parent.get('type')
+        getEmbeddedUnits(parent, d)
+    return d
 
   
 def createDiscourseToken(token, node, conn, multiWordBool):
@@ -404,13 +418,15 @@ def createDiscourseToken(token, node, conn, multiWordBool):
         segmentType = 'unit'
     dt.setType(segmentType)
     dt.setUnitId(node.get('id'))
+    embeddedUnits = getEmbeddedUnits(node, {})
+    dt.setEmbeddedUnits(embeddedUnits)
+    #dt.setEmbedded()
     if node.tag == 'connective':
         dt.setConnectiveId(node.get('id'))
     if segmentType == 'unit':
         pn = node.getparent()
         segmentType = node.get('type')
         if not segmentType: # this elaborate stuff is for tail cases, in which case lxml returns None for node.get('type')
-            # TODO: debug if this procedure is correct!!!
             pn = node.getparent()
             if pn is not None and pn.tag == 'unit':
                 segmentType = node.getparent().get('type')
@@ -446,8 +462,6 @@ def extractTokens(node, l):
             extractTokens(subnode, l)
 
     if node.tail:
-        #if node.tag == 'connective': # if there is a modifier, the text is in the tail, debug this scenario
-            #conn = True
         if node.tail.strip():
             tokens = node.tail.strip().split()
             multiWordBool = False
@@ -456,7 +470,7 @@ def extractTokens(node, l):
             for token in tokens:
                 dt = createDiscourseToken(token, node, conn, multiWordBool)
                 l.append(dt)
-        #conn = False
+
     return l
 
 
@@ -720,30 +734,55 @@ if __name__ == '__main__':
     fileversions = getFileVersionsDict(connectorfiles, syntaxfiles, rstfiles, tokenfiles) # makes a dict with filename 2 connectors, syntax, etc.
     
     file2tokens = defaultdict(list)
+    # this is for getting statistics on extArg position relative to the connective
+    sameSentenceCases = 0
+    anyOfTheFollowingSentencesCases = 0
+    previousSentenceCases = 0
+    anyOfThePrePreviousSentenceCases = 0
+    
     for name in fileversions:
         tokenlist = parseConnectorFile(fileversions[name]['connectors'])
         tokenlist = parseSyntaxFile(fileversions[name]['syntax'], tokenlist)
         tokenlist = parseRSTFile(fileversions[name]['rst'], tokenlist)
         tokenlist = parseTokenizedFile(fileversions[name]['tokens'], tokenlist) # to add paragraph info
         file2tokens[name] = tokenlist
-        if re.search('maz-10902', name):
-            for token in tokenlist:
-                print(token.token, token.paragraphId, token.positionInParagraph, token.paragraphInitial)
-            
+        #if re.search('maz-10902', name):
+            #for token in tokenlist:
+                #print(token.token, token.paragraphId, token.positionInParagraph, token.paragraphInitial)
+        rid2connsentid = defaultdict(set) # set, because it can be spread over multiple sentences
+        rid2extargsentid = defaultdict(set) # same here
+        for token in tokenlist:
+            if token.segmentType == 'connective':
+                rid2connsentid[token.unitId].add(token.sentenceId)
+            elif token.segmentType == 'unit':
+                if token.intOrExt == 'ext':
+                    rid2extargsentid[token.unitId].add(token.sentenceId)
+            for rid in token.embeddedUnits:
+                if token.embeddedUnits[rid] == 'ext':
+                    rid2extargsentid[rid].add(token.sentenceId)
 
-    #debugPrint(file2tokens)
-    
-    #printConnectiveStats(file2tokens)
-    
-        
-            
-            
-    # not sure if these printing functions still work after recent changes              
-    #printPlaintext(file2edulist)
+        for rid in rid2connsentid:
+            if sorted(rid2connsentid[rid])[0] == sorted(rid2extargsentid[rid])[0]:
+                sameSentenceCases += 1
+            elif sorted(rid2extargsentid[rid])[0] - sorted(rid2connsentid[rid])[0] > 0:
+                anyOfTheFollowingSentencesCases += 1
+            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 1:
+                previousSentenceCases += 1
+            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] > 1:
+                anyOfThePrePreviousSentenceCases += 1
 
-    #printConllGold(file2edulist) #TODO: debug this (to see if everything is correct)
+    total = sameSentenceCases + anyOfTheFollowingSentencesCases + previousSentenceCases + anyOfThePrePreviousSentenceCases
     
-    #printStats(file2edulist)
+    print('ss cases:%i / %f' % (sameSentenceCases, sameSentenceCases/total))
+    print('fs cases:%i / %f' % (anyOfTheFollowingSentencesCases, anyOfTheFollowingSentencesCases/total))
+    print('ps cases:%i / %f' % (previousSentenceCases, previousSentenceCases/total))
+    print('pre-ps cases:%i / %f' % (anyOfThePrePreviousSentenceCases, anyOfThePrePreviousSentenceCases/total))
 
     
+
+        #if re.search('maz-00001', name):
+            #for token in tokenlist:
+                #print(token.token, token.sentenceId)
+            #print('conn positions:', rid2connsentid)
+            #print('exta positions:', rid2extargsentid)
     
