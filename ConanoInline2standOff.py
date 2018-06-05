@@ -24,6 +24,7 @@ Known PCC issues at time of coding this (29-05-2018):
 
 import treetaggerwrapper
 ttagger = treetaggerwrapper.TreeTagger(TAGLANG='de') # DANGER! DANGER! HIGH VOLTAGE! ELECTRIC SIX! (hard-coded to german, watch out)
+# http://treetaggerwrapper.readthedocs.io/en/latest/
 
 
 
@@ -55,8 +56,29 @@ def getInputfiles(infolder):
         filelist.append(abspathFile)
     return filelist
 
+
+def convert_latin1_to_utf8(f):
+
+    utf8_version_filename = os.path.join('/tmp/', os.path.basename(f) + '_utf-8.xml') # causes this thing to work only in linux
+    with codecs.open(f, "r", "iso-8859-15") as sourceFile:
+        with codecs.open(utf8_version_filename, "w", "utf-8") as targetFile:
+            while True:
+                contents = sourceFile.readlines()
+                if not contents:
+                    break
+                if re.match('<\?xml version="1\.0" encoding="ISO-8859-15"\?>\n', contents[0]):
+                    contents[0] = '<?xml version="1.0" encoding="UTF-8"?>\n'
+                targetFile.write(''.join(contents))
+    return utf8_version_filename
+
+
 def parseConnectorFile(connectorxml, tokenizeFlag):
 
+    try: # some files were ISO-8859-15
+        codecs.open(connectorxml, 'r', 'utf-8').readlines()
+    except UnicodeDecodeError:
+        connectorxml = convert_latin1_to_utf8(connectorxml)
+        
     xmlParser = lxml.etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding = 'utf-8')
     tree = lxml.etree.parse(connectorxml, parser = xmlParser)
     relations = defaultdict(DiscourseRelation)
@@ -64,7 +86,8 @@ def parseConnectorFile(connectorxml, tokenizeFlag):
     global tokenId
     tokenId = 1
     return tokens, relations
-        
+
+    
         
 def appendToRelation(tokenId, conn, node, relations, nodeTag, nodeType, nodeId):
 
@@ -141,7 +164,12 @@ def extractTokens(node, d, relations, tokenizeFlag):
                 textContent = re.sub('\*\*', '', textContent)
                 tagged = ttagger.tag_text(textContent) # tagging is a bit overkill, but this was the first python wrapper for the treetagger I found. And since in the PCC for tokenization probably the treetagger is used (at least for tagging, as it says in the 2004 paper, so I assume for tokenization as well), decided to just go with this.
                 for tt in tagged:
-                    word, tag, lemma = tt.split('\t') # not sure if last elem is actually lemma, but don't use it anyway
+                    if re.search('\t', tt):
+                        word, tag, lemma = tt.split('\t')
+                        tokens.append(word)
+                    elif re.match(r'<repdns text="[^"]+"\s+/>', tt): # this was the case for a url at some point. 
+                        word =  re.match(r'<repdns text="([^"]+)"\s+/>', tt).groups()[0]
+                        tokens.append(word)
                     tokens.append(word)
             if not tokenizeFlag:
                 tokens = textContent.split()
@@ -162,8 +190,12 @@ def extractTokens(node, d, relations, tokenizeFlag):
                 textContent = re.sub('\*\*', '', node.tail.strip())
                 tagged = ttagger.tag_text(textContent)
                 for tt in tagged:
-                    word, tag, lemma = tt.split('\t')
-                    tokens.append(word)
+                    if re.search('\t', tt):
+                        word, tag, lemma = tt.split('\t')
+                        tokens.append(word)
+                    elif re.match(r'<repdns text="[^"]+"\s+/>', tt): # this was the case for a url at some point. 
+                        word =  re.match(r'<repdns text="([^"]+)"\s+/>', tt).groups()[0]
+                        tokens.append(word)
             if not tokenizeFlag:
                 tokens = node.tail.strip().split()
             for token in tokens:
@@ -186,9 +218,14 @@ def relationIsComplete(relation):
 
 def extractProcessingInstructions(xmlfile):
 
+    try: # some files were ISO-8859-15
+        codecs.open(xmlfile, 'r', 'utf-8').readlines()
+    except UnicodeDecodeError:
+        xmlfile = convert_latin1_to_utf8(xmlfile)
+    
     xmlParser = lxml.etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding = 'utf-8')
     tree = lxml.etree.parse(xmlfile, parser = xmlParser)
-
+    
     return tree.xpath("//processing-instruction()")
 
 def convertStrKeysToInts(d):
@@ -238,7 +275,7 @@ if __name__ == '__main__':
 
         # first convert relations keys to ints for proper sorting
         relations = convertStrKeysToInts(relations)
-        
+
         for relId, rel in sorted(relations.items()):
             # at the moment of coding this, there were a few issues in PCC (see on top), which is why this check is necessary
             if relationIsComplete(rel):
@@ -267,7 +304,7 @@ if __name__ == '__main__':
 
         root.append(tokensnode)
         root.append(relationsnode)
-                
+
         doc = lxml.etree.ElementTree(root)
         pis = extractProcessingInstructions(f)
         # must be a better way to add processing instruction to a doc, but I couldn't find it...
@@ -276,7 +313,7 @@ if __name__ == '__main__':
             for k, v in pi.attrib.items():
                 piText.append('%s="%s"' % (k, v))
             doc.getroot().addprevious(lxml.etree.ProcessingInstruction('relations', ' '.join(piText)))
-            
+
         outname = os.path.join(outputfolder, os.path.basename(f))
         doc.write(outname, xml_declaration=True, encoding='utf-8', pretty_print=True) 
-    
+
