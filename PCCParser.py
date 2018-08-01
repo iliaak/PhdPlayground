@@ -17,7 +17,42 @@ connectorTokenId = 1
 syntaxTokenId = 0 # bit ugly, but because of zero-index list...
 rstTokenId = 0 # idem
 
+discourseRelations = {}
 
+class DiscourseRelation(object):
+
+    def __init__(self, relationId):
+        self.relationId = relationId
+        self.connectiveTokens = []
+        self.intArgTokens = []
+        self.extArgTokens = []
+        self.sense = None
+        self.intArgSynLabel = None # defaulting to None for this one case in maz-8361 (id 8) without int arg
+        self.intArgSynLabelIsExactMatch = None
+        self.intArgSpanningNodeText = None
+
+    def addConnectiveToken(self, tid):
+        self.connectiveTokens.append(tid)
+    def addIntArgToken(self, tid):
+        self.intArgTokens.append(tid)
+    def addExtArgToken(self, tid):
+        self.extArgTokens.append(tid)
+    def setSense(self, sense):
+        self.sense = sense
+    def addExtArgSynfo(self, label, hasfullcoverage, spanningNodeText):
+        self.extArgSynLabel = label
+        self.extArgSynLabelIsExactMatch = hasfullcoverage
+        self.extArgSpanningNodeText = spanningNodeText
+    def addIntArgSynfo(self, label, hasfullcoverage, spanningNodeText):
+        self.intArgSynLabel = label
+        self.intArgSynLabelIsExactMatch = hasfullcoverage
+        self.intArgSpanningNodeText = spanningNodeText
+
+    def filterIntArgForConnectiveTokens(self):
+        self.intArgTokens = [x for x in self.intArgTokens if not x in self.connectiveTokens]
+
+        
+        
 class DiscourseToken:
     def __init__(self, tokenId, token):
         self.tokenId = tokenId
@@ -94,7 +129,123 @@ class DiscourseToken:
         self.paragraphInitial = b
     def setEmbeddedUnits(self, val):
         self.embeddedUnits = val
+    def setSentencePosition(self, val):
+        self.sentencePosition = val
+
+def flattentree(edid, tempdict, l, ttids):
+
+    for i in tempdict[edid]:
+        if i in ttids:
+            l.append(i)
+        else:
+            flattentree(i, tempdict, l, ttids)
+    return l
+
         
+def addArgumentLabelInfo(discourseRelations, syntaxfile, tid2dt):
+
+    sid2nonterminals = defaultdict(lambda : defaultdict(str))
+    xmlParser = lxml.etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding = 'utf-8', remove_comments = True)
+    tree = lxml.etree.parse(syntaxfile, parser = xmlParser)
+    sentencedict = defaultdict(str)
+    syntaxTokenId2postag = defaultdict(str)
+    syntaxTokenId2word = defaultdict(str)
+    for body in tree.getroot():
+        for elemid, sentence in enumerate(body):
+            #elemid is sentenceId
+            graph = sentence.getchildren()[0]
+            terminals = graph.find('.//terminals')
+            nonterminals = graph.find('.//nonterminals')
+            #dt.syntaxId is terminal token id
+            terminaltokenIds = [t.get('id') for t in terminals]
+            for t in terminals:
+                syntaxTokenId2postag[t.get('id')] = t.get('pos')
+                syntaxTokenId2word[t.get('id')] = t.get('word')
+            nt2terminalIds = defaultdict(list)
+            nt2label = defaultdict(str)
+            tempdict = defaultdict(list)
+
+            for nt in nonterminals: # result of graph.find may not be ordered
+                for edge in nt:
+                    if edge.tag == 'edge': # discarding sec edges
+                        tempdict[nt.get('id')].append(edge.get('idref'))
+            for nt in nonterminals:
+                flattened = flattentree(nt.get('id'), tempdict, [], terminaltokenIds)
+                sid2nonterminals[elemid][tuple(flattened)] = nt.get('cat')
+    """
+    if re.search('maz-00001', syntaxfile):
+        for sid, nts in sid2nonterminals.items():
+            print('sid and nts:', sid, nts)
+    """
+    for dr in discourseRelations:
+        intArgSyntaxTokenIds = [tid2dt[t].syntaxId for t in dr.intArgTokens if not syntaxTokenId2postag[tid2dt[t].syntaxId].startswith('$')]
+        intArgSentIds = set([tid2dt[t].sentenceId for t in dr.intArgTokens])
+        if intArgSentIds:
+            connectiveTokenSyntaxIds = [tid2dt[t].syntaxId for t in dr.connectiveTokens]
+            intlabel, intlabelhasfullcoverage, intsynnodetokens = getArgSyntaxLabel(connectiveTokenSyntaxIds, intArgSyntaxTokenIds, intArgSentIds, sid2nonterminals, syntaxTokenId2postag, syntaxTokenId2word)
+            dr.addIntArgSynfo(intlabel, intlabelhasfullcoverage, intsynnodetokens)
+        else:
+            sys.stderr.write('WARNING: Skipping intArg shape info for %s in %s\n' % (dr.relationId, syntaxfile))
+            
+        extArgSyntaxTokenIds = [tid2dt[t].syntaxId for t in dr.extArgTokens if not syntaxTokenId2postag[tid2dt[t].syntaxId].startswith('$')]
+        extArgSentIds = set([tid2dt[t].sentenceId for t in dr.extArgTokens])
+        extlabel, extlabelhasfullcoverage, extsynnodetokens = getArgSyntaxLabel(None, extArgSyntaxTokenIds, extArgSentIds, sid2nonterminals, syntaxTokenId2postag, syntaxTokenId2word)
+        dr.addExtArgSynfo(extlabel, extlabelhasfullcoverage, extsynnodetokens)
+        
+        
+        
+def getArgSyntaxLabel(connectiveTokenSyntaxIds, argsyntaxids, argsentids, sid2nonterminals, syntaxTokenId2postag, syntaxTokenId2word):
+
+    label = None
+    hasfullcoverage = False
+    nodetokens = []
+    if len(argsentids) > 1:
+        label = 'multi_sentence'
+        nodetokens.append('multi_sentence. TODO.')
+    else:
+        matches = []
+        for nt, ids in sid2nonterminals[list(argsentids)[0]].items():
+            if set(argsyntaxids).issubset(nt):
+                matches.append(nt)
+
+        if matches:
+            sm = matches[0]
+            if len(matches) > 1: # if there are multiple matches, get the shortest one
+                shortestmatchlength = max([len(x) for x in matches])
+                for m2 in matches:
+                    if len(m2) < shortestmatchlength:
+                        sm = m2
+            hasfullcoverage = hasFullCoverage(sm, argsyntaxids, syntaxTokenId2postag, connectiveTokenSyntaxIds)
+            label = sid2nonterminals[list(argsentids)[0]][sm]
+            sortedtokens = sorted(sm, key = lambda x: int(re.sub('s\d+_', '', x)))
+            nodetokens = ' '.join([syntaxTokenId2word[x] for x in sortedtokens])
+        else:
+            pass# there was one caase (sent s1040 in maz-17953) where s1040_14 and s1040_15 ('zu tun') are not included in the root S node. Think this is an error though and not meant to be. 
+            #print('NO MATCH FOUND AT ALL! INVESTIGATE!')
+            #print(syntaxfile)
+            #print(intArgSyntaxTokenIds)
+            #print(intArgSentIds)
+            #print(sid2nonterminals[list(intArgSentIds)[0]])
+            
+    return label, hasfullcoverage, nodetokens
+                
+def hasFullCoverage(m, arg, refdict, conntokensynids):
+
+    if len(m) == len(arg):
+        return True
+    elif len(arg) > len(m):
+        extraTokens = [x for x in arg if not x in m]
+        if all(refdict[x].startswith('$') for x in extraTokens):
+            return True
+    elif len(arg) < len(m):
+        # this is a bit implicit, but conntokensynids is None when we are dealing with extArg (which is correct)
+        if not conntokensynids == None:
+            extraTokens = [x for x in m if not x in arg]
+            if all(x in conntokensynids for x in extraTokens):
+                return True
+            
+    return False
+                
         
 def addAnnotationLayerToDict(flist, fdict, annname):
 
@@ -103,6 +254,42 @@ def addAnnotationLayerToDict(flist, fdict, annname):
         fdict[basename][annname] = f
     return fdict
 
+def parseStandoffConnectorFile(connectorxml):
+
+    xmlParser = lxml.etree.XMLParser(strip_cdata = False, resolve_entities = False, encoding = 'utf-8')
+    tree = lxml.etree.parse(connectorxml, parser = xmlParser)
+    tokenlist = []
+    discourseRelations = []
+    tid2dt = {} # so I can assign info in conn, sense, args later
+    for node in tree.getroot():
+        if node.tag == 'tokens':
+            for subnode in node:
+                dt = DiscourseToken(subnode.get('id'), subnode.text)
+                tokenlist.append(dt)
+                tid2dt[subnode.get('id')] = dt
+        elif node.tag == 'relations':
+            for subnode in node:
+                dr = DiscourseRelation(subnode.get('relation_id'))
+                dr.setSense(subnode.get('sense'))
+                for elem in subnode:
+                    if elem.tag == 'connective_tokens':
+                        for ct in elem:
+                            dr.addConnectiveToken(ct.get('id'))
+                            tid2dt[ct.get('id')].setConnectiveBoolean(True)
+                    if elem.tag == 'int_arg_tokens':
+                        for iat in elem:
+                            dr.addIntArgToken(iat.get('id'))
+                            tid2dt[iat.get('id')].setIntOrExt('int')
+                            tid2dt[iat.get('id')].setIsIntArg(True) # these and the above are redundant (only need one), check later during refacotoring which one can go
+                    if elem.tag == 'ext_arg_tokens':
+                        for eat in elem:
+                            dr.addExtArgToken(eat.get('id'))
+                            tid2dt[eat.get('id')].setIntOrExt('ext')
+                            tid2dt[eat.get('id')].setIsExtArg(True) # these and the above are redundant (only need one), check later during refacotoring which one can go
+                dr.filterIntArgForConnectiveTokens()
+                discourseRelations.append(dr)
+
+    return tokenlist, discourseRelations, tid2dt
 
 def parseConnectorFile(connectorxml):
 
@@ -281,7 +468,8 @@ def parseSyntaxFile(syntaxxml, tokenlist):
             subdict, catdict = getSubDict(nonterminalNodes)
             terminalnodeids = [x.get('id') for x in terminalsNode]
             maxId = max([int(re.sub('\D', '', re.sub(r'[^_]+_', '', x))) for x in terminalnodeids])
-            for sentenceId, t in enumerate(terminalsNode):
+            #for sentenceId, t in enumerate(terminalsNode):
+            for sentencePosition, t in enumerate(terminalsNode):
                 sToken = t.get('word')
                 dt = tokenlist[syntaxTokenId]
                 if not sToken == dt.token:
@@ -337,6 +525,7 @@ def parseSyntaxFile(syntaxxml, tokenlist):
                     #print('debugging sid:', elemid)
                 dt.addFullSentence(tokenisedSentence)
                 dt.setSentenceId(elemid)
+                dt.setSentencePosition(sentencePosition)
                 prevsent = None
                 if elemid == 0:
                     prevsent = ''
@@ -417,12 +606,39 @@ def createDiscourseToken(token, node, conn, multiWordBool):
     else:
         segmentType = 'unit'
     dt.setType(segmentType)
-    dt.setUnitId(node.get('id'))
+    nid2 = node.get('id')
+    if not nid2 and conn:
+        # accomodating for modifiers over connectives
+        nid2 = node.getparent().get('id')
+    dt.setUnitId(nid2)
+    if not nid2 in discourseRelations:
+        dr = DiscourseRelation(nid2)
+        discourseRelations[nid2] = dr
+            
+        
     embeddedUnits = getEmbeddedUnits(node, {})
+    for k in embeddedUnits:
+        t = embeddedUnits[k]
+        if not k in discourseRelations:
+            dr = DiscourseRelation(k)
+            discourseRelations[k] = dr
+        if t == 'int':
+            discourseRelations[k].addIntArgToken(dt)
+        elif t == 'ext':
+            discourseRelations[k].addExtArgToken(dt)
+
+            
     dt.setEmbeddedUnits(embeddedUnits)
     #dt.setEmbedded()
-    if node.tag == 'connective':
-        dt.setConnectiveId(node.get('id'))
+    if segmentType == 'connective':
+        # accomodating for modifiers over connectives
+        nid = None
+        if node.get('id'):
+            nid = node.get('id')
+        else:
+            nid = node.getparent().get('id')
+        dt.setConnectiveId(nid)
+        discourseRelations[nid].addConnectiveToken(dt)
     if segmentType == 'unit':
         pn = node.getparent()
         segmentType = node.get('type')
@@ -431,6 +647,11 @@ def createDiscourseToken(token, node, conn, multiWordBool):
             if pn is not None and pn.tag == 'unit':
                 segmentType = node.getparent().get('type')
         dt.setIntOrExt(segmentType)
+        if segmentType == 'int':
+            discourseRelations[node.get('id')].addIntArgToken(dt)
+        elif segmentType == 'ext':
+            discourseRelations[node.get('id')].addExtArgToken(dt)
+        
         
     elif segmentType == 'connective':
         
@@ -445,7 +666,7 @@ def extractTokens(node, l):
 
     conn = False
     if node.text:
-        if node.tag == 'connective':
+        if node.tag == 'connective' or node.tag == 'modifier': # flattening modifiers and connectives for now.
             conn = True
         textContent = node.text.strip()
         if textContent:
@@ -709,7 +930,261 @@ def printConnectiveStats(file2tokens):
                 connectiveTokens += 1
     print(totaltokens, connectiveTokens)
 
+
+def getTokenId2DiscourseToken(tokenlist):
+
+    tid2dt = {}
+    for dt in tokenlist:
+        tid2dt[dt.tokenId] = dt
+    return tid2dt
+
+def getArgumentPositionInfo():
+
+    embeddedcases = 0
+    extarg_intarg_nonadjacent = 0
+    file2tokens = defaultdict(list)
+    sensedict = defaultdict(int)
+    file2discourseRelations = defaultdict(dict)
+    allrelations = 0
+    for name in fileversions:
+        tokenlist, discourseRelations, tid2dt = parseStandoffConnectorFile(fileversions[name]['connectors'])
+        tokenlist = parseSyntaxFile(fileversions[name]['syntax'], tokenlist)
+        tokenlist = parseRSTFile(fileversions[name]['rst'], tokenlist)
+        tokenlist = parseTokenizedFile(fileversions[name]['tokens'], tokenlist) # to add paragraph info
+        file2tokens[name] = tokenlist
+        file2discourseRelations[name] = discourseRelations
+        tid2dt = getTokenId2DiscourseToken(tokenlist)
+
+        for dr in file2discourseRelations[name]:
+            allrelations += 1
+            connsents = set()# plural, because can be multiple
+            for ctid in dr.connectiveTokens:
+                connsents.add(tid2dt[ctid].sentenceId)
+            intargsents = set()
+            for iatid in dr.intArgTokens:
+                intargsents.add(tid2dt[iatid].sentenceId)
+            extargsents = set()
+            for eatid in dr.extArgTokens:
+                extargsents.add(tid2dt[eatid].sentenceId)
+        
+            #print('debug:', dr.extArgTokens)
+            if not set(dr.extArgTokens).isdisjoint(set(dr.intArgTokens)):
+                # TODO: think about what to do with these (not sure if this difference between embedded or not is even relevant here)
+                embeddedcases += 1
+            else:
+                if min(int(dr.connectiveTokens[0]), int(dr.intArgTokens[0])) - int(dr.extArgTokens[len(dr.extArgTokens)-1]) > 1:
+                    # they are non-adjacent, but it could be a punctuation symbol in between (or a connective from another relation, but not sure if I want to discard these at this point)
+                    inbetweenstuff = ' '.join([tid2dt[str(x)].token for x in range(int(dr.extArgTokens[len(dr.extArgTokens)-1])+1, int(dr.intArgTokens[0]))]).strip()
+                    if re.match('\W+', inbetweenstuff):
+                        pass
+                    else:
+                        extarg_intarg_nonadjacent += 1
+                        sensedict[dr.sense] += 1
+                        print('in between:', inbetweenstuff)
+                        print()
+                # FS non-adjacent does not happen in PCC (code below)
+                """
+                elif min(int(dr.connectiveTokens[0]), int(dr.extArgTokens[0])) - int(dr.intArgTokens[len(dr.intArgTokens)-1]) > 1:
+                    inbetweenstuff = ' '.join([tid2dt[str(x)].token for x in range(int(dr.intArgTokens[len(dr.intArgTokens)-1])+1, int(dr.extArgTokens[0]))]).strip()
+                    if re.match('\W+', inbetweenstuff):
+                        pass
+                    else:
+                        extarg_intarg_nonadjacent += 1
+                    
+                        print('in between:', inbetweenstuff)
+                        print()
+                """
+        
+            
+    print('extarg_intarg_nonadjacent:', extarg_intarg_nonadjacent, extarg_intarg_nonadjacent / allrelations)
+    print('all relations:', allrelations)
+    print('embedded cases:', embeddedcases)
+    for pair in sorted(sensedict.items(), key = lambda x: x[1], reverse=True):
+        print(pair)
+                
+def getArgumentPositionInfoSentenceIdBased():
+
+    file2tokens = defaultdict(list)
+    file2discourseRelations = defaultdict(dict)
+    # this is for getting statistics on extArg position relative to the connective
+    sameSentenceCases = 0
+    anyOfTheFollowingSentencesCases = 0
+    previousSentenceCases = 0
+    anyOfThePrePreviousSentenceCases = 0
+    intargembeddedinextarg = 0
+    ext_int_overlap = 0
+    #int_ext_overlap = 0
+    ext_circumfixes_int = 0
+    sensedict = defaultdict(int)
+    allrelations = 0
     
+    for name in fileversions:
+        #tokenlist = parseConnectorFile(fileversions[name]['connectors'])
+        tokenlist, discourseRelations, tid2dt = parseStandoffConnectorFile(fileversions[name]['connectors'])
+        tokenlist = parseSyntaxFile(fileversions[name]['syntax'], tokenlist)
+        tokenlist = parseRSTFile(fileversions[name]['rst'], tokenlist)
+        tokenlist = parseTokenizedFile(fileversions[name]['tokens'], tokenlist) # to add paragraph info
+        file2tokens[name] = tokenlist
+        addArgumentLabelInfo(discourseRelations, fileversions[name]['syntax'])
+        file2discourseRelations[name] = discourseRelations
+        # create dict so that tid accesses DiscourseToken. Have already done this in parseStandoffConnectorFile, so could pass it on from there. Let's see how this code evolves and which one needs to go later on.
+        tid2dt = getTokenId2DiscourseToken(tokenlist)
+        #if re.search('maz-10902', name):
+            #for token in tokenlist:
+                #print(token.token, token.sentencePosition, token.paragraphId, token.positionInParagraph, token.paragraphInitial)
+
+        # can delete the stuff below if my new standoff parsing works
+        anaphoricOnes = []
+        for dr in file2discourseRelations[name]:
+            allrelations += 1
+            connsents = set()# plural, because can be multiple
+            for ctid in dr.connectiveTokens:
+                connsents.add(tid2dt[ctid].sentenceId)
+            intargsents = set()
+            for iatid in dr.intArgTokens:
+                intargsents.add(tid2dt[iatid].sentenceId)
+            extargsents = set()
+            for eatid in dr.extArgTokens:
+                extargsents.add(tid2dt[eatid].sentenceId)
+            if sorted(intargsents) == sorted(extargsents):
+               sameSentenceCases += 1
+               #print('conn:', ' '.join([tid2dt[x].token for x in dr.connectiveTokens]))
+               #print('int:', ' '.join([tid2dt[x].token for x in dr.intArgTokens]))
+               #print('ext:', ' '.join([tid2dt[x].token for x in dr.extArgTokens]))
+               #inbetweenstuff = ' '.join([tid2dt[str(x)].token for x in range(int(dr.extArgTokens[len(dr.extArgTokens)-1])+1, int(dr.intArgTokens[0]))])
+               #print('in between:', inbetweenstuff)
+               #print()
+            elif sorted(extargsents)[0] - sorted(intargsents)[len(intargsents)-1] == 1:
+                anyOfTheFollowingSentencesCases += 1
+                #print('conn:', ' '.join([tid2dt[x].token for x in dr.connectiveTokens]))
+                #print('int:', ' '.join([tid2dt[x].token for x in dr.intArgTokens]))
+                #print('ext:', ' '.join([tid2dt[x].token for x in dr.extArgTokens]))
+                #inbetweenstuff = ' '.join([tid2dt[str(x)].token for x in range(int(dr.intArgTokens[len(dr.intArgTokens)-1])+1, int(dr.extArgTokens[0]))])
+                #print('in between:', inbetweenstuff)
+                #print()
+            elif sorted(intargsents)[0] - sorted(extargsents)[len(extargsents)-1] == 1:
+                previousSentenceCases += 1
+                #print('conn:', ' '.join([tid2dt[x].token for x in dr.connectiveTokens]))
+                #print('int:', ' '.join([tid2dt[x].token for x in dr.intArgTokens]))
+                #print('ext:', ' '.join([tid2dt[x].token for x in dr.extArgTokens]))
+                #inbetweenstuff = ' '.join([tid2dt[str(x)].token for x in range(int(dr.extArgTokens[len(dr.extArgTokens)-1])+1, int(dr.intArgTokens[0]))])
+                #print('in between:', inbetweenstuff)
+                #print()
+            elif sorted(intargsents)[0] - sorted(extargsents)[len(extargsents)-1] >1 :
+                anyOfThePrePreviousSentenceCases += 1
+                print('conn:', ' '.join([tid2dt[x].token for x in dr.connectiveTokens]))
+                print('int:', ' '.join([tid2dt[x].token for x in dr.intArgTokens]))
+                print('ext:', ' '.join([tid2dt[x].token for x in dr.extArgTokens]))
+                inbetweenstuff = ' '.join([tid2dt[str(x)].token for x in range(int(dr.extArgTokens[len(dr.extArgTokens)-1])+1, int(dr.intArgTokens[0]))])
+                print('in between:', inbetweenstuff)
+                print()
+                sensedict[dr.sense] += 1
+            elif intargsents.issubset(extargsents):
+                intargembeddedinextarg += 1
+                #print('conn:', ' '.join([tid2dt[x].token for x in dr.connectiveTokens]))
+                #print('int:', ' '.join([tid2dt[x].token for x in dr.intArgTokens]))
+                #print('ext:', ' '.join([tid2dt[x].token for x in dr.extArgTokens]))
+                #inbetweenstuff = ' '.join([tid2dt[str(x)].token for x in range(int(dr.extArgTokens[len(dr.extArgTokens)-1])+1, int(dr.intArgTokens[0]))])
+                #print('in between:', inbetweenstuff)
+                #print()
+            elif sorted(intargsents)[0] == sorted(extargsents)[0] and len(intargsents) > len(extargsents):
+                ext_int_overlap += 1
+            elif sorted(extargsents)[0] < sorted(intargsents)[0] and sorted(extargsents)[len(extargsents)-1] > sorted(intargsents)[len(intargsents)-1]:
+                ext_circumfixes_int += 1
+            elif sorted(intargsents)[0] == sorted(extargsents)[len(extargsents)-1] and sum(intargsents) > sum(extargsents):
+                ext_int_overlap += 1
+                
+                
+            else:
+                print('LOST CASE, DEBUG:')
+                print('int sent ids:', sorted(intargsents))
+                print('ext sent ids:', sorted(extargsents))
+                print('conn:', ' '.join([tid2dt[x].token for x in dr.connectiveTokens]))
+                print('int:', ' '.join([tid2dt[x].token for x in dr.intArgTokens]))
+                print('ext:', ' '.join([tid2dt[x].token for x in dr.extArgTokens]))
+                inbetweenstuff = ' '.join([tid2dt[str(x)].token for x in range(int(dr.extArgTokens[len(dr.extArgTokens)-1])+1, int(dr.intArgTokens[0]))])
+                print('in between:', inbetweenstuff)
+                print()
+    print('total number of relations:', allrelations)
+    print('ss cases: %i / %f' % (sameSentenceCases, sameSentenceCases/allrelations))
+    print('fs cases: %i / %f' % (anyOfTheFollowingSentencesCases, anyOfTheFollowingSentencesCases/allrelations))
+    print('ps cases: %i / %f' % (previousSentenceCases, previousSentenceCases/allrelations))
+    print('pre-ps cases: %i / %f' % (anyOfThePrePreviousSentenceCases, anyOfThePrePreviousSentenceCases/allrelations))
+    print('int arg embedded in ext arg: %i / %f' % (intargembeddedinextarg, intargembeddedinextarg/allrelations))
+    print('ext, then int, with overlapping sent ids: %i / %f' % (ext_int_overlap, ext_int_overlap/allrelations))
+    print('ext circumfixes int, but int not included in ext (no embedding for sent ids): %i / %f' % (ext_circumfixes_int, ext_circumfixes_int/allrelations))
+    print('mystery cases remaining:', allrelations - sameSentenceCases - anyOfTheFollowingSentencesCases - previousSentenceCases - anyOfThePrePreviousSentenceCases - intargembeddedinextarg - ext_int_overlap - ext_circumfixes_int)
+    print('senses of pre-previous sent cases:')
+    for pair in sorted(sensedict.items(), key = lambda x: x[1], reverse=True):
+        print(pair)
+
+
+def getArgumentShapeInfo(f2drs, f2tid2dt):
+
+    intArgShapes = defaultdict(int)
+    intArgLabel2Coverage = defaultdict(lambda : defaultdict(int))
+    extArgShapes = defaultdict(int)
+    extArgLabel2Coverage = defaultdict(lambda : defaultdict(int))
+    intArgSyntacticTypesInfo = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
+    extArgSyntacticTypesInfo = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
+
+    import json
+    connectiveSyncatJsonDict = json.load(codecs.open('pccConnectiveSyncats.json'))
+
+    for f, drs in f2drs.items():
+        for dr in drs:
+            conntext = ' '.join([f2tid2dt[f][cid].token for cid in dr.connectiveTokens])
+            connsyncats = connectiveSyncatJsonDict[conntext]
+            if type(connsyncats) == str:
+                connsyncats = [connsyncats]
+            intArgShapes[dr.intArgSynLabel] += 1
+            if dr.intArgSynLabelIsExactMatch:
+                intArgLabel2Coverage[dr.intArgSynLabel]['exact match'] += 1
+                #intArgSyntacticTypesInfo[connpostags][dr.intArgSynLabel]['exact match'] += 1
+                for cs in connsyncats:
+                    intArgSyntacticTypesInfo[cs][dr.intArgSynLabel]['exact match'] += 1
+            else:
+                intArgLabel2Coverage[dr.intArgSynLabel]['syntax label is superset'] += 1
+                for cs in connsyncats:
+                    intArgSyntacticTypesInfo[cs][dr.intArgSynLabel]['superset match'] += 1
+                #intArgSyntacticTypesInfo[connpostags][dr.intArgSynLabel]['superset match'] += 1
+                print('True shape/tokens:', ' '.join([f2tid2dt[f][x].token for x in dr.intArgTokens]))
+                print('label:', dr.intArgSynLabel)
+                print('connective syncat(s):', connsyncats)
+                print('connective tokens:', ' '.join([f2tid2dt[f][x].token for x in dr.connectiveTokens]))
+                print('Superset shape/tokens:', dr.intArgSpanningNodeText)
+                print()
+                # investigate here. Then see if the conn syn type (adv, prep, etc) exhibits some special properties (perhaps csu/cco are always sentential, or something similar?)
+            extArgShapes[dr.extArgSynLabel] += 1
+            if dr.extArgSynLabelIsExactMatch:
+                extArgLabel2Coverage[dr.extArgSynLabel]['exact match'] += 1
+                for cs in connsyncats:
+                    extArgSyntacticTypesInfo[cs][dr.extArgSynLabel]['exact match'] += 1
+                #extArgSyntacticTypesInfo[connpostags][dr.extArgSynLabel]['exact match'] += 1
+            else:
+                extArgLabel2Coverage[dr.extArgSynLabel]['syntax label is superset'] += 1
+                #extArgSyntacticTypesInfo[connpostags][dr.extArgSynLabel]['superset match'] += 1
+                for cs in connsyncats:
+                    extArgSyntacticTypesInfo[cs][dr.extArgSynLabel]['superset match'] += 1
+
+    print('int arg labels:')
+    for pair in sorted(intArgShapes.items(), key = lambda x: x[1], reverse=True):
+        print("%s\t%s\t%s\t%s" % (pair[0], pair[1], intArgLabel2Coverage[pair[0]]['exact match'], intArgLabel2Coverage[pair[0]]['syntax label is superset']))
+        
+    for syntype in intArgSyntacticTypesInfo:
+        #print(syntype)
+        for arglabel in intArgSyntacticTypesInfo[syntype]:
+            print('%s\t%s\t%s\t%s' % (syntype, arglabel, intArgSyntacticTypesInfo[syntype][arglabel]['exact match'], intArgSyntacticTypesInfo[syntype][arglabel]['superset match']))
+
+    print('\next arg labels:')
+    for pair in sorted(extArgShapes.items(), key = lambda x: x[1], reverse=True):
+        print("%s\t%s\t%s\t%s" % (pair[0], pair[1], extArgLabel2Coverage[pair[0]]['exact match'], extArgLabel2Coverage[pair[0]]['syntax label is superset']))
+        
+    for syntype in extArgSyntacticTypesInfo:
+        #print(syntype)
+        for arglabel in extArgSyntacticTypesInfo[syntype]:
+            print('%s\t%s\t%s\t%s' % (syntype, arglabel, extArgSyntacticTypesInfo[syntype][arglabel]['exact match'], extArgSyntacticTypesInfo[syntype][arglabel]['superset match']))
+
             
 if __name__ == '__main__':
 
@@ -730,59 +1205,41 @@ if __name__ == '__main__':
     syntaxfiles = getInputfiles(options.syntaxFolder)
     rstfiles = getInputfiles(options.rstFolder)
     tokenfiles = getInputfiles(options.tokensFolder)
-    
-    fileversions = getFileVersionsDict(connectorfiles, syntaxfiles, rstfiles, tokenfiles) # makes a dict with filename 2 connectors, syntax, etc.
-    
+
     file2tokens = defaultdict(list)
-    # this is for getting statistics on extArg position relative to the connective
-    sameSentenceCases = 0
-    anyOfTheFollowingSentencesCases = 0
-    previousSentenceCases = 0
-    anyOfThePrePreviousSentenceCases = 0
-    
+    file2discourseRelations = defaultdict(dict)
+    fileversions = getFileVersionsDict(connectorfiles, syntaxfiles, rstfiles, tokenfiles) # makes a dict with filename 2 connectors, syntax, etc.
+    file2tid2dt = defaultdict(lambda : defaultdict(DiscourseToken)) # only used for debugging/priting I think
     for name in fileversions:
-        tokenlist = parseConnectorFile(fileversions[name]['connectors'])
+        #tokenlist = parseConnectorFile(fileversions[name]['connectors'])
+        tokenlist, discourseRelations, tid2dt = parseStandoffConnectorFile(fileversions[name]['connectors'])
         tokenlist = parseSyntaxFile(fileversions[name]['syntax'], tokenlist)
         tokenlist = parseRSTFile(fileversions[name]['rst'], tokenlist)
-        tokenlist = parseTokenizedFile(fileversions[name]['tokens'], tokenlist) # to add paragraph info
+        tokenlist = parseTokenizedFile(fileversions[name]['tokens'], tokenlist)
         file2tokens[name] = tokenlist
-        #if re.search('maz-10902', name):
-            #for token in tokenlist:
-                #print(token.token, token.paragraphId, token.positionInParagraph, token.paragraphInitial)
-        rid2connsentid = defaultdict(set) # set, because it can be spread over multiple sentences
-        rid2extargsentid = defaultdict(set) # same here
-        for token in tokenlist:
-            if token.segmentType == 'connective':
-                rid2connsentid[token.unitId].add(token.sentenceId)
-            elif token.segmentType == 'unit':
-                if token.intOrExt == 'ext':
-                    rid2extargsentid[token.unitId].add(token.sentenceId)
-            for rid in token.embeddedUnits:
-                if token.embeddedUnits[rid] == 'ext':
-                    rid2extargsentid[rid].add(token.sentenceId)
-
-        for rid in rid2connsentid:
-            if sorted(rid2connsentid[rid])[0] == sorted(rid2extargsentid[rid])[0]:
-                sameSentenceCases += 1
-            elif sorted(rid2extargsentid[rid])[0] - sorted(rid2connsentid[rid])[0] > 0:
-                anyOfTheFollowingSentencesCases += 1
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 1:
-                previousSentenceCases += 1
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] > 1:
-                anyOfThePrePreviousSentenceCases += 1
-
-    total = sameSentenceCases + anyOfTheFollowingSentencesCases + previousSentenceCases + anyOfThePrePreviousSentenceCases
-    
-    print('ss cases:%i / %f' % (sameSentenceCases, sameSentenceCases/total))
-    print('fs cases:%i / %f' % (anyOfTheFollowingSentencesCases, anyOfTheFollowingSentencesCases/total))
-    print('ps cases:%i / %f' % (previousSentenceCases, previousSentenceCases/total))
-    print('pre-ps cases:%i / %f' % (anyOfThePrePreviousSentenceCases, anyOfThePrePreviousSentenceCases/total))
+        tid2dt = getTokenId2DiscourseToken(tokenlist)
+        file2tid2dt[name] = tid2dt
+        addArgumentLabelInfo(discourseRelations, fileversions[name]['syntax'], tid2dt)
+        file2discourseRelations[name] = discourseRelations
 
     
-
-        #if re.search('maz-00001', name):
-            #for token in tokenlist:
-                #print(token.token, token.sentenceId)
-            #print('conn positions:', rid2connsentid)
-            #print('exta positions:', rid2extargsentid)
+        
+    #getArgumentPositionInfoSentenceIdBased()
+    #getArgumentPositionInfo()
+    getArgumentShapeInfo(file2discourseRelations, file2tid2dt)
+            
+    ############### debugging section #################
+    """
+    if re.search('maz-2669', name):
+    for token in tokenlist:
+    int_ext = None
+    if token.segmentType == 'unit':
+    int_ext = token.intOrExt
+    print(token.token, token.tokenId, token.unitId, token.sentenceId, token.segmentType, int_ext)
+    """
     
+    ###################################################
+
+
+    
+        
