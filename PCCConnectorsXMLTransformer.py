@@ -159,20 +159,20 @@ def createPrimmarkXML(f, tokens):
 
     root = etree.Element('markables', xmlns='www.eml.org/NameSpaces/primmark')
     # markable for complete relation, and markables for parts, let's see if that works...
-    for rid in rid2sense:
-        reltokens = sorted(rid2conn[rid] + rid2int[rid] + rid2ext[rid])
+    for rid in sorted(rid2sense):
+        reltokens = sorted(set(rid2conn[rid] + rid2int[rid] + rid2ext[rid]))
         relspan = getmmaxspan(reltokens)
         relationmarkable = etree.Element('markable', span=relspan, id=str(rid), sense=rid2sense[rid], type='discourse_relation')
         root.append(relationmarkable)
         # also create separate int, ext and conn markables (note that there is some redundancy...):
         if rid2conn[rid]:
-            connmarkable = etree.Element('markable', span=getmmaxspan(rid2conn[rid]), id=str(rid)+'_connective', sense=rid2sense[rid], type='connective')
+            connmarkable = etree.Element('markable', span=getmmaxspan(rid2conn[rid]), id=str(rid)+'_connective', sense=rid2sense[rid], type='connective', relationId=rid)
             root.append(connmarkable)
         if rid2int[rid]:
-            intmarkable = etree.Element('markable', span=getmmaxspan(rid2int[rid]), id=str(rid)+'_intArg', type='intArg')
+            intmarkable = etree.Element('markable', span=getmmaxspan(rid2int[rid]), id=str(rid)+'_intArg', type='intArg', relationId=rid)
             root.append(intmarkable)
         if rid2ext[rid]:
-            extmarkable = etree.Element('markable', span=getmmaxspan(rid2ext[rid]), id=str(rid)+'_extArg', type='extArg')
+            extmarkable = etree.Element('markable', span=getmmaxspan(rid2ext[rid]), id=str(rid)+'_extArg', type='extArg', relationId=rid)
             root.append(extmarkable)
     return root
 
@@ -198,8 +198,8 @@ def createWordsXML(f, tokens):
 def createSentenceXML(f, tokens):
 
     root = etree.Element('markables', xmlns='www.eml.org/NameSpaces/primmark')
-    for rid in rid2sense:
-        reltokens = sorted(rid2conn[rid] + rid2int[rid] + rid2ext[rid])
+    for rid in sorted(rid2sense):
+        reltokens = sorted(set(rid2conn[rid] + rid2int[rid] + rid2ext[rid]))
         relspan = getmmaxspan(reltokens)
         relationmarkable = etree.Element('markable', span=relspan, id=str(rid))
         root.append(relationmarkable)
@@ -259,18 +259,21 @@ if __name__ == '__main__':
         if options.outputformat == 'generic':
     
             standoffXMLRootNode = etree.Element("discourse")
+            tokensnode = etree.Element('tokens')
+            relationsnode = etree.Element('relations')
             for tid in sorted(tid2token):
                 tokenNode = etree.Element('token')
                 tokenNode.attrib['id'] = str(tid)
                 tokenNode.text = tid2token[tid]
-                standoffXMLRootNode.append(tokenNode)
+                #standoffXMLRootNode.append(tokenNode)
+                tokensnode.append(tokenNode)
             for rid in sorted(rid2conn):
                 relationNode = etree.Element('relation')
                 relationNode.attrib['id'] = str(rid)
                 relationNode.attrib['sense'] = rid2sense[rid]
-                connNode = etree.Element('connectiveTokens')
-                intNode = etree.Element('intArgTokens')
-                extNode = etree.Element('extArgTokens')
+                connNode = etree.Element('connective_tokens')
+                intNode = etree.Element('int_arg_tokens')
+                extNode = etree.Element('ext_arg_tokens')
                 for tid in rid2conn[rid]:
                     connTokenNode = etree.Element('token')
                     connTokenNode.attrib['id'] = str(tid)
@@ -286,7 +289,10 @@ if __name__ == '__main__':
                 relationNode.append(connNode)
                 relationNode.append(intNode)
                 relationNode.append(extNode)
-                standoffXMLRootNode.append(relationNode)
+                #standoffXMLRootNode.append(relationNode)
+                relationsnode.append(relationNode)
+            standoffXMLRootNode.append(tokensnode)
+            standoffXMLRootNode.append(relationsnode)
             standofftree = etree.ElementTree(standoffXMLRootNode)
             standofftree.write(os.path.join(options.outputfolder, os.path.basename(f)), pretty_print=True, encoding='UTF-8', xml_declaration = True)
 
