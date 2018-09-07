@@ -23,13 +23,14 @@ from keras.layers import Dense, Dropout, Activation, Flatten
 from keras.layers import Embedding
 from keras.layers import GlobalMaxPooling1D
 from keras.layers import Conv1D, GlobalAveragePooling1D, MaxPooling1D
+from keras.utils import to_categorical
 
 import numpy
 from sklearn import svm
 import sys
 from nltk.tag import stanford
 from keras.wrappers.scikit_learn import KerasClassifier
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, KFold
 from sklearn.model_selection import cross_val_score
 from keras.models import Sequential
 from keras.layers import Dense
@@ -40,6 +41,7 @@ embd = {}
 posembd = {}
 pos2column = {}
 ROWDIM = 0
+KERAS_OUTPUT_DIM = 0
 
 def getFeatureMatrix(fileversions, sent2tagged):
 
@@ -54,7 +56,6 @@ def getFeatureMatrix(fileversions, sent2tagged):
     matrix.append(headers)
     mid = 1
     connectiveSingleTokens = 0
-
 
     file2tokenlist = defaultdict(list)
     file2discourseRelations = defaultdict(list)
@@ -93,18 +94,40 @@ def getFeatureMatrix(fileversions, sent2tagged):
             c = ' '.join([dt.token for dt in rid2conndt[rid]])
             p = 0
             someId2connective[name + '_' + str(rid)] = ' '.join(rid2conn[rid])
-            if sorted(rid2connsentid[rid])[0] == sorted(rid2extargsentid[rid])[0]:
-                someId2extArgPosition[name + '_' + str(rid)] = 1
+            reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
+            p = reldist
+            """
+            if reldist <= 0:
+                p = 0 # using three class only
+            if reldist == 1:
                 p = 1
-            elif sorted(rid2extargsentid[rid])[0] - sorted(rid2connsentid[rid])[0] > 0:
+            else:
+                p = 2
+            """
+            someId2extArgPosition[name + '_' + str(rid)] = reldist # WARNING; not the same as p
+            """
+            if sorted(rid2connsentid[rid])[0] == sorted(rid2extargsentid[rid])[0]:
                 someId2extArgPosition[name + '_' + str(rid)] = 2
                 p = 2
+            elif sorted(rid2extargsentid[rid])[0] - sorted(rid2connsentid[rid])[0] > 0:
+                someId2extArgPosition[name + '_' + str(rid)] = 3
+                p = 3
             elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 1:
+                someId2extArgPosition[name + '_' + str(rid)] = 1
+                p = 1
+            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 2:
                 someId2extArgPosition[name + '_' + str(rid)] = 0
                 p = 0
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] > 1:
+            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 3:
                 someId2extArgPosition[name + '_' + str(rid)] = 0
                 p = 0
+            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 4:
+                someId2extArgPosition[name + '_' + str(rid)] = 0
+                p = 0
+            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] > 4:
+                someId2extArgPosition[name + '_' + str(rid)] = 0
+                p = 0
+            """
             fullsent = rid2conndt[rid][0].fullSentence
             tagged = None
             if fullsent in sent2tagged:
@@ -184,6 +207,7 @@ def trainKerasPositionClassifier(csvmatrix):
         srow = [str(x) for x in row]
         smatrix.append(srow)
     feature2ohvposition, feature2ohvlength = getf2ohvpos(smatrix)
+    labels = []
     for row in smatrix:
         # headers = ['id', 'connective', 'pos', 'sentencePosition', 'pathToRoot', 'sentenceId', 'class_label']
         _id, tok, postag, sentencePosition, rootroute, sentenceId, label = row
@@ -219,17 +243,24 @@ def trainKerasPositionClassifier(csvmatrix):
         global ROWDIM
         ROWDIM = len(nrow)
         nrow.append(label)
+        labels.append(label)
+                
         nmatrix.append(nrow)
 
     
     df = pandas.DataFrame(numpy.array(nmatrix), columns=None)
     ds = df.values
     X = ds[:,0:numpy.shape(df)[1]-1].astype(float)
-    Y = ds[:,numpy.shape(df)[1]-1]
+    #Y = ds[:,numpy.shape(df)[1]-1]
+    Y = to_categorical(numpy.array(labels))
+
+    global KERAS_OUTPUT_DIM
+    KERAS_OUTPUT_DIM = len(Y[0])
+    
 
     seed = 6
     batch_size = 5
-    epochs = 10
+    epochs = 100
     classifier = KerasClassifier(build_fn=create_baseline_model, epochs=epochs, batch_size=batch_size)
     classifier.fit(X, Y, verbose=0)
 
@@ -273,9 +304,11 @@ def getf2ohvpos(fmatrix):
     return f, a
 
 
-def evaluatePositionOnlyNeural(fmatrix):
+def evaluatePositionOnlyNeural(fmatrix, numIterations):
 
-    #embd = {}
+    embd = {}
+    posembd = {}
+    #print('WAAAARNING! NOT LOADING EMBS!')
     embd = loadExternalEmbeddings('cc.de.300.vec')
     posembd = loadExternalEmbeddings('tiger_pos_model.vec')
     
@@ -286,7 +319,8 @@ def evaluatePositionOnlyNeural(fmatrix):
         srow = [str(x) for x in row]
         smatrix.append(srow)
     feature2ohvposition, feature2ohvlength = getf2ohvpos(smatrix)
-    for row in smatrix:
+    labels = []
+    for row in smatrix[1:]: # skipping header (assuming that first row is header)
         # headers = ['id', 'connective', 'pos', 'sentencePosition', 'pathToRoot', 'sentenceId', 'class_label']
         _id, tok, postag, sentencePosition, rootroute, sentenceId, label = row
         nrow = []
@@ -318,26 +352,30 @@ def evaluatePositionOnlyNeural(fmatrix):
                 
         global ROWDIM
         ROWDIM = len(nrow)
+        labels.append(label)
         nrow.append(label)
+        #print('label:', label)
         nmatrix.append(nrow)
 
-    
-    df = pandas.DataFrame(numpy.array(nmatrix), columns=None)
-    ds = df.values
-    X = ds[:,0:numpy.shape(df)[1]-1].astype(float)
-    Y = ds[:,numpy.shape(df)[1]-1]
 
     seed = 6
     batch_size = 5
-    epochs = 10
+    epochs = 100
     classifier = KerasClassifier(build_fn=create_baseline_model, epochs=epochs, batch_size=batch_size)
-    kfold = StratifiedKFold(n_splits=10, shuffle=True, random_state=seed)
-    acc = cross_val_score(classifier, X, Y, cv=kfold, scoring='accuracy')
-    f1 = cross_val_score(classifier, X, Y, cv=kfold, scoring='f1_micro')
-    precision = cross_val_score(classifier, X, Y, cv=kfold, scoring='precision_micro')
-    recall = cross_val_score(classifier, X, Y, cv=kfold, scoring='recall_micro')
 
-    return acc.mean(), precision.mean(), recall.mean(), f1.mean()
+
+    df = pandas.DataFrame(numpy.array(nmatrix), columns=None)
+    ds = df.values
+    X = ds[:,0:numpy.shape(df)[1]-1].astype(float)
+    #Y = ds[:,numpy.shape(df)[1]-1]
+    Y = to_categorical(numpy.array(labels))
+
+    global KERAS_OUTPUT_DIM
+    KERAS_OUTPUT_DIM = len(Y[0])
+    
+    kfold = KFold(n_splits=10, shuffle=True, random_state=seed)
+    results = cross_val_score(classifier, X, Y, cv=kfold)
+    return results.mean()
 
 
 def create_baseline_model():
@@ -352,10 +390,10 @@ def create_baseline_model():
     #model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', keras_metrics.precision(), keras_metrics.recall()])
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', keras_metrics.precision(), keras_metrics.recall()]) # perhaps this should not be binary (but categorical instead)
     """
-
+    #"""
     hidden_dims = 250
     hidden_dims2 = 64
-    outputDimension = 1
+    outputDimension = KERAS_OUTPUT_DIM
 
     model = Sequential()
 
@@ -369,18 +407,67 @@ def create_baseline_model():
 
     #model.add(Dense(1, activation='sigmoid'))
     #model.add(Dense(2, activation='softmax'))
-    model.add(Dense(outputDimension, activation='sigmoid')) # softmax
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy', keras_metrics.precision(), keras_metrics.recall()]) # perhaps this should not be binary (but categorical instead)
-    """
-    model.compile(loss='binary_crossentropy',
-                  #model.compile(loss='categorical_crossentropy',
-                  #optimizer='adam',
-                  optimizer='rmsprop',
-                  #metrics=['categorical_accuracy'])
-                  metrics=['accuracy'])
-    """
+    model.add(Dense(outputDimension, activation='sigmoid')) # softmax/sigmoid
+    
+    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     
     return model
+
+def evaluatePositionOnlyMVBaseline(csvmatrix, numIterations):
+
+    headers, csvmatrix = csvmatrix[0], csvmatrix[1:]
+    pl = getDataSplits(numIterations, len(csvmatrix))
+    df = pandas.DataFrame(csvmatrix, columns=headers)
+    d = defaultdict(LabelEncoder)
+    fit = df.apply(lambda x: d[x.name].fit_transform(x))
+    df = df.apply(lambda x: d[x.name].transform(x))
+
+    _as = []
+    _ps = []
+    _rs = []
+    _fs = []
+    
+    for i in range(numIterations):
+        testrows = []
+        trainrows = []
+        for index, row in df.iterrows():
+            if index >= pl[i] and index <= pl[i+1]:
+                testrows.append(row)
+            else:
+                trainrows.append(row)
+        pd = defaultdict(lambda : defaultdict(int))
+        for row in trainrows:
+            c, l = row[1], row[-1]
+            pd[c][l] += 1
+        c2mvl = defaultdict(int)
+        for c in pd:
+            c2mvl[c] = sorted(pd[c].items(), key = lambda x: x[1], reverse=True)[0][0]
+        
+        testdf = pandas.DataFrame(testrows)
+        test_labels = testdf.class_label
+        labels = list(set(test_labels))
+        test_labels = numpy.array([labels.index(x) for x in test_labels])
+        test_features = testdf.iloc[:,1:len(headers)-1]
+        test_features = numpy.array(test_features)
+
+        predicted_labels = []
+        for i, row in testdf.iterrows():
+            tc, tl = row.connective, row.class_label
+            predicted_labels.append(c2mvl[tc])
+        
+        a, p, r, f = getNumbers(test_features, test_labels, numpy.array(predicted_labels), d, False)
+        _as.append(a)
+        _ps.append(p)
+        _rs.append(r)
+        _fs.append(f)
+        
+    macroPrecision = sum(_ps)/len(_ps)
+    macroRecall = sum(_rs)/len(_rs)
+    macroF1 = sum(_fs)/len(_fs)
+    acc = sum(_as)/len(_as)
+    return acc, macroPrecision, macroRecall, macroF1
+
+            
 
 def evaluatePositionOnly(csvmatrix, numIterations): # hardcoded to use randomforest
 
@@ -531,16 +618,29 @@ def classifyExtArgs(testfiles, positionClassifier, sent2tagged, feat2ohvpos, fea
             currpos = tagged[rid2conndt[rid][0].sentencePosition][1]
             nextpos = tagged[rid2conndt[rid][len(c.split())-1].sentencePosition + 1][1]
             ### only need this p for debugging...
+            #reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
+            #p = reldist
+            reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
+            p = reldist
+            """
+            if reldist <= 0:
+                p = 0 # using three class only
+            if reldist == 1:
+                p = 1
+            else:
+                p = 2
+            """
+            """
             p = 0
             if sorted(rid2connsentid[rid])[0] == sorted(rid2extargsentid[rid])[0]:
-                p = 1
-            elif sorted(rid2extargsentid[rid])[0] - sorted(rid2connsentid[rid])[0] > 0:
                 p = 2
+            elif sorted(rid2extargsentid[rid])[0] - sorted(rid2connsentid[rid])[0] > 0:
+                p = 3
             elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 1:
-                p = 0
+                p = 1
             elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] > 1:
                 p = 0
-            
+            """
             #features = [c, currpos, rid2conndt[rid][0].sentencePosition, rid2conndt[rid][0].pathToRoot, sid]
             
             #localheaders = ['connective', 'pos', 'sentencePosition', 'pathToRoot', 'sentenceId']
@@ -587,30 +687,49 @@ def classifyExtArgs(testfiles, positionClassifier, sent2tagged, feat2ohvpos, fea
             #"""
                     
             relativeSentPos = positionClassifier.predict(numpy.array([nrow,]))
-
-            """
+            #print('com,ing back from pos classifier:', relativeSentPos)
+            #print('revert to_cat:', numpy.argmax(relativeSentPos, axis=None, out=None))
+            #"""
             print('rid:', rid)
             print('actualtokens:', [(t.token, t.tokenId) for t in actualtokens])
             print('conn sent:', [(ttt.token, ttt.tokenId) for ttt in sid2tokens[sorted(rid2connsentid[rid])[0]]])
             print('c:', c)
+            print('postag:', currpos)
             print('rel pos:', relativeSentPos)
             print('actual pos:', p)
+            targetSentId = sid - relativeSentPos[0]
+            print('actual sid:', rid2extargsentid[rid])
+            print('predicted sid:', targetSentId)
             # reminder: 0 is (any of the) previous sentence(s), 1 is same sentence and 2 is following sentence
-            """
+            #"""
             # taking all tokens of the sentence:
             targetSentId = None
-            if int(relativeSentPos[0][0]) == 0:
+            #reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
+            #p = reldist
+            targetSentId = sid - relativeSentPos[0]
+            
+            """
+            if relativeSentPos[0] == 0:
+                targetSentId = max(sid - 2, 0)
+            elif relativeSentPos[0] == 1:
                 targetSentId = max(sid - 1, 0)
-            elif int(relativeSentPos[0][0]) == 1:
+            elif relativeSentPos[0] == 2:
                 targetSentId = sid
-            elif int(relativeSentPos[0][0]) == 2:
+            elif relativeSentPos[0] == 3:
                 targetSentId = sid + 1 # hoping I'm not hitting the end here. Will return IndexError if this is the case.
             #else:
                 #print('DEBG: Weird value:', relativeSentPos, c, rid, name)
+            """
             predictedTokens = [(tt.token, tt.tokenId) for tt in sid2tokens[targetSentId]]
-            #print('predicted tokens:', predictedTokens)
-            #print()
-            #print()
+            if targetSentId == sid: # if same sentence, take only tokens up to the connective
+                print('debugging pred tokens before cutting:', predictedTokens)
+                predictedTokens = [(tt.token, tt.tokenId) for tt in sid2tokens[targetSentId] if tt.tokenId < rid2conndt[rid][0].tokenId]
+                print('debugging pred tokens after cutting:', predictedTokens)
+            print('predicted tokens:', predictedTokens)
+            if not [(t.token, t.tokenId) for t in actualtokens] == predictedTokens:
+                print('DOES NOT MATCH!!!')
+            print()
+            print()
             total += 1
             if targetSentId in rid2extargsentid[rid]:
                 correct += 1
@@ -659,6 +778,7 @@ def loadEmbeddingsOnce():
     posembd = loadExternalEmbeddings('tiger_pos_model.vec')
     
     #embd = {}
+    #posembd = {}
     #print('WARNING:NOT LOADING ANYTHING!!!')
 
 
@@ -684,6 +804,14 @@ if __name__ == '__main__':
     
     
     matrix, sent2tagged = getFeatureMatrix(fileversions, sent2tagged)
+    classd = defaultdict(int)
+    for row in matrix[1:]:
+        classd[row[-1]] += 1
+    #print('sent dist:', classd)
+    #sent dist: defaultdict(<class 'int'>, {0: 66, 1: 435, 2: 603, 3: 6})
+    #sent dist: defaultdict(<class 'int'>, {0: 603, 1: 435, 2: 47, 3: 8, 4: 6, 6: 4, 9: 1, -1: 6})
+
+    #sys.exit()
 
     with open(pfname, 'wb') as handle:
         pickle.dump(sent2tagged, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -692,32 +820,37 @@ if __name__ == '__main__':
 
     
     # lines below are for only evaluating sentence position classifier. Will want to first do this, then get actual words and get p, r, f for that, but have to wrap all of that in x-fold cv
+    numIterations = 10
+    #a, p, r, f = evaluatePositionOnlyMVBaseline(matrix, numIterations)
+    #print('%s accuracy: %f' % ('majority vote baseline', a))
+    #print('%s precision: %f' % ('majority vote baseline', p))
+    #print('%s recall: %f' % ('majority vote baseline', r))
+    #print('%s f1: %f' % ('majority vote baseline', f))
+    #sys.exit(1)
+
+
     #alg = 'randomforest' # hardcoded in subfunctions
-    #numIterations = 10
     #a, p, r, f = evaluatePositionOnly(matrix, numIterations)
     #print('%s accuracy: %f' % (alg, a))
     #print('%s precision: %f' % (alg, p))
     #print('%s recall: %f' % (alg, r))
     #print('%s f1: %f' % (alg, f))
-    
+
     #randomforest accuracy: 0.941964
     #randomforest precision: 0.940528
     #randomforest recall: 0.941964
     #randomforest f1: 0.940630
     
 
-    #a, p, r, f = evaluatePositionOnlyNeural(matrix)
+    #a = evaluatePositionOnlyNeural(matrix, numIterations)
     #print('%s accuracy: %f' % ('keras', a))
-    #print('%s precision: %f' % ('keras', p))
-    #print('%s recall: %f' % ('keras', r))
-    #print('%s f1: %f' % ('keras', f))
-
+    #sys.exit(1)
     # REDO this with my definitive, final keras model architecture before citing it for some paper
     #keras accuracy: 0.945316
     #keras precision: 0.936295
     #keras recall: 0.942589
     #keras f1: 0.946714
-    
+
     # NOTE: difference between randomforest and keras classifier do not really seem to be significant (every time I run it again, they swap 1st and 2nd place)
     
     #### Here comes the section to evaluate the full thing (first detect position, then token span)
@@ -746,19 +879,14 @@ if __name__ == '__main__':
     print('avg r:', sum(_r) / len(_r))
     print('avg f:', sum(_f) / len(_f))
 
-    # TODO: baseline stands. Now improve upon this with some syntax rules.
+    # baseline, taking all tokens from prev/next sentence, and if same sentence, take all tokens up to the first connective token:
+    #avg a: 0.9550526310126963
+    #avg p: 0.6713564727261394
+    #avg r: 0.6302425667631102
+    #avg f: 0.6491441077747374
+
+
     
-    #precision = tp / float(tp + fp)
-    #recall = tp / float(tp + fn)
-    #f1 = 2 * ((precision * recall) / (precision + recall))
-    #print('p:', precision)
-    #print('r:', recall)
-    #print('f:', f1)
-    
-    #avg a: 0.950243050811965
-    #avg p: 0.44815664520804877
-    #avg r: 0.7308088956887122
-    #avg f: 0.5539544728215057
 
 
     

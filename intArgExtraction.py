@@ -157,7 +157,8 @@ def autoparse_dep_spacy_approach(f2dr, sid2dts, parsermemorymap, f2tid2dt):
 
     #this whole pickling of spacy docs seems not to work, and parsing is quite fast anyway, so might as well do it on the fly...
     sys.stderr.write('INFO: Loading German spacy stuff...\n')
-    nlp = spacy.load('de')
+    #nlp = spacy.load('de')
+    nlp = spacy.load('de_core_news_sm')
     sys.stderr.write('INFO: Done.\n')
 
 
@@ -170,9 +171,9 @@ def autoparse_dep_spacy_approach(f2dr, sid2dts, parsermemorymap, f2tid2dt):
             connTokenIds = [x4.tokenId for x4 in conndts]
             connSentIds = set([x.sentenceId for x in conndts])
             if not actualIntArgTokens:
-                pass#print('dr is without intarg tokens;', dr)
-                #print(dr.relationId)
-                #print(fname)
+                print('dr is without intarg tokens;', dr)
+                print(dr.relationId)
+                print(fname)
                 
             if len(connSentIds) > 1:
                 pass#print('multiple sents')
@@ -236,8 +237,8 @@ def autoparse_dep_spacy_approach(f2dr, sid2dts, parsermemorymap, f2tid2dt):
                             
                             
                             # debugging section:
-                            plaintextpredicted = ' '.join([f2tid2dt[fname][str(x)].token for x in predictedIntArgTokens])
-                            plaintextactual = ' '.join([f2tid2dt[fname][str(x)].token for x in actualIntArgTokens])
+                            #plaintextpredicted = ' '.join([f2tid2dt[fname][str(x)].token for x in predictedIntArgTokens])
+                            #plaintextactual = ' '.join([f2tid2dt[fname][str(x)].token for x in actualIntArgTokens])
                             """
                             if not plaintextpredicted == plaintextactual:
                                 print('tree:', tree)
@@ -294,9 +295,9 @@ def autoparse_dep_stanford_approach(f2dr, sid2dts, parsermemorymap, f2tid2dt):
             connTokenIds = [x4.tokenId for x4 in conndts]
             connSentIds = set([x.sentenceId for x in conndts])
             if not actualIntArgTokens:
-                pass#print('dr is without intarg tokens;', dr)
-                #print(dr.relationId)
-                #print(fname)
+                print('dr is without intarg tokens;', dr)
+                print(dr.relationId)
+                print(fname)
                 
             if len(connSentIds) > 1:
                 pass#print('multiple sents')
@@ -387,9 +388,9 @@ def autoparse_const_approach(f2dr, sid2dts, parsermemorymap, f2tid2dt):
             connTokenIds = [x4.tokenId for x4 in conndts]
             connSentIds = set([x.sentenceId for x in conndts])
             if not actualIntArgTokens:
-                pass#print('dr is without intarg tokens:', dr)
-                #print(dr.relationId)
-                #print(fname)
+                print('dr is without intarg tokens:', dr)
+                print(dr.relationId)
+                print(fname)
             
             # maybe skip multiple sents first (check how many there are and then decide)
             if len(connSentIds) > 1:
@@ -645,7 +646,6 @@ def baseline(f2dr, sid2dts, f2tid2dt):
     tp = 0
     fp = 0
     fn = 0
-    
     for fname in f2dr:
         discourserelations = f2dr[fname]
         for dr in discourserelations:
@@ -658,7 +658,6 @@ def baseline(f2dr, sid2dts, f2tid2dt):
                     for x1 in sid2dts[fname][sid]:
                         if not x1.tokenId in set(dr.connectiveTokens):
                             baselineIntArgTokens.append(x1.tokenId)
-
                 for tokenId in set(actualIntArgTokens + baselineIntArgTokens):
                     if tokenId in actualIntArgTokens and tokenId in baselineIntArgTokens:
                         tp += 1
@@ -704,11 +703,10 @@ def traverse(deps, addr):
 
 if __name__ == '__main__':
 
-    #connectorfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.0.0/potsdam-commentary-corpus-2.0.0/connectors/')
-    connectorfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.0.0/potsdam-commentary-corpus-2.0.0/standoffConnectors/')
-    syntaxfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.0.0/potsdam-commentary-corpus-2.0.0/syntax/')
-    rstfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.0.0/potsdam-commentary-corpus-2.0.0/rst/')
-    tokenfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.0.0/potsdam-commentary-corpus-2.0.0/tokenized/')
+    connectorfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.1/connectives_standoff/')
+    syntaxfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.1/syntax/')
+    rstfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.1/rst/')
+    tokenfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.1/tokenized/')
     
     fileversions = PCCParser.getFileVersionsDict(connectorfiles, syntaxfiles, rstfiles, tokenfiles)
 
@@ -758,7 +756,8 @@ if __name__ == '__main__':
         sys.stderr.write('INFO: Loaded dep parse trees from pickled dict.\n')
     else:
         sys.stderr.write('INFO: Loading German spacy stuff...\n')
-        nlp = spacy.load('de')
+        #nlp = spacy.load('de')
+        nlp = spacy.load('de_core_news_sm')
         sys.stderr.write('INFO: Done.\n')
         for fno, fname in enumerate(f2tl):
             sys.stderr.write('INFO: Parsing sents of: %s (%i of %i)\n' % (fname, fno+1, len(f2tl)))
@@ -814,3 +813,4 @@ if __name__ == '__main__':
     print('\tr: %s' % str(r))
     print('\tf: %s' % str(f))
     
+    print('TODO: Figure out if I really implemented the same set of rules for auto and gold const trees (since gold trees score worse)')

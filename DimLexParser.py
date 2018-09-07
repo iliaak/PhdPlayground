@@ -111,5 +111,5 @@ if __name__ == '__main__':
                 discontinuous += 1    
 
     print('INFO: %s single, %s phrasal, (%s/%s).' % (str(single), str(phrasal), str(phrasal + single), str(alts)))
-    print('INFO: %s continouos, %s discontinuous, (%s/%s).' % (str(continuous), str(discontinuous), str(continuous + discontinuous), str(alts)))
+    print('INFO: %s continuous, %s discontinuous, (%s/%s).' % (str(continuous), str(discontinuous), str(continuous + discontinuous), str(alts)))
     

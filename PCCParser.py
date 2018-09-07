@@ -58,6 +58,7 @@ class DiscourseToken:
         self.tokenId = tokenId
         self.token = token
 
+
     # should do some cleaning up at some point to remove stuff never used
     def setIntOrExt(self, val):
         self.intOrExt = val
@@ -131,6 +132,8 @@ class DiscourseToken:
         self.embeddedUnits = val
     def setSentencePosition(self, val):
         self.sentencePosition = val
+    def setSyntaxSentenceId(self, val):
+        self.syntaxSentenceId = val
 
 def flattentree(edid, tempdict, l, ttids):
 
@@ -141,6 +144,15 @@ def flattentree(edid, tempdict, l, ttids):
             flattentree(i, tempdict, l, ttids)
     return l
 
+def getLeafsFromGoldTree(nodeId, subdict, terminalIds, output):
+
+    for child in subdict[nodeId]:
+        if child in terminalIds:
+            output.append(child)
+        else:
+            output = getLeafsFromGoldTree(child, subdict, terminalIds, output)
+    return sorted(output, key = lambda x: int(re.sub('^.*_', '', x)))
+    
         
 def addArgumentLabelInfo(discourseRelations, syntaxfile, tid2dt):
 
@@ -261,10 +273,12 @@ def parseStandoffConnectorFile(connectorxml):
     tokenlist = []
     discourseRelations = []
     tid2dt = {} # so I can assign info in conn, sense, args later
+    #tid2segmentType = defaultdict(str)
     for node in tree.getroot():
         if node.tag == 'tokens':
             for subnode in node:
                 dt = DiscourseToken(subnode.get('id'), subnode.text)
+                dt.setConnectiveBoolean(False) # setting isConnective to False always, only set it to True next if it is a conn... (this is easier for other scripts using PCCParser, so at least this attr is always there (preventing an AttributeError)
                 tokenlist.append(dt)
                 tid2dt[subnode.get('id')] = dt
         elif node.tag == 'relations':
@@ -274,21 +288,29 @@ def parseStandoffConnectorFile(connectorxml):
                 for elem in subnode:
                     if elem.tag == 'connective_tokens':
                         for ct in elem:
+                            #tid2segmentType[ct.get('id')] = 'connective'
                             dr.addConnectiveToken(ct.get('id'))
                             tid2dt[ct.get('id')].setConnectiveBoolean(True)
                     if elem.tag == 'int_arg_tokens':
                         for iat in elem:
+                            #tid2segmentType[iat.get('id')] = 'unit'
                             dr.addIntArgToken(iat.get('id'))
                             tid2dt[iat.get('id')].setIntOrExt('int')
                             tid2dt[iat.get('id')].setIsIntArg(True) # these and the above are redundant (only need one), check later during refacotoring which one can go
                     if elem.tag == 'ext_arg_tokens':
                         for eat in elem:
+                            #tid2segmentType[eat.get('id')] = 'unit'
                             dr.addExtArgToken(eat.get('id'))
                             tid2dt[eat.get('id')].setIntOrExt('ext')
                             tid2dt[eat.get('id')].setIsExtArg(True) # these and the above are redundant (only need one), check later during refacotoring which one can go
                 dr.filterIntArgForConnectiveTokens()
                 discourseRelations.append(dr)
-
+    """
+    # adding segmentTypes, as it is used in downstream stuff
+    for dt in tokenlist:
+        dt.setType(tid2segmentType[dt.tokenId])
+    """
+                
     return tokenlist, discourseRelations, tid2dt
 
 def parseConnectorFile(connectorxml):
@@ -472,6 +494,7 @@ def parseSyntaxFile(syntaxxml, tokenlist):
             for sentencePosition, t in enumerate(terminalsNode):
                 sToken = t.get('word')
                 dt = tokenlist[syntaxTokenId]
+                dt.setSyntaxSentenceId(sid)
                 if not sToken == dt.token:
                     sys.stderr.write('FATAL ERROR: Tokens do not match in %s: %s(%s) vs. %s(%s).\n' % (syntaxxml, sToken, str(syntaxTokenId), tokenlist[syntaxTokenId].token, str(tokenlist[syntaxTokenId].tokenId)))
                     sys.exit(1)
@@ -676,6 +699,8 @@ def extractTokens(node, l):
                 multiWordBool = True
             for token in tokens:
                 dt = createDiscourseToken(token, node, conn, multiWordBool)
+                if conn:
+                    dt.sense = node.get('relation')
                 l.append(dt)
         conn = False
     if len(node):
