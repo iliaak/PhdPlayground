@@ -7,6 +7,7 @@ import codecs
 import configparser
 import pandas
 import numpy
+import random
 import spacy
 import PCCParser
 import utils
@@ -18,6 +19,8 @@ from keras.layers import Dense, Dropout
 from keras.models import Sequential
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.models import model_from_json
+from nltk.parse import stanford
+from nltk.tree import ParentedTree
 
 class ArgumentExtractor:
 
@@ -29,32 +32,184 @@ class ArgumentExtractor:
         self.dim = 300
         
 
-    def loadClassifiers(self):
+    def run(self, sentences, connectivePositions):
 
-        sentposmodel = codecs.open(self.config['argumentExtractor']['sentposmodel'], 'r')
-        self.sentposclassifier = model_from_json(sentposmodel.read())
-        self.sentposclassifier.load_weights(self.config['argumentExtractor']['sentposweights'])
-        samesentmodel = codecs.open(self.config['argumentExtractor']['samesentmodel'], 'r')
-        self.samesentclassifier = model_from_json(samesentmodel.read())
-        self.samesentclassifier.load_weights(self.config['argumentExtractor']['samesentweights'])
+        for cp in connectivePositions:
+            sentence = sentences[cp[0]]
+            connective = ' '.join(sentence.split()[cp[1][0]:cp[1][-1]+1])
+            print('sent:', sentence)
+            print('conn:', connective)
+            tokens = sentence.split()
+            """
+            ptree = None
+            tree = self.lexParser.parse(tokens)
+            ptreeiter = ParentedTree.convert(tree)
+            for t in ptreeiter:
+                ptree = ParentedTree.convert(t)
+                break # always taking the first, assuming that this is the best scoring tree.
+            """
+            ptree = ParentedTree.convert(self.runtimeparsermemory[sentence])
+            refconindex = cp[1][0]
+            refcon = sentence.split()[refconindex]
+            print('refconindex:', refconindex)
+            postag = utils.getPostagFromTree(ptree, refconindex)
+            nodePosition = ptree.leaf_treeposition(refconindex)
+            parent = ptree[nodePosition[:-1]].parent()
+            pathToRoot = utils.getPathToRoot(parent, [])
+            if pathToRoot[-1] == 'ROOT': # for some reason, the ones in training didn't have the final ROOT elem in there
+                pathToRoot = pathToRoot[:-1]
+            #row = [0, refcon, postag, refconindex, pathToRoot, cp[0]]
+            #srow = [str(x) for x in row]
+            nrow = []
+            position_ohv = [0] * self.f2ohvlen[3]
+            if str(refconindex) in self.f2ohvpos[3]:
+                position_ohv[self.f2ohvpos[3][str(refconindex)]] = 1
+            else:
+                position_ohv[random.randint(0, len(position_ohv)-1)] = 1
+            nrow += position_ohv
+            rootroute_ohv = [0] * self.f2ohvlen[4]
+            if str(pathToRoot) in self.f2ohvpos[4]:
+                rootroute_ohv[self.f2ohvpos[4][str(pathToRoot)]] = 1
+            else:
+                mindist = 100
+                val = None
+                for route in self.f2ohvpos[4]:
+                    dist = utils.levenshteinDistance(route, str(pathToRoot))
+                    if dist < mindist:
+                        mindist = dist
+                        val = self.f2ohvpos[4][route]
+                rootroute_ohv[val] = 1
+            nrow += rootroute_ohv
+            
+            if refcon in self.embd:
+                for item in self.embd[refcon]:
+                    nrow.append(item)
+            else:
+                for item in numpy.ndarray.flatten(numpy.random.random((1, self.dim))):
+                    nrow.append(item)
+            if postag in self.posembd:
+                for item in self.posembd[postag]:
+                    nrow.append(item)
+            else:
+                for item in numpy.ndarray.flatten(numpy.random.random((1, self.dim))):
+                    nrow.append(item)
+            nrow.append('dummyLabel')
+            nmatrix = [nrow]
+            df = pandas.DataFrame(numpy.array(nmatrix), columns=None)
+            ds = df.values
+            X = ds[:,0:numpy.shape(df)[1]-1].astype(float)
+            
+            sentpospred = self.sentposclassifier.predict(X)
+            sentpos2pred2 = self.sentposclassifier.predict(numpy.array([nrow[:-1],]))
+            print('sentpospred:', sentpospred)
+            print('argmax:', numpy.argmax(sentpospred))
+            print('sentpospred2:', sentpospred)
+            print('argmax2:', numpy.argmax(sentpospred))
+            # same sent is only needed if sentpospred == 0...
+            #samesentpred = self.samesentclassifier.predict(X)
+            #print('samesentpred:', samesentpred)
+            #print('argmax:', numpy.argmax(samesentpred))
+        
 
-        self.f2ohvlen = pickle.load(codecs.open(self.config['argumentExtractor']['f2ohvlen'], 'rb'))
-        self.f2ohvpos = pickle.load(codecs.open(self.config['argumentExtractor']['f2ohvpos'], 'rb'))
-        self.knownvals = pickle.load(codecs.open(self.config['argumentExtractor']['knownvals'], 'rb'))
+            print('type input:', type(numpy.array([nrow[:-1],])))
+            print('classifier type:', type(self.sentposclassifier))
+            print('type output:', type(sentpos2pred2))
+
+
+
+
+
+    def train(self, parser, debugmode=False):
+
+        connectivefiles = utils.getInputfiles(os.path.join(parser.config['PCC']['rootfolder'], parser.config['PCC']['connectives']))
+        syntaxfiles = utils.getInputfiles(os.path.join(parser.config['PCC']['rootfolder'], parser.config['PCC']['syntax']))
+        tokenfiles = utils.getInputfiles(os.path.join(parser.config['PCC']['rootfolder'], parser.config['PCC']['tokens']))
+        fdict = defaultdict(lambda : defaultdict(str))
+        fdict = utils.addAnnotationLayerToDict(connectivefiles, fdict, 'connectors')
+        fdict = utils.addAnnotationLayerToDict(syntaxfiles, fdict, 'syntax') # not using the gold syntax, but this layer is needed to extract full sentences, as it's (I think) the only layer that knows about this.
+
+        self.sent2tagged = pickle.load(codecs.open(parser.config['lexparser']['taggermemory'], 'rb')) # TODO: change this to using parser assigned tags (probably the same, but can't be sure)
+        
+        sentposmatrix, samesentmatrix = self.getFeatures(fdict)
+        self.getf2ohvdicts(sentposmatrix) # sentpos and samesent features are identical (only the label differs)
+
+        sentposlabels = []
+        samesentlabels = []
+        nmatrix = []
+        for sentposrow, samesentrow in zip(sentposmatrix, samesentmatrix):
+            nrow = []
+            refconindex = sentposrow[3]
+            position_ohv = [0] * self.f2ohvlen[3]
+            if str(refconindex) in self.f2ohvpos[3]:
+                position_ohv[self.f2ohvpos[3][str(refconindex)]] = 1
+            else:
+                position_ohv[random.randint(0, len(position_ohv)-1)] = 1
+            nrow += position_ohv
+            pathToRoot = sentposrow[4]
+            rootroute_ohv = [0] * self.f2ohvlen[4]
+            if str(pathToRoot) in self.f2ohvpos[4]:
+                rootroute_ohv[self.f2ohvpos[4][str(pathToRoot)]] = 1
+            else:
+                mindist = 100
+                val = None
+                for route in self.f2ohvpos[4]:
+                    dist = utils.levenshteinDistance(route, str(pathToRoot))
+                    if dist < mindist:
+                        mindist = dist
+                        val = self.f2ohvpos[4][route]
+                rootroute_ohv[val] = 1
+            nrow += rootroute_ohv
+            
+            tok, pos = sentposrow[1], sentposrow[2]
+            if tok in parser.embd:
+                for item in parser.embd[tok]:
+                    nrow.append(item)
+            else:
+                for item in numpy.ndarray.flatten(numpy.random.random((1, self.dim))):
+                    nrow.append(item)
+            if pos in parser.posembd:
+                for item in parser.posembd[pos]:
+                    nrow.append(item)
+            else:
+                for item in numpy.ndarray.flatten(numpy.random.random((1, self.dim))):
+                    nrow.append(item)
+                    
+            self.rowdim = len(nrow)
+            nrow.append('dummyLabel') # struggling with dimensions. Fix when all is up and running.
+            nmatrix.append(nrow)
+            sentposlabels.append(sentposrow[-1])
+            samesentlabels.append(samesentrow[-1])
+
+        df = pandas.DataFrame(numpy.array(nmatrix), columns=None)
+        ds = df.values
+        X = ds[:,0:numpy.shape(df)[1]-1].astype(float)
+        Y_sentpos = to_categorical(numpy.array(sentposlabels))
+        Y_samesent = to_categorical(numpy.array(samesentlabels))
+
+        self.keras_sentpos_outputdim = len(Y_sentpos[0])
+        self.keras_samesent_outputdim = len(Y_samesent[0])
+
+        seed = 6
+        batch_size = 5
+        epochs = 100
+        verbosity = 0
+        if debugmode:
+            epochs = 1
+            verbosity = 1
+            sys.stderr.write('WARNING: Setting epochs at %i (debug mode)\n' % epochs)
+            
+
+        self.sentposclassifier = KerasClassifier(build_fn=self.create_sentposmodel, epochs=epochs, batch_size=batch_size)
+        self.sentposclassifier.fit(X, Y_sentpos, verbose=verbosity)
+
+        self.samesentclassifier = KerasClassifier(build_fn=self.create_samesentmodel, epochs=epochs, batch_size=batch_size)
+        self.samesentclassifier.fit(X, Y_samesent, verbose=verbosity)
 
         
 
-    def run(self):
+    """
 
-        
-
-        pass
-        # DONT forget to assign random pos if feat not in ohv2pos or ohv2len dict AND DONT forget that knownvals contains strings!!!
-        
-
-
-
-
+            
     def trainPositionClassifiers(self):
 
         #connectivefiles = utils.getInputfiles(os.path.join(self.config['PCC']['rootfolder'], self.config['PCC']['standoffConnectives']))
@@ -75,13 +230,28 @@ class ArgumentExtractor:
         nmatrix = []
         for sentposrow, samesentrow in zip(sentposmatrix, samesentmatrix):
             nrow = []
-            for fi, feat in enumerate(sentposrow[3:]):
-                ohv = [0] * self.f2ohvlen[fi+2]
-                if feat in self.knownvals:
-                    ohv[self.f2ohvpos[fi+2][feat]] = 1
-                else:
-                    ohv[random.randint(0, len(ohv)-1)] = 1
-                nrow += ohv
+            refconindex = sentposrow[3]
+            position_ohv = [0] * self.f2ohvlen[3]
+            if str(refconindex) in self.f2ohvpos[3]:
+                position_ohv[self.f2ohvpos[3][str(refconindex)]] = 1
+            else:
+                position_ohv[random.randint(0, len(position_ohv)-1)] = 1
+            nrow += position_ohv
+            pathToRoot = sentposrow[4]
+            rootroute_ohv = [0] * self.f2ohvlen[4]
+            if str(pathToRoot) in self.f2ohvpos[4]:
+                rootroute_ohv[self.f2ohvpos[4][str(pathToRoot)]] = 1
+            else:
+                mindist = 100
+                val = None
+                for route in self.f2ohvpos[4]:
+                    dist = utils.levenshteinDistance(route, str(pathToRoot))
+                    if dist < mindist:
+                        mindist = dist
+                        val = self.f2ohvpos[4][route]
+                rootroute_ohv[val] = 1
+            nrow += rootroute_ohv
+            
             tok, pos = sentposrow[1], sentposrow[2]
             if tok in self.embd:
                 for item in self.embd[tok]:
@@ -113,14 +283,21 @@ class ArgumentExtractor:
 
         seed = 6
         batch_size = 5
-        epochs = 100
+        epochs = 20#100
 
-        sentposclassifier = KerasClassifier(build_fn=self.create_sentposmodel, epochs=epochs, batch_size=batch_size)
-        sentposclassifier.fit(X, Y_sentpos, verbose=0)
+        self.sentposclassifier = KerasClassifier(build_fn=self.create_sentposmodel, epochs=epochs, batch_size=batch_size)
+        self.sentposclassifier.fit(X, Y_sentpos, verbose=0)
 
-        samesentclassifier = KerasClassifier(build_fn=self.create_samesentmodel, epochs=epochs, batch_size=batch_size)
-        samesentclassifier.fit(X, Y_samesent, verbose=0)
+        self.samesentclassifier = KerasClassifier(build_fn=self.create_samesentmodel, epochs=epochs, batch_size=batch_size)
+        self.samesentclassifier.fit(X, Y_samesent, verbose=0)
 
+        #debugging section
+        #predictions = sentposclassifier.predict(X)
+        #for index in range(len(predictions)):
+            #print('pred debug:', predictions[index], sentposlabels[index])
+
+        print('WARNING: NOT STORING TRAINED CLASSIFIERS!')
+        
         sentpos_json = sentposclassifier.model.to_json()
         with codecs.open(self.config['argumentExtractor']['sentposmodel'], 'w') as jsout:
             jsout.write(sentpos_json)
@@ -132,7 +309,8 @@ class ArgumentExtractor:
             jsout.write(samesent_json)
             samesentclassifier.model.save_weights(self.config['argumentExtractor']['samesentweights'], overwrite=True)
         sys.stdout.write('INFO: Saved same sentence classifier to %s\n' % self.config['argumentExtractor']['samesentmodel'])            
-
+        
+    """
         
     def create_sentposmodel(self):
         hidden_dims = 250
@@ -165,35 +343,6 @@ class ArgumentExtractor:
         return model
         
 
-    def loadEmbeddings(self):
-        starttime = time.time()
-        self.embd = {}
-        #"""
-        wordembfile = self.config['embeddings']['wordembeddings']
-        sys.stdout.write('INFO: Loading external embeddings from %s.\n' % wordembfile)
-        with codecs.open(wordembfile, 'r') as f:
-            for line in f.readlines():
-                line = line.strip()
-                values = line.split()
-                self.embd[values[0]] = numpy.array([float(x) for x in values[1:]])
-        endtime = time.time()
-        sys.stderr.write('INFO: Done loading embeddings. Took %s seconds.\n' % (str(endtime - starttime)))
-        #"""
-        starttime = time.time()
-        self.posembd = {}
-        #"""
-        posembfile = self.config['embeddings']['posembeddings']
-        sys.stdout.write('INFO: Loading external embeddings from %s.\n' % posembfile)
-        with codecs.open(posembfile, 'r') as f:
-            for line in f.readlines():
-                line = line.strip()
-                values = line.split()
-                self.posembd[values[0]] = numpy.array([float(x) for x in values[1:]])
-        endtime = time.time()
-        sys.stderr.write('INFO: Done loading embeddings. Took %s seconds.\n' % (str(endtime - starttime)))
-        #"""
-
-
     def getf2ohvdicts(self, fmatrix):
         
         self.f2ohvpos = defaultdict(lambda : defaultdict(int))
@@ -205,7 +354,7 @@ class ArgumentExtractor:
             rowsize = len(row)
             for pos, val in enumerate(row):
                 f2[pos].add(val)
-                self.knownvals.add(val)
+                #self.knownvals.add(val)
         for i in f2:
             self.f2ohvlen[i] = len(f2[i])
             for c, i2 in enumerate(f2[i]):
@@ -222,7 +371,7 @@ class ArgumentExtractor:
 
         matrix = []
         samesentmatrix = []
-        headers = ['id', 'connective', 'pos', 'sentencePosition', 'pathToRoot', 'sentenceId', 'class_label']
+        headers = ['id', 'connective', 'pos', 'sentencePosition', 'pathToRoot', 'class_label']# 'sentenceId', 'class_label']
         pos2column = {}
         for i2, j2 in enumerate(headers):
             if i2 > 0:
@@ -282,7 +431,7 @@ class ArgumentExtractor:
                 currpos = tagged[rid2conndt[rid][0].sentencePosition][1]
                 nextpos = tagged[rid2conndt[rid][len(c.split())-1].sentencePosition + 1][1]
 
-                row = [str(mid), c, currpos, rid2conndt[rid][0].sentencePosition, rid2conndt[rid][0].pathToRoot, rid2conndt[rid][0].sentenceId, p]
+                row = [str(mid), c, currpos, rid2conndt[rid][0].sentencePosition, rid2conndt[rid][0].pathToRoot, p]#rid2conndt[rid][0].sentenceId, p]
                 srow = [str(r) for r in row]
                 mid += 1
                 matrix.append(srow)
@@ -291,7 +440,7 @@ class ArgumentExtractor:
                     if rid2extargtokens[rid]:
                         if rid2conndt[rid][-1].tokenId < rid2extargtokens[rid][0].tokenId:
                             sspos = 1
-                        ssrow = [str(mid), c, currpos, rid2conndt[rid][0].sentencePosition, rid2conndt[rid][0].pathToRoot, rid2conndt[rid][0].sentenceId, sspos] # mid will not be consecutive, but think it is not really used anyway. And now at least it corresponds to the other matrix, should that come in handy some time.
+                        ssrow = [str(mid), c, currpos, rid2conndt[rid][0].sentencePosition, rid2conndt[rid][0].pathToRoot, sspos]#rid2conndt[rid][0].sentenceId, sspos] # mid will not be consecutive, but think it is not really used anyway. And now at least it corresponds to the other matrix, should that come in handy some time.
                         sssrow = [str(s) for s in ssrow]
                         samesentmatrix.append(sssrow)
                         
