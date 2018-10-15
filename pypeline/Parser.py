@@ -9,7 +9,7 @@ import os
 from nltk.parse import stanford
 from nltk.tree import ParentedTree
 import numpy
-
+import tensorflow as tf
 
 import ConnectiveClassifier
 import ArgumentExtractor
@@ -74,32 +74,51 @@ class Parser:
             runtimeparsermemory[sentence] = ptree
             
         return runtimeparsermemory
-    
 
-
-            
 
 if __name__ == '__main__':
 
 
     ### training part
+    graph = tf.get_default_graph() 
     parser = Parser()
     parser.loadEmbeddings(True)
     cc = ConnectiveClassifier.ConnectiveClassifier()
-    cc.train(parser, True)
-
+    cc.setGraph()
+    #cc.train(parser, True)
     arg = ArgumentExtractor.ArgumentExtractor()
+    arg.setGraph()
     arg.train(parser, True)
     
     
-    sentences = ['Auf Grund der dramatischen Kassenlage in Brandenburg hat sie jetzt eine seit mehr als einem Jahr erarbeitete Kabinettsvorlage überraschend auf Eis gelegt und vorgeschlagen , erst 2003 darüber zu entscheiden .', 'Überraschend , weil das Finanz- und das Bildungsressort das Lehrerpersonalkonzept gemeinsam entwickelt hatten .', 'Der Rückzieher der Finanzministerin ist aber verständlich .', 'Es dürfte derzeit schwer zu vermitteln sein , weshalb ein Ressort pauschal von künftigen Einsparungen ausgenommen werden soll auf Kosten der anderen .', 'Reiches Ministerkollegen werden mit Argusaugen darüber wachen , dass das Konzept wasserdicht ist .', 'Tatsächlich gibt es noch etliche offene Fragen .', 'So ist etwa unklar , wer Abfindungen erhalten soll , oder was passiert , wenn zu wenig Lehrer die Angebote des vorzeitigen Ausstiegs nutzen .', 'Dennoch gibt es zu Reiches Personalpapier eigentlich keine Alternative .', 'Das Land hat künftig zu wenig Arbeit für zu viele Pädagogen .', 'Und die Zeit drängt .', 'Der große Einbruch der Schülerzahlen an den weiterführenden Schulen beginnt bereits im Herbst 2003 .', 'Die Regierung muss sich entscheiden , und zwar schnell .', 'Entweder sparen um jeden Preis oder Priorität für die Bildung .', 'Es regnet Hunde und Katze .', 'Und was soll icht machen ?', 'Weil es regent , bleiben wir zu hause .']
+    sentences = ['Auf Grund der dramatischen Kassenlage in Brandenburg hat sie jetzt eine seit mehr als einem Jahr erarbeitete Kabinettsvorlage überraschend auf Eis gelegt und vorgeschlagen , erst 2003 darüber zu entscheiden .',
+                 'Überraschend , weil das Finanz- und das Bildungsressort das Lehrerpersonalkonzept gemeinsam entwickelt hatten .',
+                 'Der Rückzieher der Finanzministerin ist aber verständlich .',
+                 'Es dürfte derzeit schwer zu vermitteln sein , weshalb ein Ressort pauschal von künftigen Einsparungen ausgenommen werden soll auf Kosten der anderen .',
+                 'Reiches Ministerkollegen werden mit Argusaugen darüber wachen , dass das Konzept wasserdicht ist .', 'Tatsächlich gibt es noch etliche offene Fragen .',
+                 'So ist etwa unklar , wer Abfindungen erhalten soll , oder was passiert , wenn zu wenig Lehrer die Angebote des vorzeitigen Ausstiegs nutzen .',
+                 'Dennoch gibt es zu Reiches Personalpapier eigentlich keine Alternative .',
+                 'Das Land hat künftig zu wenig Arbeit für zu viele Pädagogen .',
+                 'Und die Zeit drängt .',
+                 'Der große Einbruch der Schülerzahlen an den weiterführenden Schulen beginnt bereits im Herbst 2003 .',
+                 'Die Regierung muss sich entscheiden , und zwar schnell .',
+                 'Entweder sparen um jeden Preis oder Priorität für die Bildung .',
+                 'Es regnet Hunde und Katze .',
+                 'Und was soll ich machen ?',
+                 'Weil es regnet , bleiben wir zu Hause .',
+                 'Es regnet , aber wir bleiben zu Hause .'
+    ]
 
     runtimeparsermemory = parser.preParse(sentences)
+    #connectivepositions = cc.run(parser, sentences, runtimeparsermemory)
+    connectivepositions = [(14, [0]), (15, [0]), (16, [3])]
+    relations = arg.run(parser, sentences, runtimeparsermemory, connectivepositions)
+    for rid in relations:
+        print('rid:', rid)
+        conn = relations[rid]['connective']
+        intarg = relations[rid]['intarg']
+        extarg = relations[rid]['extarg']
+        print('\tconn:', conn, sentences[conn[0]].split()[conn[1][0]:conn[1][-1]+1])
+        print('\tint:', intarg, sentences[intarg[0]].split()[intarg[1][0]:intarg[1][-1]+1])
+        print('\text:', extarg, sentences[extarg[0]].split()[extarg[1][0]:extarg[1][-1]+1])
 
-    connectivepositions = cc.run(parser, sentences, runtimeparsermemory)
-    print('debugging cc output:', connectivepositions)
-    
-
-    #TODO train actual cc (with embeddings and more than 1 epoch), then move on with arg, should be easy now...
-    
-    

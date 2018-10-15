@@ -20,12 +20,17 @@ from keras.layers import Dense, Dropout
 from keras.models import Sequential
 from keras.wrappers.scikit_learn import KerasClassifier
 import dill as pickle
+import tensorflow as tf
 
 class ConnectiveClassifier:
 
     def __init__(self):
 
         self.dimension = 300
+
+    def setGraph(self):
+        self.graph = tf.get_default_graph()
+
 
     #TODO: build in evaluate method
 
@@ -150,10 +155,10 @@ class ConnectiveClassifier:
                 if not re.match('^\W+$', tok):
                     dimlextokens.add(tok)
                     dimlextokens2fullversions[tok].add(dc)
-
+        
         # TODO: assuming pre-tokenized input (whitespace splittable, one sentence per line). Fix tokenization at some point
         for sid, sentence in enumerate(sentences):
-            print('debugging sent:', sentence)
+            #print('debugging sent:', sentence)
             tokens = sentence.split()
             ptree = None
             ptree = memorymap[sentence]
@@ -164,8 +169,8 @@ class ConnectiveClassifier:
                     # this is the catch for multiword ones. singleword ones are found by definition, mwus not always
                     # for full accuracy, should also take pos of token in sent into account, but this should be close enough for now
                     # TODO: Does not work properly (or at all) for discontinuous ones
-                    for fullconn in dimlextokens2fullversions[token]:
-                        if re.search(fullconn.lower(), sentence):
+                    for fullconn in dimlextokens2fullversions[token.lower()]:
+                        if re.search(fullconn.lower(), sentence.lower()):
                             fulltextfound = True
                     if fulltextfound:
                         features = ['dummyId']
@@ -192,11 +197,12 @@ class ConnectiveClassifier:
                             for item in numpy.ndarray.flatten(numpy.random.random((1, self.dimension))):
                                 nrow.append(item)
 
-                        pred = self.classifier.predict(numpy.array([nrow, ]))
-
-                        print('db tok:', tok)
-                        print('db pred:', pred)
-                        #print('db predval:', predval)
+                        pred = None
+                        with self.graph.as_default():
+                            pred = self.classifier.predict(numpy.array([nrow, ]))
+                        
+                        #print('db tok:', tok)
+                        #print('db pred:', pred)
                         if pred[0] == 1:
                             connectivePositions.append((sid, tid))
 
@@ -204,145 +210,6 @@ class ConnectiveClassifier:
                 
         return connectivePositions
 
-    
-
-    """
-    def run(self, inp):
-
-        connectivePositions = []
-        dimlexconnectives = [conn.word for conn in DimLexParser.parseXML(self.config['dimlex']['dimlexlocation'])]
-        dimlextokens = set()
-        dimlextokens2fullversions = defaultdict(set)
-        for dc in dimlexconnectives:
-            for tok in dc.split():
-                if not re.match('^\W+$', tok):
-                    dimlextokens.add(tok)
-                    dimlextokens2fullversions[tok].add(dc)
-
-        # TODO: assuming pre-tokenized input (whitespace splittable, one sentence per line). Fix tokenization at some point
-        for sid, sentence in enumerate(inp):
-            #print('debugging sent:', sentence)
-            tokens = sentence.split()
-            ptree = None
-            tree = self.lexParser.parse(tokens)
-            ptreeiter = ParentedTree.convert(tree)
-            for t in ptreeiter:
-                ptree = t
-                break # always taking the first, assuming that this is the best scoring tree.
-            ptree = self.runtimeparsermemory[sentence]
-            sentenceFeatures = self.getVectorsForTree(ptree)
-            headers = ['id'] + [v for k, v in self.pos2column.items()][:-1]
-            for tid, token in enumerate(tokens):
-                if token in dimlextokens:
-                    fulltextfound = False
-                    # this is the catch for multiword ones. singleword ones are found by definition, mwus not always
-                    # for full accuracy, should also take pos of token in sent into account, but this should be close enough for now
-                    # TODO: Does not work properly (or at all) for discontinuous ones
-                    for fullconn in dimlextokens2fullversions[token]:
-                        if re.search(fullconn, sentence):
-                            fulltextfound = True
-                    if fulltextfound:
-                        features = [str(j) for j in sentenceFeatures[tid]]
-                        intfeatures = []
-                        for feat in features:
-                            if feat in self.customLabelEncoder: # doing this myself, instead of with sklearn LabelEncoder, since pickling didn't really work
-                                intfeatures.append(self.customLabelEncoder[feat])
-                            else:
-                                self.clmid += 1
-                                intfeatures.append(self.clmid)
-                                self.customLabelEncoder[feat] = self.clmid
-                        features = [0] + intfeatures
-                        tdf = pandas.DataFrame([features], columns=headers)
-                        X = tdf.iloc[:,1:len(headers)]
-                        X = numpy.array(X)
-                        pred = self.classifier.predict(X)
-                        if pred[0] == 1:
-                            connectivePositions.append((sid, tid))
-
-        # filtering for multiword ones
-        connectivePositions = utils.mergePhrasalConnectives(connectivePositions)
-                            
-        return connectivePositions
-    """
-    """
-    def train(self):
-
-        
-        
-        connectivefiles = utils.getInputfiles(os.path.join(self.config['PCC']['rootfolder'], self.config['PCC']['standoffConnectives']))
-        syntaxfiles = utils.getInputfiles(os.path.join(self.config['PCC']['rootfolder'], self.config['PCC']['syntax']))
-
-        fdict = defaultdict(lambda : defaultdict(str))
-        fdict = utils.addAnnotationLayerToDict(connectivefiles, fdict, 'connectors')
-        fdict = utils.addAnnotationLayerToDict(syntaxfiles, fdict, 'syntax') # not using the gold syntax, but this layer is needed to extract full sentences, as it's (I think) the only layer that knows about this.
-        parsermemorymap = {}
-        if os.path.exists(self.config['lexparser']['memorymap']):
-            parsermemorymap = pickle.load(codecs.open(self.config['lexparser']['memorymap'], 'rb'))
-            sys.stdout.write('INFO: Loaded parse trees from %s\n' % self.config['lexparser']['memorymap'])
-        file2pccTokens = {}
-        candidates = set()
-        for basename in fdict:
-            pccTokens, discourseRelations, tid2dt = PCCParser.parseStandoffConnectorFile(fdict[basename]['connectors'])
-            pccTokens = PCCParser.parseSyntaxFile(fdict[basename]['syntax'], pccTokens)
-            file2pccTokens[basename] = pccTokens
-            for pcct in pccTokens:
-                if pcct.isConnective:
-                    candidates.add(pcct.token)
-        #TODO: current setup is single token based, which is stupid. Revisit this.
-        matrix = []
-        headers = ['id'] + [v for k, v in self.pos2column.items()]
-        #matrix.append(headers)
-        matrix.append([0] * len(headers)) # dummy to get shapes right, look into this
-        mid = 0
-        customLabelEncoder = {True:1, False:0}
-        clmid = 2
-        for f, pccTokens in file2pccTokens.items():
-            for index, pcct in enumerate(pccTokens):
-                if pcct.token in candidates:
-                    sentence = pcct.fullSentence
-                    tokens = utils.filterTokens(sentence.split())
-                    ptree = None
-                    if sentence in parsermemorymap:
-                        ptree = parsermemorymap[sentence]
-                    else:
-                        tree = self.lexParser.parse(tokens)
-                        ptreeiter = ParentedTree.convert(tree)
-                        for t in ptreeiter:
-                            ptree = t
-                            break # always taking the first, assuming that this is the best scoring tree.
-                        parsermemorymap[sentence] = ptree
-                    features = self.getFeaturesFromTree(index, pccTokens, pcct, ptree)
-                    intfeatures = []
-                    for feat in features:
-                        if feat in customLabelEncoder: # doing this myself, instead of with sklearn LabelEncoder, since pickling didn't really work
-                            intfeatures.append(customLabelEncoder[feat])
-                        else:
-                            clmid += 1
-                            intfeatures.append(clmid)
-                            customLabelEncoder[feat] = clmid
-                    row = [mid] + intfeatures + [pcct.isConnective]
-                    mid += 1
-                    matrix.append(row)
-
-        df = pandas.DataFrame(matrix, columns=headers)
-        #d = defaultdict(LabelEncoder)
-        #fit = df.apply(lambda x: d[x.name].fit_transform(x))
-        #df = df.apply(lambda x: d[x.name].transform(x))
-        Y = df.class_label
-        l = list(set(Y))
-        Y = numpy.array([l.index(x) for x in Y])
-        X = df.iloc[:,1:len(headers)-1]
-        X = numpy.array(X)
-
-        classifier = RandomForestClassifier(n_estimators=100)
-        classifier.fit(X, Y)
-        
-        joblib.dump(classifier, self.config['connectiveClassifier']['modelLocation']) 
-        sys.stdout.write('INFO: Pickled classifier to %s\n' % self.config['connectiveClassifier']['modelLocation'])
-
-        pickle.dump(customLabelEncoder, codecs.open(self.config['connectiveClassifier']['labelEncoder'], 'wb'))
-        sys.stdout.write('INFO: Pickled encoder to %s\n' % self.config['connectiveClassifier']['labelEncoder'])
-    """
         
     def getf2ohvpos(self, fmatrix):
 
