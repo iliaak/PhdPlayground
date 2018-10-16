@@ -84,8 +84,8 @@ if __name__ == '__main__':
     parser = Parser()
     parser.loadEmbeddings(True)
     cc = ConnectiveClassifier.ConnectiveClassifier()
-    cc.setGraph()
-    #cc.train(parser, True)
+    #cc.setGraph()
+    cc.train(parser, True)
     arg = ArgumentExtractor.ArgumentExtractor()
     arg.setGraph()
     arg.train(parser, True)
@@ -110,8 +110,8 @@ if __name__ == '__main__':
     ]
 
     runtimeparsermemory = parser.preParse(sentences)
-    #connectivepositions = cc.run(parser, sentences, runtimeparsermemory)
-    connectivepositions = [(14, [0]), (15, [0]), (16, [3])]
+    connectivepositions = cc.run(parser, sentences, runtimeparsermemory)
+    #connectivepositions = [(14, [0]), (15, [0]), (16, [3])]
     relations = arg.run(parser, sentences, runtimeparsermemory, connectivepositions)
     for rid in relations:
         print('rid:', rid)
@@ -120,5 +120,7 @@ if __name__ == '__main__':
         extarg = relations[rid]['extarg']
         print('\tconn:', conn, sentences[conn[0]].split()[conn[1][0]:conn[1][-1]+1])
         print('\tint:', intarg, sentences[intarg[0]].split()[intarg[1][0]:intarg[1][-1]+1])
-        print('\text:', extarg, sentences[extarg[0]].split()[extarg[1][0]:extarg[1][-1]+1])
+        if extarg:
+            if extarg[1]:
+                print('\text:', extarg, sentences[extarg[0]].split()[extarg[1][0]:extarg[1][-1]+1])
 

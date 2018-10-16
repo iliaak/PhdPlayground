@@ -263,7 +263,7 @@ class ArgumentExtractor:
         seed = 6
         batch_size = 5
         epochs = 100
-        verbosity = 0
+        verbosity = 1#0
         if debugmode:
             epochs = 1
             verbosity = 1
