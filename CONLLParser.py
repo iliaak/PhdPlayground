@@ -16,6 +16,7 @@ CONLL format Parser for connective classification (current code based on PDTB in
 class CONLLToken:
     def __init__(self, token):
         self.token = token
+
     # TODO: read up on proper way of doing this, think I'm mixing java and python too much
     def setGlobalTokenId(self, val):
         self.globalTokenId = val
@@ -33,6 +34,8 @@ class CONLLToken:
         self.secondaryAnnotation = val
     def setTerniaryAnnotation(self, val): # read docs: same here
         self.terniaryAnnotation = val
+    def setFileId(self, val):
+        self.fileId = val
         
         
 def parsePDTBFile(conllFile):
@@ -51,19 +54,20 @@ def parsePDTBFile(conllFile):
                 connectiveBoolean = False
                 if re.search("conn", ' '.join(row[5:])):
                     connectiveBoolean = True # getting rid of the sense for now (only doing binary classifcation. Include sense at some point!)
-                cToken = createConllToken(globalId, sentenceId, sTokenId, token, pos, connectiveBoolean)
+                cToken = createConllToken(globalId, sentenceId, sTokenId, token, pos, connectiveBoolean, os.path.splitext(os.path.basename(conllFile))[0])
                 conllTokens.append(cToken)
     return conllTokens
 
   
-def createConllToken(globalId, sentenceId, sTokenId, token, pos, connectiveBoolean):
+def createConllToken(globalId, sentenceId, sTokenId, token, pos, connectiveBoolean, fileId):
 
     ct = CONLLToken(token)
-    ct.setGlobalTokenId(globalId)
-    ct.setSentenceId(sentenceId)
-    ct.setSTokenId(sTokenId)
+    ct.setGlobalTokenId(int(globalId))
+    ct.setSentenceId(int(sentenceId))
+    ct.setSTokenId(int(sTokenId))
     ct.setCONLLPOSTag(pos)
     ct.setConnectiveBoolean(connectiveBoolean)
+    ct.setFileId(fileId)
     
     return ct
 
