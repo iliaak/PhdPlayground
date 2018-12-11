@@ -1,0 +1,200 @@
+1	Abwägen	Abwägen	VERB	NN	Case=Nom|Gender=Fem|Number=Plur	0	root	_	_	B-Segment
+
+1	Richtig	richtig	ADJ	ADJD	_	5	advmod	_	_	B-Segment
+2	,	,	PUNCT	$,	_	1	punct	_	_
+3	als	als	ADP	KOKOM	_	4	case	_	_
+4	Nicht-Teschendorfer	Nicht-Teschendorfer	NOUN	NN	_	5	obl	_	_
+5	erlebt	erleben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+6	man	man	PRON	PIS	Case=Nom|Definite=Ind|Number=Sing|PronType=Ind	5	nsubj	_	_
+7	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Plur|PronType=Art	8	det	_	_
+8	Sorgen	Sorge|Sorgen	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	5	obj	_	_
+9	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	10	cc	_	_
+10	Nöte	Nöte	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	8	conj	_	_
+11	um	um	ADP	APPR	_	13	case	_	_
+12	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	13	det	_	_
+13	Lkw-Verkehr	Lkw-Verkehr	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	5	nmod	_	_
+14	im	im	PROPN	NE	Case=Acc|Gender=Masc|Number=Sing	13	appos	_	_
+15	Griebener	Griebener	PROPN	ADJA	Case=Nom|Gender=Masc|Number=Sing	14	flat	_	_
+16	Weg	Weg	PROPN	NN	Case=Nom|Gender=Masc|Number=Sing	14	flat	_	_
+17	nicht	nicht	PART	CARD	NumType=Card	18	advmod	_	_
+18	jeden	jed	PRON	PIAT	Case=Acc|Definite=Ind|Gender=Masc|Number=Sing|PronType=Ind	19	det	_	_
+19	Tag	Tag	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	20	obl	_	_
+20	hautnah	hautnehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	5	conj	_	_
+21	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	22	cc	_	_
+22	live	live	VERB	ADJD	_	20	conj	_	_
+23	mit	mit	ADP	PTKVZ	_	22	compound:prt	_	_
+24	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Aber	aber	CCONJ	KON	_	11	cc	_	_	B-Segment
+2	gerade	gerade	ADV	ADV	_	3	advmod	_	_
+3	deshalb	deshalb	ADV	PAV	_	11	advmod	_	_
+4	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	11	cop	_	_
+5	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	11	nsubj	_	_
+6	einem	ein	DET	ART	Case=Dat|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	7	det	_	_
+7	Auswärtigen	Auswärtige	NOUN	ADJA	Case=Dat|Gender=Neut|Number=Sing	11	iobj	_	_
+8	wohl	wohl	ADV	NE	Case=Dat|Gender=Neut|Number=Sing	11	advmod	_	_
+9	ganz	ganz	ADJ	ADV	_	10	advmod	_	_
+10	gut	gut	ADJ	ADJD	_	11	advmod	_	_
+11	möglich	möglich	ADJ	ADJD	_	0	root	_	_
+12	,	,	PUNCT	$,	_	23	punct	_	_
+13	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	23	obj	_	_
+14	ein	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	16	det	_	_
+15	objektives	objektives	ADJ	ADJA	Case=Acc|Gender=Neut|Number=Sing	16	amod	_	_
+16	Bild	Bild	NOUN	NN	Case=Acc|Gender=Neut|Number=Sing	23	obj	_	_
+17	von	von	ADP	NN	Case=Acc|Gender=Masc|Number=Sing	19	case	_	_
+18	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	19	det	_	_
+19	Situation	Situation	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	23	obl	_	_
+20	vor	vor	ADP	NE	Case=Gen|Number=Sing	21	case	_	_
+21	Ort	Ort	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	19	nmod	_	_
+22	zu	zu	PART	FM	Foreign=Yes	23	mark	_	_
+23	machen	machen	VERB	VVINF	VerbForm=Inf	11	xcomp	_	_
+24	.	.	PUNCT	$.	_	11	punct	_	_
+
+1	Häufigen	häufig	ADJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	2	amod	_	_	B-Segment
+2	Lkw-Verkehr	Lkw-Verkehr	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	6	obj	_	_
+3	vor	vor	ADP	NE	Case=Gen|Number=Sing	5	case	_	_
+4	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+5	Haustür	Haustür	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	2	nmod	_	_
+6	finde	finden	VERB	VVFIN	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	0	root	_	_
+7	ich	ich	PRON	PPER	Case=Nom|Number=Sing|Person=1|PronType=Prs	6	nsubj	_	_
+8	auch	auch	ADV	ADV	_	9	advmod	_	_
+9	nicht	nicht	PART	CARD	NumType=Card	6	advmod	_	_
+10	gerade	gerade	ADV	ADV	_	11	advmod	_	_
+11	toll	toll	ADJ	ADJD	_	6	advmod	_	_
+12	.	.	PUNCT	$.	_	6	punct	_	_
+
+1	Und	und	CCONJ	ADJD	_	19	cc	_	_	B-Segment
+2	wenn	wenn	SCONJ	VVFIN	_	13	mark	_	_
+3	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	13	obj	_	_
+4	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+5	Brummis	Brummis	NOUN	NE	Case=Gen|Gender=Masc|Number=Sing	13	nsubj	_	_
+6	nicht	nicht	PART	CARD	NumType=Card	9	advmod	_	_
+7	an	an	ADP	APPR	_	9	case	_	_
+8	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	9	det	_	_
+9	Geschwindigkeitsbegrenzung	Geschwindigkeitsbegrenzung	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	13	obl	_	_
+10	von	von	ADP	NE	Case=Gen|Gender=Masc|Number=Sing	12	case	_	_
+11	30	30	NUM	CARD	NumType=Card	12	nummod	_	_
+12	km/h	km/h	NOUN	ADJD	_	13	obl	_	_
+13	halten	halten	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	19	advcl	_	_
+14	,	,	PUNCT	$,	_	13	punct	_	_
+15	sind	sein	AUX	NN	Case=Acc|Gender=Masc|Number=Sing	19	aux:pass	_	_	B-Segment
+16	Lärm	Lärm	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	19	nsubj:pass	_	_
+17	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	18	cc	_	_
+18	Ärger	Ärger	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	16	conj	_	_
+19	vorprogrammiert	vorprogrammieren	VERB	VVFIN	VerbForm=Part	0	root	_	_
+20	.	.	PUNCT	$.	_	19	punct	_	_
+
+1	Ordentliche	ordentlich	ADJ	NN	Case=Nom|Gender=Masc|Number=Plur	2	amod	_	_	B-Segment
+2	Straßen	Straße	NOUN	NN	Case=Nom|Gender=Fem|Number=Plur	11	nsubj	_	_
+3	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	4	cc	_	_
+4	Tempokontrollen	Tempokontrolle	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	2	conj	_	_
+5	zu	zu	PART	NN	Case=Acc|Gender=Fem|Number=Plur	6	mark	_	_
+6	fordern	fordern	VERB	VVINF	VerbForm=Inf	2	acl	_	_
+7	,	,	PUNCT	$,	_	6	punct	_	_
+8	ist	sein	AUX	VVIMP	Mood=Imp|Number=Sing|VerbForm=Fin	11	cop	_	_
+9	deshalb	deshalb	ADV	PAV	_	11	advmod	_	_
+10	völlig	völlig	ADJ	ADJD	_	11	advmod	_	_
+11	legitim	legitim	ADV	ADJD	_	0	root	_	_
+12	.	.	PUNCT	$.	_	11	punct	_	_
+
+1	Und	und	CCONJ	ADJD	_	6	cc	_	_	B-Segment
+2	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
+3	Gemeinde	Gemeinde	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	6	nsubj	_	_
+4	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	6	aux	_	_
+5	bereits	bereits	ADV	ADV	_	6	advmod	_	_
+6	signalisiert	signalisieren	VERB	VVPP	VerbForm=Part	0	root	_	_
+7	,	,	PUNCT	$,	_	11	punct	_	_
+8	die	der	DET	PRELS	Case=Nom|Number=Plur|PronType=Rel	9	det	_	_
+9	Anlieger	Anlieger	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	11	obj	_	_
+10	dabei	dabei	ADV	PAV	_	11	advmod	_	_
+11	unterstützen	unterstützen	VERB	VVINF	VerbForm=Inf	6	xcomp	_	_
+12	zu	zu	PART	NE	Case=Nom|Gender=Masc|Number=Sing	13	mark	_	_
+13	wollen	wollen	AUX	VMINF	VerbForm=Inf	11	aux	_	_
+14	.	.	PUNCT	$.	_	6	punct	_	_
+
+1	Nun	nun	ADV	ADV	_	4	advmod	_	_	B-Segment
+2	zu	zu	ADP	NE	Case=Nom|Gender=Masc|Number=Sing	4	case	_	_
+3	den	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	4	det	_	_
+4	Argumenten	Argument	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	0	root	_	_
+5	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	Gegenseite	Gegenseite	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	4	nmod	_	_
+7	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Ein	ein	DET	ART	Case=Nom|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Zweischichtsystem	Zweischichtsystem	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	13	nsubj	_	_
+3	ohne	ohne	ADP	CARD	_	5	case	_	_
+4	wirtschaftliche	wirtschaftlich	ADJ	NN	Case=Gen|Number=Plur	5	amod	_	_
+5	Notwendigkeit	Notwendigkeit	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	2	nmod	_	_
+6	auf	auf	ADP	APPR	_	8	case	_	_
+7	eine	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	8	det	_	_
+8	Schicht	Schicht	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	9	obl	_	_
+9	reduzieren	reduzieren	VERB	VVINF	VerbForm=Inf	2	acl	_	_
+10	zu	zu	PART	FM	Foreign=Yes	11	mark	_	_
+11	müssen	müssen	AUX	VMINF	VerbForm=Inf	9	aux	_	_
+12	,	,	PUNCT	$,	_	2	punct	_	_
+13	bringt	bringen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+14	gegenüber	gegenüber	ADP	APPR	_	16	case	_	_
+15	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	16	det	_	_
+16	Konkurrenz	Konkurrenz	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	13	obl	_	_
+17	zwangsläufig	zwangsläufig	ADJ	ADJD	_	18	advmod	_	_
+18	Nachteile	Nachteil	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	13	obj	_	_
+19	mit	mit	ADP	APPR	_	20	case	_	_
+20	sich	er|es|sie	PRON	PRF	Case=Dat|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	13	obl	_	_
+21	,	,	PUNCT	$,	_	35	punct	_	_
+22	die	der	PRON	PRELS	Case=Nom|Number=Plur|PronType=Rel	35	nsubj	_	_	B-Segment
+23	bis	bis	ADP	APPR	_	24	case	_	_
+24	zur	zur	ADV	NE	Case=Dat|Gender=Fem|Number=Sing	35	advmod	_	_
+25	Unrentabilität	Unrentabilität	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	35	obj	_	_
+26	,	,	PUNCT	$,	_	27	punct	_	_
+27	Aufgabe	Aufgabe	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	25	conj	_	_	B-Segment
+28	des	der	DET	ART	Case=Gen|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	29	det	_	_
+29	Firmenstandortes	Firmenstandort	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing	27	nmod	_	_
+30	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	32	cc	_	_	B-Segment
+31	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	32	det	_	_
+32	Verlust	Verlust	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	25	conj	_	_
+33	von	von	ADP	NN	Case=Nom|Gender=Masc|Number=Sing	34	case	_	_
+34	Arbeitsplätzen	Arbeitsplätzen	NOUN	NE	Case=Nom|Gender=Masc|Number=Sing	32	nmod	_	_
+35	führen	führen	VERB	VVINF	VerbForm=Inf	13	acl	_	_
+36	.	.	PUNCT	$.	_	13	punct	_	_
+
+1	Bleibt	bleiben	ADJ	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_	B-Segment
+2	unterm	unterm	ADJ	NN	Case=Nom|Gender=Masc|Number=Sing	3	amod	_	_
+3	Strich	Strich	NOUN	NE	Case=Nom|Gender=Masc|Number=Sing	1	nsubj	_	_
+4	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+5	Frage	Frage	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	1	obj	_	_
+6	aller	alle	PRON	PIAT	Case=Gen|Definite=Ind|Gender=Fem|Number=Plur|PronType=Ind	7	det	_	_
+7	Fragen	Frage	NOUN	NN	Case=Gen|Gender=Fem|Number=Plur	5	nmod	_	_
+8	:	:	PUNCT	$.	_	1	punct	_	_
+
+1	Sozialer	sozial	PROPN	ADJA	Case=Gen|Gender=Masc|Number=Plur	2	amod	_	_	B-Segment
+2	Frieden	Frieden	PROPN	NN	Case=Dat|Gender=Masc|Number=Sing	0	root	_	_
+3	für	für	ADP	APPR	_	6	case	_	_
+4	rund	rund	ADV	ADV	_	5	advmod	_	_
+5	200	200	NUM	CARD	NumType=Card	6	nummod	_	_
+6	Arbeitnehmer	Arbeitnehmer	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	2	nmod	_	_
+7	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	9	cc	_	_
+8	deren	der	DET	PDAT	Case=Gen|Number=Plur|PronType=Dem	9	nmod:poss	_	_
+9	Angehörige	Angehörige	NOUN	NN	Case=Nom|Number=Plur	12	conj	_	_
+10	oder	oder	CCONJ	CARD	NumType=Card	12	cc	_	_
+11	private	privat	ADJ	NN	Case=Nom|Gender=Masc|Number=Sing	12	amod	_	_
+12	Ruhe	Ruhe	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	2	conj	_	_
+13	für	für	ADP	APPR	_	16	case	_	_
+14	etwa	etwa	ADV	ADV	_	15	advmod	_	_
+15	zehn	zehn	NUM	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	16	nummod	_	_
+16	Anlieger	Anlieger	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	12	nmod	_	_
+17	?	?	PUNCT	$.	_	2	punct	_	_
+
+1	Ehrlich	ehrlich	PROPN	ADJD	_	0	root	_	_	B-Segment
+2	,	,	PUNCT	$,	_	5	punct	_	_
+3	ich	ich	PRON	PPER	Case=Nom|Number=Sing|Person=1|PronType=Prs	5	nsubj	_	_
+4	ziehe	zieh	ADJ	VVFIN	Mood=Imp|Number=Sing|VerbForm=Fin	5	amod	_	_
+5	Arbeit	Arbeit	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	1	conj	_	_
+6	vor	vor	ADP	NE	Case=Acc|Gender=Neut|Number=Sing	5	compound:prt	_	_
+7	.	.	PUNCT	$.	_	1	punct	_	_
+
+1	Und	und	CCONJ	NE	Case=Nom|Gender=Neut|Number=Sing	5	cc	_	_	B-Segment
+2	wie	wie	ADV	NE	Foreign=Yes	5	advmod	_	_
+3	würden	werden	AUX	NE	Case=Nom|Gender=Neut|Number=Sing	5	aux	_	_
+4	Sie	Sie|sie	PRON	PPER	Case=Nom|Number=Plur|Person=3|PronType=Prs	5	nsubj	_	_
+5	entscheiden	entscheiden	VERB	VVINF	VerbForm=Inf	0	root	_	_
+6	?	?	PUNCT	$.	_	5	punct	_	_

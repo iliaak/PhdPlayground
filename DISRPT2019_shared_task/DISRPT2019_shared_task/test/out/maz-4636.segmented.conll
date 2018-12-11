@@ -1,0 +1,207 @@
+1	Nicht	nicht	PART	ADJA	_	2	advmod	_	_	B-Segment
+2	erst	erst	ADV	ADV	_	4	advmod	_	_
+3	seit	seit	ADP	NE	Foreign=Yes	4	case	_	_
+4	gestern	gestern	ADJ	ADV	_	0	root	_	_
+
+1	Erst	erst	ADV	ADV	_	2	advmod	_	_	B-Segment
+2	einmal	einmal	ADV	ADV	_	4	advmod	_	_
+3	tief	tief	ADJ	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	4	advmod	_	_
+4	durchatmen	durchatmen	VERB	VVINF	VerbForm=Inf	0	root	_	_
+5	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Im	Im	PROPN	NE	Case=Nom|Gender=Neut|Number=Sing	10	nsubj	_	_	B-Segment
+2	benachbarten	benachbaren	VERB	ADJA	Case=Gen|Gender=Neut|Number=Sing	3	acl	_	_
+3	Berlin	Berlin	PROPN	NE	Case=Gen|Gender=Neut|Number=Sing	1	nmod	_	_
+4	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	10	aux	_	_
+5	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	10	nsubj	_	_
+6	keinen	kein	PRON	PIAT	Case=Acc|Definite=Ind|Gender=Masc|Number=Sing|Polarity=Neg|PronType=Neg	7	advmod	_	_
+7	Anschlag	Anschlag	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	10	obj	_	_
+8	mit	mit	ADP	APPR	_	9	case	_	_
+9	Milzbrand-Erregern	Milzbrand-Erreger	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	7	nmod	_	_
+10	gegeben	geben	VERB	VVPP	VerbForm=Part	0	root	_	_
+11	.	.	PUNCT	$.	_	10	punct	_	_
+
+1	In	in	ADP	APPR	_	2	case	_	_	B-Segment
+2	Bayern	Bayern	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	0	root	_	_
+3	auch	auch	ADV	ADV	_	4	advmod	_	_
+4	nicht	nicht	PART	ADJA	_	2	advmod	_	_
+5	.	.	PUNCT	$.	_	2	punct	_	_
+
+1	Aber	aber	CCONJ	KON	_	12	cc	_	_	B-Segment
+2	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Plur|PronType=Art	3	det	_	_
+3	Bilder	Bild	NOUN	NN	Case=Nom|Gender=Neut|Number=Plur	12	nsubj	_	_
+4	von	von	ADP	NE	Case=Gen|Gender=Masc|Number=Sing	5	case	_	_
+5	Männern	Mann	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	3	nmod	_	_
+6	in	in	ADP	APPR	_	7	case	_	_
+7	Mondanzügen	Mondanzügen	PROPN	NN	Case=Dat|Gender=Masc|Number=Plur	5	nmod	_	_
+8	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	9	cc	_	_
+9	Atemschutzmasken	Atemschutzmasken	PROPN	NN	Case=Gen|Gender=Neut|Number=Plur	7	conj	_	_
+10	haben	haben	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	12	cop	_	_
+11	durchaus	durchaus	ADV	ADV	_	12	advmod	_	_
+12	etwas	etwas	PRON	PIS	Definite=Ind|PronType=Ind	0	root	_	_
+13	von	von	ADP	NN	Case=Acc|Gender=Masc|Number=Sing	14	case	_	_
+14	Ausnahmezustand	Ausnahmezustand	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	12	nmod	_	_
+15	,	,	PUNCT	$,	_	17	punct	_	_
+16	ja	ja	ADV	ADV	_	17	advmod	_	_
+17	Katastrophenalarm	Katastrophenalarm	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	14	conj	_	_
+18	.	.	PUNCT	$.	_	12	punct	_	_
+
+1	Dennoch	dennoch	ADV	ADV	_	4	advmod	_	_	B-Segment
+2	ist	sein	AUX	VVIMP	Mood=Imp|Number=Sing|VerbForm=Fin	4	cop	_	_
+3	Panikmache	Panikmache	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	4	nsubj	_	_
+4	unverantwortlich	unverantwortlich	ADJ	ADJD	_	0	root	_	_
+5	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Was	was	PRON	NN	Case=Nom|Gender=Fem|Number=Plur	11	nsubj	_	_	B-Segment
+2	wir	wir	PRON	ADJD	_	3	nsubj	_	_
+3	sehen	sehen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	1	acl	_	_
+4	,	,	PUNCT	$,	_	3	punct	_	_
+5	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	11	cop	_	_
+6	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	11	det	_	_
+7	spektakuläre	spektakulär	ADJ	ADJA	Case=Acc|Gender=Fem|Number=Sing	11	amod	_	_
+8	,	,	PUNCT	$,	_	11	punct	_	_
+9	aber	aber	CCONJ	KON	_	11	cc	_	_
+10	routinierte	routiniert	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Plur	11	amod	_	_
+11	Einsatz	Einsatz	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	0	root	_	_
+12	von	von	ADP	NE	Case=Gen|Gender=Masc|Number=Sing	13	case	_	_
+13	Profis	Profi	NOUN	NE	Case=Gen|Gender=Masc|Number=Sing	11	nmod	_	_
+14	.	.	PUNCT	$.	_	11	punct	_	_
+
+1	Zu	zu	ADP	NE	Case=Nom|Gender=Masc|Number=Sing	3	case	_	_	B-Segment
+2	einer	ein	DET	ART	Case=Gen|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
+3	Zeit	Zeit	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	17	obl	_	_
+4	,	,	PUNCT	$,	_	11	punct	_	_
+5	in	in	ADP	APPR	_	6	case	_	_
+6	der	der	PRON	PRELS	Case=Dat|Gender=Fem|Number=Sing|PronType=Rel	11	obl	_	_
+7	alles	alle	PRON	PIS	Case=Nom|Definite=Ind|Gender=Neut|Number=Sing|PronType=Ind	8	det	_	_
+8	Denkbare	Denkbare	NOUN	ADJA	Case=Nom|Gender=Neut|Number=Plur	11	nsubj	_	_
+9	auch	auch	ADV	ADV	_	11	advmod	_	_
+10	machbar	machbar	ADJ	ADJD	_	11	advmod	_	_
+11	erscheint	erscheinen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	acl	_	_
+12	,	,	PUNCT	$,	_	3	punct	_	_
+13	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	17	aux:pass	_	_
+14	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	17	expl	_	_
+15	beruhigend	beruhigend	ADJ	ADJD	_	17	advmod	_	_
+16	zu	zu	PART	NE	Case=Nom|Gender=Masc|Number=Sing	17	mark	_	_
+17	wissen	wissen	VERB	VVINF	VerbForm=Inf	0	root	_	_
+18	,	,	PUNCT	$,	_	28	punct	_	_
+19	dass	dass	SCONJ	KOUS	_	28	mark	_	_
+20	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Plur|PronType=Art	21	det	_	_
+21	Rettungskräfte	Rettungskraft	NOUN	NN	Case=Nom|Gender=Fem|Number=Plur	28	nsubj	_	_
+22	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Plur|Person=3|PronType=Prs|Reflex=Yes	28	obj	_	_
+23	nicht	nicht	PART	ADJA	_	24	advmod	_	_
+24	erst	erst	ADV	ADV	_	28	advmod	_	_
+25	seit	seit	ADP	NE	Foreign=Yes	26	case	_	_
+26	gestern	gestern	ADV	ADV	_	28	advmod	_	_
+27	damit	damit	ADV	PAV	_	28	advmod	_	_
+28	befassen	befassen	VERB	VVFIN	VerbForm=Inf	17	ccomp	_	_
+29	,	,	PUNCT	$,	_	36	punct	_	_
+30	wie	wie	SCONJ	NE	Foreign=Yes	36	mark	_	_
+31	sie	sie	PRON	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	36	nsubj	_	_
+32	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	33	det	_	_
+33	Bürger	Bürger	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	36	obj	_	_
+34	vor	vor	ADP	NN	Case=Acc|Gender=Neut|Number=Sing	35	case	_	_
+35	Katastrophen	Katastrophe	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	36	obl	_	_
+36	schützen	schützen	VERB	VVINF	VerbForm=Inf	28	advcl	_	_
+37	können	können	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	36	aux	_	_
+38	.	.	PUNCT	$.	_	17	punct	_	_
+
+1	Ein	ein	DET	ART	Case=Nom|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	3	det	_	_	B-Segment
+2	eingespieltes	eingespielt	ADJ	ADJA	Case=Nom|Gender=Neut|Number=Sing	3	amod	_	_
+3	Team	Team	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	6	nsubj	_	_
+4	von	von	ADP	NN	Case=Nom|Gender=Masc|Number=Sing	5	case	_	_
+5	Spezialisten	Spezialist	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	3	nmod	_	_
+6	hält	halten	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+7	Ausrüstung	Ausrüstung	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	6	obj	_	_
+8	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	9	cc	_	_
+9	Fachleute	Fachleute	NOUN	NN	Case=Acc|Number=Plur	7	conj	_	_
+10	bereit	bereit	ADJ	PTKVZ	_	6	advmod	_	_
+11	,	,	PUNCT	$,	_	16	punct	_	_
+12	um	um	ADP	KOUI	_	16	mark	_	_	B-Segment
+13	schnell	schnell	ADJ	NN	Case=Acc|Gender=Neut|Number=Sing	16	advmod	_	_
+14	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	16	cc	_	_
+15	umfassend	umfassend	ADJ	ADJD	_	16	advmod	_	_
+16	handeln	handeln	VERB	VVINF	VerbForm=Inf	6	advcl	_	_
+17	zu	zu	PART	NE	Case=Nom|Gender=Masc|Number=Sing	18	mark	_	_
+18	können	können	AUX	VMINF	VerbForm=Inf	16	aux	_	_
+19	.	.	PUNCT	$.	_	6	punct	_	_
+
+1	Dass	daß	SCONJ	KOUS	_	9	mark	_	_	B-Segment
+2	sie	sie	PRON	ADJD	_	9	nsubj	_	_
+3	unter	unter	ADP	ADJD	_	5	case	_	_
+4	normalen	normal	ADJ	ADJA	Case=Dat|Gender=Neut|Number=Sing	5	amod	_	_
+5	Umständen	Umstand	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	9	obl	_	_
+6	kaum	kaum	ADV	ADV	_	9	advmod	_	_
+7	in	in	ADP	APPR	_	8	case	_	_
+8	Erscheinung	Erscheinung	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	9	obl	_	_
+9	treten	treten	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	18	advcl	_	_
+10	,	,	PUNCT	$,	_	9	punct	_	_
+11	ist	sein	AUX	VVIMP	Mood=Imp|Number=Sing|VerbForm=Fin	18	aux:pass	_	_
+12	ihrem	ihr	DET	PPOSAT	Case=Dat|Gender=Masc|Number=Sing|Poss=Yes	14	det:poss	_	_
+13	steten	steten	ADJ	ADJA	Case=Dat|Gender=Fem|Number=Plur	14	amod	_	_
+14	Bemühen	Mühe|bemühen	NOUN	NN	Case=Dat|Gender=Fem|Number=Plur	18	iobj	_	_
+15	um	um	ADP	APPR	_	16	case	_	_
+16	Vorbeugung	Vorbeugung	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	18	obl	_	_
+17	zu	zu	PART	FM	Foreign=Yes	18	mark	_	_
+18	danken	danken	VERB	VVINF	VerbForm=Inf	0	root	_	_
+19	-	-	PUNCT	$(	_	18	punct	_	_
+20	zum	zum	ADP	NN	Case=Dat|Gender=Neut|Number=Sing	23	case	_	_	B-Segment
+21	Beispiel	Beispiel	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	23	nmod	_	_
+22	im	im	ADJ	NE	Case=Nom|Gender=Masc|Number=Sing	23	amod	_	_
+23	Brandschutz	Brandschutz	NOUN	NE	Case=Nom|Gender=Masc|Number=Sing	18	flat	_	_
+24	,	,	PUNCT	$,	_	34	punct	_	_
+25	wo	wo	ADV	NE	Case=Nom|Gender=Masc|Number=Sing	34	advmod	_	_
+26	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	27	det	_	_
+27	Feuerwehr	Feuerwehr	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	34	obj	_	_
+28	schon	schon	ADV	ADV	_	31	advmod	_	_
+29	in	in	ADP	APPR	_	31	case	_	_
+30	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	31	det	_	_
+31	Planung	Planung	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	34	obl	_	_
+32	eines	ein	DET	ART	Case=Gen|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	33	det	_	_
+33	Gebäudes	Gebäude	NOUN	NN	Case=Gen|Gender=Neut|Number=Sing	31	nmod	_	_
+34	mitwirkt	mitwirken	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	23	acl	_	_
+35	.	.	PUNCT	$.	_	18	punct	_	_
+
+1	Trotzdem	trotzdem	ADV	PAV	_	5	advmod	_	_	B-Segment
+2	sollte	sollen	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	5	aux	_	_
+3	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
+4	Zivilschutz	Zivilschutz	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	5	nsubj:pass	_	_
+5	verbessert	verbessern	VERB	VVPP	VerbForm=Part	0	root	_	_
+6	werden	werden	AUX	NN	Case=Nom|Gender=Masc|Number=Plur	5	aux:pass	_	_
+7	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Manches	Manches	PROPN	ADJA	Case=Nom|Gender=Neut|Number=Sing	5	nsubj	_	_	B-Segment
+2	Vehikel	Vehikel	PROPN	NN	Case=Nom|Gender=Masc|Number=Sing	1	flat	_	_
+3	im	im	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	1	flat	_	_
+4	Gerätehaus	Gerätehaus	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	1	appos	_	_
+5	gehört	gehören	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+6	längst	längst	ADV	ADV	_	5	advmod	_	_
+7	ins	in	DET	NE	Case=Nom|Gender=Masc|Number=Sing	8	amod	_	_
+8	Technikmuseum	Technikmuseum	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	5	iobj	_	_
+9	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Wenn	wenn	SCONJ	KOUS	_	5	mark	_	_	B-Segment
+2	landesweit	landesweit	ADV	ADV	_	5	advmod	_	_
+3	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_
+4	Polizei	Polizei	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	5	nsubj:pass	_	_
+5	aufgerüstet	aufgerüsten	VERB	VVPP	VerbForm=Part	14	advcl	_	_
+6	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Pass	5	aux:pass	_	_
+7	,	,	PUNCT	$,	_	5	punct	_	_
+8	sollten	sollen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	14	aux	_	_	B-Segment
+9	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	10	det	_	_
+10	Rettungskräfte	Rettungskraft	NOUN	NN	Case=Nom|Gender=Fem|Number=Plur	14	nsubj	_	_
+11	nicht	nicht	PART	CARD	NumType=Card	14	advmod	_	_
+12	das	der	DET	ART	Case=Acc|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	13	det	_	_
+13	Nachsehen	Nachsehen	NOUN	NN	Case=Acc|Gender=Neut|Number=Sing	14	obj	_	_
+14	haben	haben	VERB	VAINF	VerbForm=Inf	0	root	_	_
+15	.	.	PUNCT	$.	_	14	punct	_	_
+
+1	Falls	Falls	SCONJ	KOUS	_	7	mark	_	_	B-Segment
+2	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	7	nsubj	_	_
+3	doch	doch	ADV	ADV	_	7	advmod	_	_
+4	einmal	einmal	ADV	ADV	_	7	advmod	_	_
+5	kein	kein	PRON	PIAT	Case=Nom|Definite=Ind|Gender=Masc|Number=Sing|Polarity=Neg|PronType=Neg	7	advmod	_	_
+6	mieser	mieser	ADJ	PDAT	Case=Nom|Gender=Masc|Number=Sing|PronType=Dem	7	amod	_	_
+7	Scherz	Scherz	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	0	root	_	_
+8	war	sein	AUX	ADV	_	7	cop	_	_
+9	.	.	PUNCT	$.	_	7	punct	_	_

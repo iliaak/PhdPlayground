@@ -1,0 +1,177 @@
+1	Siamesische	Siamesisch	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Plur	2	amod	_	_	B-Segment
+2	Zwillinge	Zwilling	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	0	root	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_	B-Segment
+2	Lausitzer	Lausitzer	PROPN	ADJA	_	3	amod	_	_
+3	Braunkohle	Braunkohle	PROPN	NN	Case=Nom|Gender=Neut|Number=Plur	22	nsubj	_	_
+4	AG	AG	PROPN	NN	Case=Nom|Gender=Fem|Number=Sing	3	flat	_	_
+5	(	(	PUNCT	$(	_	6	punct	_	_
+6	Laubag	Laubag	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	3	appos	_	_
+7	)	)	PUNCT	$(	_	6	punct	_	_
+8	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	22	aux	_	_
+9	im	im	ADV	NN	Case=Dat|Gender=Neut|Number=Sing	22	advmod	_	_
+10	abgelaufenen	abgelaufen	ADJ	ADJA	Case=Dat|Gender=Neut|Number=Sing	11	amod	_	_
+11	Geschäftsjahr	Geschäftsjahr	NOUN	NN	Case=Dat|Gender=Neut|Number=Sing	22	nsubj	_	_
+12	mit	mit	ADP	APPR	_	14	case	_	_
+13	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	14	det	_	_
+14	Förderung	Förderung	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	11	nmod	_	_
+15	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	17	cc	_	_
+16	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	17	det	_	_
+17	Verkauf	Verkauf	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	14	conj	_	_
+18	von	von	ADP	NE	Case=Dat|Gender=Neut|Number=Sing	19	case	_	_
+19	Braunkohle	Braunkohle	NOUN	NN	Case=Nom|Gender=Neut|Number=Plur	17	nmod	_	_
+20	erstmals	erstmals	ADV	ADV	_	22	advmod	_	_
+21	Verluste	Verlust	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	22	obj	_	_
+22	gemacht	machen	VERB	VVPP	VerbForm=Part	0	root	_	_
+23	.	.	PUNCT	$.	_	22	punct	_	_
+
+1	Damit	damit	ADV	PAV	_	13	advmod	_	_	B-Segment
+2	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Pass	13	aux:pass	_	_
+3	erneut	erneut	ADJ	ADV	_	13	advmod	_	_
+4	deutlich	deutlich	ADJ	ADJD	_	13	advmod	_	_
+5	,	,	PUNCT	$,	_	13	punct	_	_
+6	dass	dass	SCONJ	KOUS	_	13	mark	_	_
+7	eine	ein	DET	ART	Case=Nom|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	8	det	_	_
+8	Neuordnung	Neuordnung	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	13	nsubj	_	_
+9	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	10	det	_	_
+10	Energiewirtschaft	Energiewirtschaft	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	8	nmod	_	_
+11	in	in	ADP	APPR	_	12	case	_	_
+12	Ostdeutschland	Ostdeutschland	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	13	nmod	_	_
+13	überfällig	überfällig	ADJ	ADJD	_	0	root	_	_
+14	ist	sein	AUX	VVIMP	Mood=Imp|Number=Sing|VerbForm=Fin	13	cop	_	_
+15	.	.	PUNCT	$.	_	13	punct	_	_
+
+1	Denn	denn	SCONJ	KON	_	12	mark	_	_	B-Segment
+2	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
+3	Laubag	Laubag	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	12	nsubj	_	_
+4	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	7	cc	_	_
+5	ihr	ihr	DET	PPOSAT	Case=Nom|Gender=Masc|Number=Sing|Poss=Yes	7	det:poss	_	_
+6	wichtigster	wichtig	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Sing	7	amod	_	_
+7	Kunde	Kunde	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	3	conj	_	_
+8	,	,	PUNCT	$,	_	10	punct	_	_
+9	die	der	DET	PDS	Case=Nom|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	10	det	_	_
+10	Veag	Veag	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	3	conj	_	_
+11	,	,	PUNCT	$,	_	3	punct	_	_
+12	hängen	hängen	VERB	VVINF	VerbForm=Inf	0	root	_	_
+13	wie	wie	ADP	NE	Foreign=Yes	15	case	_	_
+14	siamesische	siamesisch	ADJ	ADJA	Case=Nom|Gender=Neut|Number=Plur	15	amod	_	_
+15	Zwillinge	Zwilling	NOUN	NN	Case=Nom|Gender=Neut|Number=Plur	12	obl	_	_
+16	voneinander	voneinander	ADV	ADV	_	12	advmod	_	_
+17	ab	ab	ADP	PTKVZ	_	12	compound:prt	_	_
+18	.	.	PUNCT	$.	_	12	punct	_	_
+
+1	Als	als	SCONJ	KOUS	_	11	mark	_	_	B-Segment
+2	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	3	det	_	_
+3	Veag	Veag	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	11	nsubj	_	_
+4	wegen	wegen	ADP	NE	Case=Nom|Number=Plur	6	case	_	_
+5	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	Liberalisierung	Liberalisierung	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	11	obl	_	_
+7	des	der	DET	ART	Case=Gen|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	8	det	_	_
+8	Strommarktes	Strommarkt	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing	6	nmod	_	_
+9	unter	unter	ADP	ADJD	_	10	case	_	_
+10	Druck	Druck	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	11	obl	_	_
+11	geriet	geraten	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	18	advcl	_	_
+12	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	15	cc	_	_
+13	ihre	ihr	DET	PPOSAT	Case=Acc|Gender=Masc|Number=Plur|Poss=Yes	14	det:poss	_	_
+14	Strompreise	Strompreise	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	15	obj	_	_
+15	senken	senken	VERB	VVINF	VerbForm=Inf	11	conj	_	_
+16	musste	müssen	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	15	aux	_	_
+17	,	,	PUNCT	$,	_	11	punct	_	_
+18	hielt	halten	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_	B-Segment
+19	sie	sie	PRON	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	18	nsubj	_	_
+20	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	18	obj	_	_
+21	bei	bei	ADP	APPR	_	23	case	_	_
+22	ihrem	ihr	DET	PPOSAT	Case=Dat|Gender=Masc|Number=Sing|Poss=Yes	23	det:poss	_	_
+23	Lieferanten	Lieferant	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	18	obl	_	_
+24	schadlos	schadlos	ADJ	ADJD	_	18	advmod	_	_
+25	.	.	PUNCT	$.	_	18	punct	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Laubag	Laubag	PROPN	NN	Case=Nom|Gender=Masc|Number=Sing	5	nsubj	_	_
+3	musste	müssen	AUX	CARD	NumType=Card	5	aux	_	_
+4	Preiszugeständnisse	Preiszugeständnis	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	5	obj	_	_
+5	machen	machen	VERB	VVINF	VerbForm=Inf	0	root	_	_
+6	,	,	PUNCT	$,	_	13	punct	_	_
+7	die	der	PRON	PRELS	Case=Acc|Number=Plur|PronType=Rel	13	obj	_	_	B-Segment
+8	sie	sie	PRON	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	13	nsubj	_	_
+9	nun	nun	ADV	ADV	_	13	advmod	_	_
+10	selbst	selbst	ADV	VVFIN	Mood=Ind|Number=Sing|Person=2|Tense=Pres|VerbForm=Fin	9	advmod	_	_
+11	in	in	ADP	APPR	_	12	case	_	_
+12	Bedrängnis	Bedrängnis	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	13	obl	_	_
+13	bringen	bringen	VERB	VVINF	VerbForm=Inf	5	acl	_	_
+14	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Einziger	einzig	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Plur	2	amod	_	_	B-Segment
+2	Weg	Weg	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	8	nsubj	_	_
+3	aus	aus	ADP	APPR	_	5	case	_	_
+4	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	5	det	_	_
+5	Dilemma	Dilemma	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	2	nmod	_	_
+6	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	8	cop	_	_
+7	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	8	det	_	_
+8	Bildung	Bildung	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	0	root	_	_
+9	eines	ein	DET	ART	Case=Gen|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	11	det	_	_
+10	neuen	neu	ADJ	ADJA	Case=Gen|Gender=Neut|Number=Sing	11	amod	_	_
+11	Energiekonzerns	Energiekonzern	NOUN	NN	Case=Gen|Gender=Neut|Number=Sing	8	nmod	_	_
+12	aus	aus	ADP	APPR	_	13	case	_	_
+13	Rohstofflieferanten	Rohstofflieferanten	PROPN	NN	Case=Dat|Gender=Neut|Number=Plur	11	nmod	_	_
+14	,	,	PUNCT	$,	_	15	punct	_	_
+15	Stromerzeugern	Stromerzeuger	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	13	conj	_	_
+16	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	17	cc	_	_
+17	Endversorgern	Endversorger	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	13	conj	_	_
+18	,	,	PUNCT	$,	_	23	punct	_	_
+19	in	in	ADP	APPR	_	21	case	_	_	B-Segment
+20	dem	der	DET	PRELS	Case=Dat|Gender=Masc|Number=Sing|PronType=Rel	21	det	_	_
+21	Risiken	Risiko	NOUN	NN	Case=Dat|Gender=Fem|Number=Plur	23	obl	_	_
+22	besser	gut	ADJ	ADJD	_	23	advmod	_	_
+23	verteilt	verteilen	VERB	VVPP	VerbForm=Part	13	acl	_	_
+24	werden	werden	AUX	NN	Case=Nom|Gender=Masc|Number=Plur	23	aux:pass	_	_
+25	können	können	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	23	aux	_	_
+26	.	.	PUNCT	$.	_	8	punct	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Idee	Idee	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	17	nsubj	_	_
+3	,	,	PUNCT	$,	_	11	punct	_	_
+4	auch	auch	ADV	ADV	_	11	advmod	_	_
+5	einen	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	6	det	_	_
+6	Gasversorger	Gasversorger	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	11	obj	_	_
+7	mit	mit	ADP	APPR	_	9	case	_	_
+8	ins	in	DET	NE	Case=Dat|Gender=Masc|Number=Sing	9	det	_	_
+9	Boot	Boot	NOUN	NE	Case=Dat|Gender=Masc|Number=Sing	6	nmod	_	_
+10	zu	zu	PART	NE	Foreign=Yes	11	mark	_	_
+11	holen	holen	VERB	VVINF	VerbForm=Inf	2	acl	_	_
+12	,	,	PUNCT	$,	_	11	punct	_	_
+13	ist	sein	AUX	VVIMP	Mood=Imp|Number=Sing|VerbForm=Fin	17	cop	_	_
+14	im	im	ADV	NE	Case=Nom|Gender=Neut|Number=Sing	17	advmod	_	_
+15	Prinzip	Prinzip	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	17	cop	_	_
+16	nicht	nicht	PART	CARD	NumType=Card	17	advmod	_	_
+17	schlecht	schlecht	ADJ	NN	Case=Acc|Gender=Fem|Number=Sing	0	root	_	_
+18	.	.	PUNCT	$.	_	17	punct	_	_
+
+1	Allerdings	allerdings	ADV	ADV	_	4	advmod	_	_	B-Segment
+2	gilt	gelten	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	cop	_	_
+3	auch	auch	ADV	ADV	_	4	advmod	_	_
+4	hier	hier	ADV	ADV	_	0	root	_	_
+5	,	,	PUNCT	$,	_	12	punct	_	_
+6	dass	dass	SCONJ	KOUS	_	12	mark	_	_
+7	zu	zu	ADP	FM	Foreign=Yes	9	case	_	_
+8	viele	viel	DET	FM	Foreign=Yes	9	amod	_	_
+9	Köche	Koch	NOUN	NE	Case=Nom|Gender=Masc|Number=Sing	12	obl	_	_
+10	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	11	det	_	_
+11	Brei	Brei	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	12	obj	_	_
+12	verderben	verderben	VERB	VVINF	VerbForm=Inf	4	csubj	_	_
+13	können	können	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	12	aux	_	_
+14	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Zumindest	zumindest	ADV	ADV	_	3	advmod	_	_	B-Segment
+2	muss	müssen	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	aux	_	_
+3	klar	klar	ADJ	ADJD	_	0	root	_	_
+4	sein	sein	AUX	VAINF	VerbForm=Inf	3	cop	_	_
+5	,	,	PUNCT	$,	_	12	punct	_	_
+6	wer	wer	PRON	PWS	Case=Nom|Gender=Masc|Number=Sing|PronType=Int	12	nsubj	_	_
+7	im	im	ADV	NE	Case=Acc|Gender=Masc|Number=Sing	9	advmod	_	_
+8	neuen	neu	ADJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	9	amod	_	_
+9	Konzern	Konzern	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	12	obl	_	_
+10	das	der	DET	ART	Case=Acc|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	11	det	_	_
+11	Sagen	Sage	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	12	obj	_	_
+12	hat	haben	VERB	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	ccomp	_	_
+13	.	.	PUNCT	$.	_	3	punct	_	_

@@ -1,0 +1,212 @@
+1	Aktionskreise	Aktionskreise	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	0	root	_	_	B-Segment
+
+1	Am	am	PROPN	ADJD	_	2	dep	_	_	B-Segment
+2	liebsten	liebsen	VERB	NN	Case=Nom|Gender=Masc|Number=Plur	5	acl	_	_
+3	würde	werden	AUX	NN	Case=Acc|Gender=Fem|Number=Sing	5	aux	_	_
+4	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+5	Feuerwehr	Feuerwehr	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	0	root	_	_
+6	ja	ja	ADV	ADV	_	10	advmod	_	_
+7	schon	schon	ADV	ADV	_	10	advmod	_	_
+8	in	in	ADP	APPR	_	10	case	_	_
+9	fünf	fünf	NUM	CARD	NumType=Card	10	nummod	_	_
+10	Minuten	Minute	NOUN	NN	Case=Dat|Gender=Fem|Number=Plur	5	nmod	_	_
+11	an	an	ADP	APPR	_	13	case	_	_
+12	jedem	jed	PRON	PIAT	Case=Dat|Definite=Ind|Gender=Masc|Number=Sing|PronType=Ind	13	det	_	_
+13	Ort	Ort	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	5	nmod	_	_
+14	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	15	det	_	_
+15	Stadt	Stadt	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	13	nmod	_	_
+16	sein	sein	AUX	VAINF	VerbForm=Inf	5	cop	_	_
+17	,	,	PUNCT	$,	_	23	punct	_	_
+18	aber	aber	CCONJ	KON	_	23	cc	_	_	B-Segment
+19	derzeit	derzeit	ADV	ADV	_	23	advmod	_	_
+20	sind	sein	AUX	NN	Case=Nom|Gender=Fem|Number=Sing	23	cop	_	_
+21	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	23	nsubj	_	_
+22	bestenfalls	bestenfalls	ADP	ADV	_	23	case	_	_
+23	acht	acht	NUM	CARD	NumType=Card	5	conj	_	_
+24	.	.	PUNCT	$.	_	23	punct	_	_
+
+1	Rechnet	Rechnen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	12	advcl	_	_	B-Segment
+2	man	man	PRON	PIS	Case=Nom|Definite=Ind|Number=Sing|PronType=Ind	1	nsubj	_	_
+3	noch	noch	ADV	VVPP	NumType=Card|VerbForm=Part	1	advmod	_	_
+4	fünf	fünf	NUM	CARD	NumType=Card	5	nummod	_	_
+5	Minuten	Minute	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	1	obj	_	_
+6	drauf	drauf	PRON	PAV	_	1	obj	_	_
+7	zwischen	zwischen	ADP	ADJA	Case=Acc|Gender=Masc|Number=Sing	8	case	_	_
+8	Alarm	Alarm	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	6	nmod	_	_
+9	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	10	cc	_	_
+10	Start	Start	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	8	conj	_	_
+11	,	,	PUNCT	$,	_	1	punct	_	_
+12	kommen	kommen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_	B-Segment
+13	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	14	det	_	_
+14	Retter	Retter	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	12	nsubj	_	_
+15	schon	schon	ADV	ADV	_	12	advmod	_	_
+16	an	an	ADP	APPR	_	18	case	_	_
+17	ihre	ihr	DET	PPOSAT	Case=Acc|Gender=Fem|Number=Sing|Poss=Yes	18	det:poss	_	_
+18	Grenzen	Grenze	NOUN	NN	Case=Nom|Gender=Fem|Number=Plur	12	obl	_	_
+19	:	:	PUNCT	$.	_	12	punct	_	_
+
+1	Ab	ab	ADP	APPR	_	3	case	_	_	B-Segment
+2	18	18	NUM	CARD	NumType=Card	3	nummod	_	_
+3	Minuten	Minute	NOUN	NN	Case=Dat|Gender=Fem|Number=Plur	4	obl	_	_
+4	kommt	kommen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+5	für	für	ADP	APPR	_	6	case	_	_
+6	Menschen	Mensch	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	4	obl	_	_
+7	in	in	ADP	APPR	_	10	case	_	_
+8	einer	ein	DET	ART	Case=Dat|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	10	det	_	_
+9	verqualmten	verqualmt	ADJ	ADJA	Case=Dat|Gender=Fem|Number=Sing	10	amod	_	_
+10	Wohnung	wohnung	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	4	obl	_	_
+11	jede	jed	PRON	PIAT	Case=Acc|Definite=Ind|Gender=Fem|Number=Sing|PronType=Ind	12	det	_	_
+12	Hilfe	Hilfe	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	4	nsubj	_	_
+13	zu	zu	PART	FM	Foreign=Yes	14	mark	_	_
+14	spät	spaten	VERB	NN	NumType=Card	4	xcomp	_	_
+15	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Also	also	ADV	ADV	_	15	advmod	_	_	B-Segment
+2	kann	können	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	15	aux	_	_
+3	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	15	nsubj	_	_
+4	für	für	ADP	APPR	_	6	case	_	_
+5	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	Feuerwehr	Feuerwehr	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	7	nmod	_	_
+7	beim	beim	ADJ	NE	Case=Acc|Gender=Neut|Number=Sing	8	amod	_	_
+8	Wegzug	Wegzug	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	15	obj	_	_
+9	aus	aus	ADP	APPR	_	11	case	_	_
+10	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	11	det	_	_
+11	Seelenbinderstraße	Seelenbinderstraße	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	8	nmod	_	_
+12	nur	nur	ADV	XY	_	15	advmod	_	_
+13	einen	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	14	det	_	_
+14	Maßstab	Maßstab	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	15	obj	_	_
+15	geben	geben	VERB	VVINF	VerbForm=Inf	0	root	_	_
+16	:	:	PUNCT	$.	_	17	punct	_	_
+17	Schnelligkeit	Schnelligkeit	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	15	appos	_	_
+18	.	.	PUNCT	$.	_	15	punct	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	12	dep	_	_	B-Segment
+2	aber	aber	ADV	ADV	_	12	advmod	_	_
+3	scheint	scheinen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	12	aux	_	_
+4	nur	nur	ADV	XY	_	3	advmod	_	_
+5	bei	bei	ADP	APPR	_	7	case	_	_
+6	zwei	zwei	NUM	NE	Case=Dat|Gender=Masc|Number=Sing	7	nummod	_	_
+7	Standorten	Standort	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	3	obl	_	_
+8	an	an	ADP	APPR	_	11	case	_	_
+9	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	11	det	_	_
+10	Berliner	Berliner	PROPN	ADJA	_	11	amod	_	_
+11	Straße	Straße	PROPN	NN	Case=Dat|Gender=Fem|Number=Sing	12	obl	_	_
+12	garantiert	garantieren	VERB	VVPP	VerbForm=Part	0	root	_	_
+13	:	:	PUNCT	$.	_	12	punct	_	_
+
+1	Nahe	nahe	ADP	ADV	_	3	case	_	_	B-Segment
+2	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_
+3	Schnellstraße	Schnellstraße	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	20	obl	_	_
+4	wäre	sein	AUX	NN	Case=Acc|Gender=Masc|Number=Sing	20	aux	_	_
+5	man	man	PRON	PIS	Case=Nom|Definite=Ind|Number=Sing|PronType=Ind	20	nsubj	_	_
+6	hier	hier	ADV	ADV	_	20	advmod	_	_
+7	,	,	PUNCT	$,	_	6	punct	_	_
+8	nahe	nahe	ADP	CARD	NumType=Card	10	case	_	_
+9	am	am	ADJ	ADJD	_	10	amod	_	_
+10	Klinikum	Klinikum	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	20	obl	_	_
+11	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	14	cc	_	_
+12	nahe	nahe	ADV	NN	Case=Acc|Gender=Masc|Number=Sing	14	advmod	_	_
+13	am	am	ADJ	ADJD	_	14	amod	_	_
+14	Wasser	Wasser	NOUN	TRUNC	_	10	conj	_	_
+15	-	-	PUNCT	$(	_	14	punct	_	_
+16	auch	auch	ADV	ADV	_	14	advmod	_	_	B-Segment
+17	dort	dort	ADV	ADV	_	20	advmod	_	_
+18	will	wollen	AUX	ADJD	_	20	aux	_	_
+19	man	man	PRON	PIS	Case=Nom|Definite=Ind|Number=Sing|PronType=Ind	20	nsubj	_	_
+20	helfen	helfen	VERB	VVINF	VerbForm=Inf	0	root	_	_
+21	können	können	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	20	aux	_	_
+22	.	.	PUNCT	$.	_	20	punct	_	_
+
+1	Wenn	wenn	SCONJ	KOUS	_	16	mark	_	_	B-Segment
+2	nun	nun	ADV	ADV	_	16	advmod	_	_
+3	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
+4	CDU-Abgeordnete	CDU-Abgeordneter	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	16	nsubj	_	_
+5	Peter	Peter	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	4	appos	_	_
+6	Lehmann	Lehmann	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	5	flat	_	_
+7	das	der	DET	ART	Case=Acc|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	8	det	_	_
+8	Wasserwirtschaftsareal	Wasserwirtschaftsareal	NOUN	NE	Case=Acc|Gender=Neut|Number=Sing	16	obj	_	_
+9	an	an	ADP	APPR	_	11	case	_	_
+10	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	11	det	_	_
+11	Friedrich-Engels-Straße	Friedrich-Engels-Straße	PROPN	NN	Case=Dat|Gender=Fem|Number=Sing	8	nmod	_	_
+12	für	für	ADP	APPR	_	14	case	_	_
+13	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	14	det	_	_
+14	Feuerwache	Feuerwache	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	8	nmod	_	_
+15	Potsdam	Potsdam	PROPN	NE	Case=Nom|Gender=Neut|Number=Sing	14	appos	_	_
+16	fordert	fordern	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	24	advcl	_	_
+17	,	,	PUNCT	$,	_	16	punct	_	_
+18	mag	mögen	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	24	aux	_	_	B-Segment
+19	er	er	PRON	PPER	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	24	nsubj	_	_
+20	in	in	ADP	APPR	_	22	case	_	_
+21	zwei	zwei	NUM	NE	Case=Dat|Gender=Neut|Number=Sing	22	nummod	_	_
+22	Punkten	Punkt	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	24	obl	_	_
+23	Recht	recht	NOUN	NN	Case=Dat|Gender=Neut|Number=Sing	24	obj	_	_
+24	haben	haben	VERB	VAINF	VerbForm=Inf	0	root	_	_
+25	:	:	PUNCT	$.	_	24	punct	_	_
+
+1	Zwischen	zwischen	ADP	NN	Case=Nom|Gender=Fem|Number=Plur	3	case	_	_	B-Segment
+2	Berliner	Berliner	PROPN	ADJA	_	3	amod	_	_
+3	Straße	Straße	PROPN	NN	Case=Dat|Gender=Fem|Number=Sing	11	obl	_	_
+4	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	6	cc	_	_
+5	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	6	det	_	_
+6	Havel	Havel	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	3	conj	_	_
+7	kann	können	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	11	aux	_	_
+8	man	man	PRON	PIS	Case=Nom|Definite=Ind|Number=Sing|PronType=Ind	11	nsubj	_	_
+9	prima	prima	ADJ	NE	Foreign=Yes	10	amod	_	_
+10	Wohnungen	Wohnung	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	11	obj	_	_
+11	bauen	bauen	VERB	VVINF	VerbForm=Inf	0	root	_	_
+12	,	,	PUNCT	$,	_	16	punct	_	_
+13	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	16	cc	_	_	B-Segment
+14	das	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	15	det	_	_
+15	Wasserbetriebsgelände	Wasserbetriebsgeland	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	16	nsubj	_	_
+16	harrt	harrt	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	11	conj	_	_
+17	einer	ein	DET	ART	Case=Dat|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	19	det	_	_
+18	besseren	gut	ADJ	ADJA	Case=Dat|Gender=Fem|Number=Sing	19	amod	_	_
+19	Nutzung	Nutzung	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	16	iobj	_	_
+20	.	.	PUNCT	$.	_	11	punct	_	_
+
+1	Wie	wie	ADV	NN	Case=Nom|Gender=Masc|Number=Sing	2	advmod	_	_	B-Segment
+2	aber	aber	ADV	ADV	_	18	advmod	_	_
+3	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Neut|Number=Plur|PronType=Art	4	det	_	_
+4	Einsatzfahrzeuge	Einsatzfahrzeug	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	18	nsubj	_	_
+5	von	von	ADP	NE	Case=Gen|Gender=Masc|Number=Sing	7	case	_	_
+6	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	7	det	_	_
+7	Friedrich-Engels-Straße	Friedrich-Engels-Straße	PROPN	NN	Case=Gen|Gender=Fem|Number=Sing	4	nmod	_	_
+8	aus	aus	ADP	APPR	_	10	case	_	_
+9	das	der	DET	ART	Case=Acc|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	10	det	_	_
+10	Dauerproblem	Dauerproblem	NOUN	NN	Case=Acc|Gender=Neut|Number=Sing	11	nmod	_	_
+11	Bau	Bau	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	18	obj	_	_
+12	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	13	cc	_	_
+13	Stau	Stau	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	11	conj	_	_
+14	auf	auf	ADP	APPR	_	17	case	_	_
+15	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	17	det	_	_
+16	Langen	lang	ADJ	ADJA	Case=Dat|Gender=Fem|Number=Sing	17	amod	_	_
+17	Brücke	Brücke	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	18	obl	_	_
+18	umfahren	umfahren	VERB	VVINF	VerbForm=Inf	21	acl	_	_
+19	sollen	sollen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	18	aux	_	_
+20	,	,	PUNCT	$,	_	18	punct	_	_
+21	das	der	PRON	PDS	Case=Nom|Gender=Neut|Number=Sing|PronType=Dem	22	nsubj	_	_
+22	sagt	sagen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+23	er	er	PRON	PPER	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	22	nsubj	_	_
+24	nicht	nicht	PART	ADJA	_	22	advmod	_	_
+25	.	.	PUNCT	$.	_	22	punct	_	_
+
+1	Mithin	mithin	ADV	ADV	_	13	advmod	_	_	B-Segment
+2	kann	können	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	13	aux	_	_
+3	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+4	neue	neu	ADJ	ADJA	_	5	amod	_	_
+5	Wache	Wache	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	13	nsubj	_	_
+6	-	-	PUNCT	$(	_	5	punct	_	_
+7	zumal	zumal	ADV	NE	Case=Nom|Number=Sing	5	advmod	_	_
+8	bereits	bereits	ADV	ADV	_	10	advmod	_	_
+9	eine	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	10	det	_	_
+10	Berufswache	Berufswache	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	13	nsubj	_	_
+11	in	in	ADP	APPR	_	12	case	_	_
+12	Babelsberg	Babelsberg	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	10	nmod	_	_
+13	besteht	bestehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+14	-	-	PUNCT	$(	_	13	punct	_	_
+15	nur	nur	ADV	XY	_	16	advmod	_	_
+16	nördlich	nördlich	ADJ	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	19	advmod	_	_
+17	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	18	det	_	_
+18	Havel	Havel	PROPN	NN	Case=Nom|Gender=Masc|Number=Sing	19	nsubj	_	_
+19	liegen	liegen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	13	parataxis	_	_
+20	.	.	PUNCT	$.	_	13	punct	_	_

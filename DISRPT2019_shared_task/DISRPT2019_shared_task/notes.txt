@@ -1,0 +1,8 @@
+as this got into a real mess, here's a little explanation that will hopefully make sense later still.
+Part of the mess originated from the fact that at first we used the ParZu layer for deps. Because it was preferred to have all data (for th shared taks) to be parsed with the same scheme, we reparsed with the UD pipeline from the Czech folks. The code for this can be found in udParseWrapper.py and requires some hardcoded path changing to get it to work.
+This script dumps the output into the udeps folders for dev, test and train.
+The next step then is to combine this with the RST segmen boundaries.
+This can be done with the script fix_deps_on_the_fly.py, which doesn't actually fix anything in terms of deps, but really just combines the rst and dep layer. This then dumps the output in the dev, test and train out folders.
+The final step is to combine this into one file for dev, one for test and one for train.
+This is done with convert_files_to_single_conll.py.
+That should be all of it...

@@ -1,0 +1,171 @@
+1	Zweck	Zweck	PROPN	NN	Case=Nom|Gender=Masc|Number=Sing	2	nsubj	_	_	B-Segment
+2	heiligt	heiligen	VERB	VVPP	VerbForm=Part	0	root	_	_
+3	Mittel	Mittel	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	2	obj	_	_
+4	nicht	nicht	PART	ADJA	_	2	advmod	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Verwaltungsspitze	Verwaltungsspitze	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	6	nsubj	_	_
+3	des	der	DET	ART	Case=Gen|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
+4	Kreises	Kreis	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing	2	nmod	_	_
+5	Potsdam-Mittelmark	Potsdam-Mittelmark	PROPN	NE	Case=Nom|Gender=Neut|Number=Sing	4	appos	_	_
+6	gerät	geraten	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+7	einmal	einmal	ADV	ADV	_	6	advmod	_	_
+8	mehr	mehr	ADV	ADV	_	6	advmod	_	_
+9	unter	unter	ADP	ADJD	_	10	case	_	_
+10	Druck	Druck	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	6	obl	_	_
+11	.	.	PUNCT	$.	_	6	punct	_	_
+
+1	Nicht	nicht	PART	ADJA	_	2	advmod	_	_	B-Segment
+2	zum	zum	ADP	NN	Case=Nom|Gender=Neut|Number=Sing	4	case	_	_
+3	ersten	erst	ADJ	ADJA	Case=Acc|Gender=Neut|Number=Plur	4	amod	_	_
+4	Mal	Mal	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	5	obl	_	_
+5	steht	stehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+6	die	der	DET	ART	Case=Acc|Number=Plur|PronType=Art	8	det	_	_
+7	wirtschaftliche	wirtschaftlich	ADJ	NN	Case=Gen|Number=Plur	8	amod	_	_
+8	Betätigung	Betätigung	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	5	nsubj	_	_
+9	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Plur|PronType=Art	10	det	_	_
+10	Tochtergesellschaften	Tochtergesellschaft	NOUN	NN	Case=Gen|Gender=Fem|Number=Plur	8	nmod	_	_
+11	mit	mit	ADP	APPR	_	18	case	_	_
+12	ihren	ihr	DET	PPOSAT	Case=Acc|Gender=Masc|Number=Sing|Poss=Yes	18	det:poss	_	_
+13	vielfältigen	vielfältig	ADJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	18	amod	_	_
+14	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	17	cc	_	_
+15	offenkundig	offenkundig	ADV	ADJD	_	17	advmod	_	_
+16	schwer	schwer	ADJ	NN	Case=Gen|Gender=Masc|Number=Sing	17	advmod	_	_
+17	überschaubaren	überschaubar	ADJ	ADJA	Case=Gen|Gender=Fem|Number=Sing	13	conj	_	_
+18	Verflechtungen	Verflechtung	NOUN	NN	Case=Gen|Gender=Fem|Number=Plur	5	obl	_	_
+19	in	in	ADP	APPR	_	21	case	_	_
+20	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	21	det	_	_
+21	Kritik	Kritik	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	5	obl	_	_
+22	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_	B-Segment
+2	diesmal	diesmal	ADV	ADV	_	3	advmod	_	_
+3	schwerwiegenden	schwerwiegend	ADJ	ADJA	Case=Dat|Gender=Fem|Number=Plur	4	amod	_	_
+4	Vorwürfe	Vorwurf	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	13	nsubj:pass	_	_
+5	müssen	müssen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	13	aux	_	_
+6	nun	nun	ADV	ADV	_	13	advmod	_	_
+7	von	von	ADP	NN	Case=Nom|Gender=Masc|Number=Plur	9	case	_	_
+8	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	9	det	_	_
+9	Staatsanwaltschaft	Staatsanwaltschaft	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	13	obl	_	_
+10	unter	unter	ADP	ADJD	_	12	case	_	_
+11	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	12	det	_	_
+12	Lupe	Lupe	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	13	obl	_	_
+13	genommen	nehmen	VERB	VVPP	VerbForm=Part	0	root	_	_
+14	werden	werden	AUX	NN	Case=Nom|Gender=Masc|Number=Plur	13	aux:pass	_	_
+15	-	-	PUNCT	$(	_	13	punct	_	_
+16	nicht	nicht	PART	CARD	NumType=Card	13	advmod	_	_	B-Segment
+17	gerade	gerade	ADV	ADV	_	13	advmod	_	_
+18	eine	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	19	det	_	_
+19	Empfehlung	Empfehlung	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	13	obj	_	_
+20	für	für	ADP	APPR	_	23	case	_	_
+21	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	23	det	_	_
+22	am	am	PROPN	ADJD	_	23	amod	_	_
+23	Donnerstag	Donnerstag	PROPN	NN	Case=Acc|Gender=Masc|Number=Sing	19	nmod	_	_
+24	geplante	geplant	ADJ	ADJA	Case=Nom|Gender=Fem|Number=Sing	25	amod	_	_
+25	Wiederwahl	Wiederwahl	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	19	nmod	_	_
+26	von	von	ADP	NN	Case=Nom|Gender=Masc|Number=Sing	27	case	_	_
+27	Landrat	Landrat	PROPN	NE	Case=Dat|Gender=Masc|Number=Sing	25	nmod	_	_
+28	Lothar	Lothar	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	27	flat	_	_
+29	Koch	Koch	PROPN	NE	Case=Dat|Gender=Masc|Number=Sing	27	flat	_	_
+30	(	(	PUNCT	$(	_	31	punct	_	_
+31	SPD	SPD	PROPN	NE	Case=Dat|Gender=Fem|Number=Sing	27	appos	_	_
+32	)	)	PUNCT	$(	_	31	punct	_	_
+33	.	.	PUNCT	$.	_	13	punct	_	_
+
+1	Warnungen	Warnung	NOUN	NN	Case=Nom|Gender=Fem|Number=Plur	9	nsubj	_	_	B-Segment
+2	vor	vor	ADP	NE	Case=Gen|Number=Sing	5	case	_	_
+3	einer	ein	DET	ART	Case=Gen|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+4	ausufernden	ausufernd	ADJ	ADJA	Case=Gen|Gender=Fem|Number=Sing	5	amod	_	_
+5	Geschäftstätigkeit	Geschäftstätigkeit	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	1	nmod	_	_
+6	des	der	DET	ART	Case=Gen|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	7	det	_	_
+7	Kreises	Kreis	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing	5	nmod	_	_
+8	Potsdam-Mittelmark	Potsdam-Mittelmark	PROPN	NE	Case=Nom|Gender=Neut|Number=Sing	7	appos	_	_
+9	hat	haben	VERB	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	13	aux	_	_
+10	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	9	expl	_	_
+11	oft	oft	ADV	ADJA	Case=Acc|Gender=Masc|Number=Sing	9	advmod	_	_
+12	genug	genug	ADV	ADV	_	9	advmod	_	_
+13	gegeben	geben	ADJ	VVPP	VerbForm=Part	0	root	_	_
+14	.	.	PUNCT	$.	_	13	punct	_	_
+
+1	Sie	Sie|sie	PRON	PPER	Case=Nom|Number=Plur|Person=3|PronType=Prs	3	nsubj:pass	_	_	B-Segment
+2	wurden	werden	AUX	ADV	_	3	aux:pass	_	_
+3	ignoriert	ignorieren	VERB	VVPP	VerbForm=Part	0	root	_	_
+4	.	.	PUNCT	$.	_	3	punct	_	_
+
+1	Verkehrsgesellschaften	Verkehrsgesellschaft	NOUN	NN	Case=Nom|Gender=Fem|Number=Plur	6	nsubj	_	_	B-Segment
+2	,	,	PUNCT	$,	_	3	punct	_	_
+3	Krankenhaus-GmbH	Krankenhaus-GmbH	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	1	conj	_	_
+4	oder	oder	CCONJ	NN	NumType=Card	5	cc	_	_
+5	Abfallwirtschaftsbetrieb	Abfallwirtschaftsbetrieb	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	1	conj	_	_
+6	stehen	stehen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+7	außerhalb	außerhalb	ADP	APPR	_	9	case	_	_
+8	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	9	det	_	_
+9	Kritik	Kritik	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	6	obl	_	_
+10	,	,	PUNCT	$,	_	14	punct	_	_
+11	diese	dies	PRON	PDAT	Case=Nom|Gender=Neut|Number=Plur|PronType=Dem	12	det	_	_	B-Segment
+12	Unternehmen	Unternehmen	NOUN	NN	Case=Nom|Gender=Neut|Number=Plur	14	nsubj	_	_
+13	erledigen	erledig	ADJ	ADJA	Case=Gen|Gender=Fem|Number=Sing	14	amod	_	_
+14	Aufgaben	Aufgabe	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	6	conj	_	_
+15	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	16	det	_	_
+16	Daseinsvorsorge	Daseinsvorsorge	NOUN	NE	Case=Gen|Gender=Masc|Number=Sing	14	nmod	_	_
+17	.	.	PUNCT	$.	_	6	punct	_	_
+
+1	Dass	daß	SCONJ	KOUS	_	24	mark	_	_	B-Segment
+2	aber	aber	ADV	ADV	_	24	advmod	_	_
+3	etwa	etwa	ADV	ADV	_	6	advmod	_	_
+4	bei	bei	ADP	APPR	_	6	case	_	_
+5	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	ABU-Service-GmbH	ABU-Service-GmbH	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	24	obl	_	_
+7	oder	oder	CCONJ	CARD	NumType=Card	12	cc	_	_
+8	nun	nun	ADV	ADV	_	7	advmod	_	_
+9	auch	auch	ADV	ADV	_	12	advmod	_	_
+10	bei	bei	ADP	APPR	_	12	case	_	_
+11	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	12	det	_	_
+12	Gesundheitszentrum-GmbH	Gesundheitszentrum-GmbH	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	13	conj	_	_
+13	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	18	det	_	_
+14	zunächst	zunächst	ADV	ADV	_	18	advmod	_	_
+15	gut	gut	ADJ	ADJD	_	16	advmod	_	_
+16	gemeinte	gemeint	ADJ	ADJA	Case=Nom|Gender=Fem|Number=Sing	18	amod	_	_
+17	soziale	sozial	ADJ	ADJA	Case=Nom|Gender=Fem|Number=Sing	18	amod	_	_
+18	Zweck	Zweck	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	6	nmod	_	_
+19	alle	alle	PRON	PIAT	Case=Acc|Definite=Ind|Gender=Neut|Number=Plur|PronType=Ind	20	det	_	_
+20	Mittel	Mittel	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	24	obj	_	_
+21	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	23	det	_	_
+22	geschäftlichen	geschäftlich	ADJ	ADJA	Case=Gen|Gender=Fem|Number=Sing	23	amod	_	_
+23	Betätigung	Betätigung	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	20	nmod	_	_
+24	heiligen	heiligen	VERB	VVINF	VerbForm=Inf	29	csubj	_	_
+25	soll	sollen	AUX	ADJD	_	24	aux	_	_
+26	,	,	PUNCT	$,	_	24	punct	_	_
+27	ist	sein	AUX	VVIMP	Mood=Imp|Number=Sing|VerbForm=Fin	29	cop	_	_
+28	nicht	nicht	PART	ADJA	_	27	advmod	_	_
+29	nachvollziehbar	nachvollziehbar	ADJ	ADJD	_	0	root	_	_
+30	.	.	PUNCT	$.	_	29	punct	_	_
+
+1	Erst	erst	ADV	ADV	_	3	advmod	_	_	B-Segment
+2	recht	recht	ADV	NE	Case=Nom|Number=Sing	3	advmod	_	_
+3	nicht	nicht	PART	CARD	NumType=Card	9	advmod	_	_
+4	,	,	PUNCT	$,	_	9	punct	_	_
+5	wenn	wenn	SCONJ	VVFIN	_	9	mark	_	_	B-Segment
+6	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	9	obj	_	_
+7	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	8	det	_	_
+8	Verdacht	Verdacht	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	9	iobj	_	_
+9	bestätigt	bestätigen	VERB	VVFIN	VerbForm=Part	0	root	_	_
+10	,	,	PUNCT	$,	_	22	punct	_	_
+11	dass	dass	SCONJ	KOUS	_	22	mark	_	_
+12	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	13	det	_	_
+13	Kreis	Kreis	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	22	nsubj	_	_
+14	Potsdam-Mittelmark	Potsdam-Mittelmark	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	13	appos	_	_
+15	so	so	ADV	NN	Case=Nom|Gender=Fem|Number=Sing	16	advmod	_	_
+16	verantwortungslos	verantwortungslos	ADJ	NN	Case=Acc|Gender=Neut|Number=Plur	22	amod	_	_
+17	wie	wie	ADP	NE	Case=Acc|Gender=Neut|Number=Sing	16	case	_	_
+18	in	in	ADP	APPR	_	21	case	_	_
+19	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	21	det	_	_
+20	anonymen	anonym	ADJ	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	21	amod	_	_
+21	Anzeige	Anzeige	NOUN	NN	Case=Nom|Number=Plur	17	nmod	_	_
+22	geschildert	schildern	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	9	ccomp	_	_
+23	mit	mit	ADP	APPR	_	24	case	_	_
+24	Steuergeld	Steuergeld	NOUN	NN	Case=Acc|Gender=Neut|Number=Sing	27	obl	_	_
+25	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	26	cc	_	_
+26	Gebühreneinnahmen	Gebühreneinnahmen	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	24	conj	_	_
+27	umgeht	zeihen|umgehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	22	conj	_	_
+28	.	.	PUNCT	$.	_	9	punct	_	_

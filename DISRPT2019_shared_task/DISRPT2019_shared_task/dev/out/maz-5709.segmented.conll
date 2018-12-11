@@ -1,0 +1,189 @@
+1	Bucklig	Bucklig	ADJ	ADJD	_	0	root	_	_	B-Segment
+
+1	Davon	davon	ADV	PAV	_	12	advmod	_	_	B-Segment
+2	können	können	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	12	aux	_	_
+3	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	5	det	_	_
+4	bevölkerungsreichen	bevölkerungsreich	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Plur	5	amod	_	_
+5	Wohngebiete	Wohngebiet	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	12	nsubj	_	_
+6	Schlaatz	Schlaatz	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	12	obj	_	_
+7	,	,	PUNCT	$,	_	8	punct	_	_
+8	Stern	Stern	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	6	conj	_	_
+9	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	10	cc	_	_
+10	Drewitz	Drewitz	PROPN	NE	Case=Acc|Gender=Masc|Number=Sing	6	conj	_	_
+11	nur	nur	ADV	XY	_	12	advmod	_	_
+12	träumen	träumen	VERB	VVINF	VerbForm=Inf	0	root	_	_
+13	:	:	PUNCT	$.	_	12	punct	_	_
+
+1	Der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Bauausschuss	Bauausschuß	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	3	nsubj	_	_
+3	widmete	widmen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
+4	seine	sein	DET	PPOSAT	Case=Acc|Gender=Fem|Number=Sing|Poss=Yes	6	det:poss	_	_
+5	ganze	ganz	ADJ	ADJA	Case=Acc|Gender=Fem|Number=Sing	6	amod	_	_
+6	Aufmerksamkeit	Aufmerksamkeit	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	3	obj	_	_
+7	zum	zum	ADP	NN	Case=Acc|Gender=Masc|Number=Sing	9	case	_	_
+8	wiederholten	wiederholt	ADJ	ADJA	Case=Dat|Gender=Masc|Number=Plur	9	amod	_	_
+9	Male	Mal	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	3	obl	_	_
+10	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	14	cc	_	_
+11	diesmal	diesmal	ADV	ADV	_	14	advmod	_	_
+12	geschlagene	schlagen	ADJ	ADJA	Case=Acc|Gender=Neut|Number=Plur	14	amod	_	_
+13	anderthalb	anderthalb	ADP	CARD	NumType=Card	14	case	_	_
+14	Stunden	Stunde|Stunden	NOUN	NN	Case=Acc|Gender=Fem|Number=Plur	3	conj	_	_
+15	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	17	det	_	_
+16	kuscheligen	kuschelig	ADJ	ADJA	Case=Gen|Gender=Fem|Number=Sing	17	amod	_	_
+17	Eigenheimsiedlung	Eigenheimsiedlung	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	14	nmod	_	_
+18	Parforceheide	Parforceheide	PROPN	NE	Case=Gen|Gender=Fem|Number=Sing	17	appos	_	_
+19	.	.	PUNCT	$.	_	3	punct	_	_
+
+1	Während	während	SCONJ	KOUS	_	10	mark	_	_	B-Segment
+2	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	10	nsubj	_	_
+3	rund	rund	ADV	ADV	_	6	advmod	_	_
+4	um	um	ADP	APPR	_	6	case	_	_
+5	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	Plattenbauten	Plattenbau	NOUN	NN	Case=Dat|Number=Plur	10	obl	_	_
+7	an	an	ADP	APPR	_	9	case	_	_
+8	allen	alle	PRON	PIAT	Case=Dat|Definite=Ind|Gender=Fem|Number=Plur|PronType=Ind	9	det	_	_
+9	Ecken	Ecke	NOUN	NN	Case=Dat|Gender=Fem|Number=Plur	10	obl	_	_
+10	hapert	hapern	VERB	VVPP	VerbForm=Part	29	advcl	_	_
+11	,	,	PUNCT	$,	_	16	punct	_	_
+12	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	13	det	_	_	B-Segment
+13	Schlaatz	Schlaatz	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	16	iobj	_	_
+14	gerade	gerade	ADJ	ADV	_	15	amod	_	_
+15	Mittel	Mittel	NOUN	NN	Case=Nom|Gender=Neut|Number=Plur	16	nsubj:pass	_	_
+16	entzogen	entziehen	VERB	VVPP	VerbForm=Part	10	conj	_	_
+17	werden	werden	AUX	NN	Case=Nom|Gender=Masc|Number=Plur	16	aux:pass	_	_
+18	müssen	müssen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	16	aux	_	_
+19	,	,	PUNCT	$,	_	10	punct	_	_
+20	soll	sollen	AUX	ADJD	_	29	aux	_	_	B-Segment
+21	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	23	det	_	_
+22	neue	neu	ADJ	ADJA	_	23	amod	_	_
+23	Straße	Straße	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	29	nsubj:pass	_	_
+24	An	an	ADP	APPR	_	26	case	_	_
+25	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	26	det	_	_
+26	Parforceheide	Parforceheide	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	29	obl	_	_
+27	durch	durch	ADP	APPR	_	28	case	_	_
+28	Buckel	Buckel	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	26	nmod	_	_
+29	ergänzt	ergänzen	VERB	VVPP	VerbForm=Part	0	root	_	_
+30	werden	werden	AUX	NN	Case=Nom|Gender=Masc|Number=Plur	29	aux:pass	_	_
+31	,	,	PUNCT	$,	_	37	punct	_	_
+32	die	der	PRON	PRELS	Case=Nom|Number=Plur|PronType=Rel	37	nsubj	_	_	B-Segment
+33	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	34	det	_	_
+34	Steuerzahler	Steuerzahler	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	37	obj	_	_
+35	40_000	40_000	PROPN	CARD	NumType=Card	36	nummod	_	_
+36	Mark	Mark	PROPN	NN	Case=Acc|Gender=Fem|Number=Plur	34	appos	_	_
+37	kosten	kosten	VERB	VVINF	VerbForm=Inf	29	acl	_	_
+38	.	.	PUNCT	$.	_	29	punct	_	_
+
+1	Dabei	dabei	ADV	PAV	_	6	advmod	_	_	B-Segment
+2	sind	sein	AUX	NE	Case=Nom|Gender=Masc|Number=Sing	6	cop	_	_
+3	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	6	nsubj	_	_
+4	vor	vor	ADP	NE	Case=Acc|Gender=Neut|Number=Sing	5	case	_	_
+5	allem	alle	PRON	PIS	Case=Dat|Definite=Ind|Gender=Neut|Number=Sing|PronType=Ind	6	nmod	_	_
+6	Anwohner	Anwohner	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	0	root	_	_
+7	,	,	PUNCT	$,	_	20	punct	_	_
+8	die	der	PRON	PRELS	Case=Nom|Number=Plur|PronType=Rel	20	nsubj	_	_
+9	mit	mit	ADP	APPR	_	15	case	_	_
+10	mehr	mehr	ADV	ADV	_	14	advmod	_	_
+11	als	als	ADP	KOKOM	_	14	case	_	_
+12	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	14	det	_	_
+13	erlaubten	erlaubt	ADJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	14	amod	_	_
+14	7	7	NUM	CARD	NumType=Card	15	nummod	_	_
+15	km/h	km/h	ADV	ADJD	_	20	advmod	_	_
+16	durch	durch	ADP	APPR	_	19	case	_	_
+17	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	19	det	_	_
+18	ausgewiesene	ausgewiesen	ADJ	ADJA	Case=Acc|Gender=Fem|Number=Sing	19	amod	_	_
+19	Spielstraße	Spielstraße	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	20	obl	_	_
+20	fahren	fahren	VERB	VVINF	VerbForm=Inf	6	acl	_	_
+21	.	.	PUNCT	$.	_	6	punct	_	_
+
+1	Hier	hier	ADV	ADV	_	31	advmod	_	_	B-Segment
+2	,	,	PUNCT	$,	_	18	punct	_	_
+3	wo	wo	ADV	NE	Case=Nom|Gender=Neut|Number=Sing	18	advmod	_	_
+4	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Plur|Person=3|PronType=Prs|Reflex=Yes	18	obj	_	_
+5	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Plur|PronType=Art	6	det	_	_
+6	Namensschilder	Namensschild	NOUN	NN	Case=Nom|Gender=Neut|Number=Plur	18	nsubj	_	_
+7	wie	wie	ADP	NE	Foreign=Yes	9	case	_	_
+8	ein	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	9	det	_	_
+9	Potsdamer	Potsdamer	NOUN	ADJA	_	11	amod	_	_
+10	"	"	PUNCT	$(	_	11	punct	_	_
+11	Who	Who	PROPN	NN	Case=Nom|Gender=Neut|Number=Sing	6	appos	_	_
+12	is	is	PROPN	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	11	amod	_	_
+13	who	who	PROPN	NE	Case=Nom|Number=Sing	12	flat	_	_
+14	?	?	PUNCT	$.	_	11	punct	_	_
+15	"	"	PUNCT	$(	_	11	punct	_	_
+16	kluger	klug	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Sing	17	amod	_	_
+17	Menschen	Mensch	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	18	obj	_	_
+18	lesen	lesen	VERB	VVINF	VerbForm=Inf	1	acl	_	_
+19	,	,	PUNCT	$,	_	1	punct	_	_
+20	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	31	aux:pass	_	_	B-Segment
+21	man	man	PRON	PIS	Case=Nom|Definite=Ind|Number=Sing|PronType=Ind	31	nsubj:pass	_	_
+22	aber	aber	ADV	ADV	_	31	advmod	_	_
+23	offenbar	offenbar	ADV	CARD	NumType=Card	31	advmod	_	_
+24	nicht	nicht	PART	CARD	NumType=Card	27	advmod	_	_
+25	in	in	ADP	APPR	_	27	case	_	_
+26	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	27	det	_	_
+27	Lage	Lage	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	31	obl	_	_
+28	,	,	PUNCT	$,	_	31	punct	_	_
+29	miteinander	miteinander	ADV	ADV	_	31	advmod	_	_
+30	zu	zu	PART	NE	Case=Nom|Gender=Masc|Number=Sing	31	mark	_	_
+31	reden	reden	VERB	VVINF	VerbForm=Inf	0	root	_	_
+32	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	36	cc	_	_	B-Segment
+33	eine	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	34	det	_	_
+34	Lösung	Lösung	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	36	obj	_	_
+35	zu	zu	PART	NN	Case=Acc|Gender=Fem|Number=Plur	36	mark	_	_
+36	finden	finden	VERB	VVINF	VerbForm=Inf	31	conj	_	_
+37	.	.	PUNCT	$.	_	31	punct	_	_
+
+1	Lieber	gern	ADV	ADV	_	2	advmod	_	_	B-Segment
+2	gründet	gründen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+3	man	man	PRON	PIS	Case=Nom|Definite=Ind|Number=Sing|PronType=Ind	2	nsubj	_	_
+4	Bürgerbewegung	Bürgerbewegung	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	2	obj	_	_
+5	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	6	cc	_	_
+6	Antibewegung	Antibewegung	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	4	conj	_	_
+7	,	,	PUNCT	$,	_	14	punct	_	_
+8	wobei	wobei	SCONJ	NN	Case=Nom|Gender=Fem|Number=Sing	14	mark	_	_	B-Segment
+9	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	10	det	_	_
+10	Buckelgegner	Buckelgegner	NOUN	NE	Case=Nom|Gender=Fem|Number=Sing	14	nsubj:pass	_	_
+11	öffentlich	öffentlich	ADJ	NE	Case=Nom|Gender=Fem|Number=Sing	14	advmod	_	_
+12	als	als	CCONJ	KOKOM	_	13	cc	_	_
+13	kinderfeindlich	kinderfeindlich	ADJ	ADJD	_	11	conj	_	_
+14	gebrandmarkt	brandmarken	VERB	NN	Case=Nom|Gender=Masc|Number=Sing	2	advcl	_	_
+15	werden	werden	AUX	NN	Case=Nom|Gender=Masc|Number=Plur	14	aux:pass	_	_
+16	.	.	PUNCT	$.	_	2	punct	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Stadt	Stadt	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	5	nsubj	_	_
+3	wäre	sein	AUX	ADJA	Case=Acc|Gender=Fem|Number=Sing	5	aux	_	_
+4	gut	gut	ADJ	ADJD	_	5	advmod	_	_
+5	beraten	beraten	VERB	VVPP	VerbForm=Part	0	root	_	_
+6	,	,	PUNCT	$,	_	13	punct	_	_
+7	sich	er|es|sie	PRON	PRF	Case=Dat|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	13	obj	_	_
+8	diesem	dies	PRON	PDAT	Case=Dat|Gender=Masc|Number=Sing|PronType=Dem	10	det	_	_
+9	moralischen	moralisch	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Plur	10	amod	_	_
+10	Imperativ	Imperativ	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	13	iobj	_	_
+11	nicht	nicht	PART	CARD	NumType=Card	13	advmod	_	_
+12	zu	zu	PART	NE	Case=Nom|Gender=Masc|Number=Sing	13	mark	_	_
+13	beugen	beugen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	5	conj	_	_
+14	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Anderenfalls	Anderenfalls	ADV	ADV	_	11	advmod	_	_	B-Segment
+2	müsste	müssen	AUX	VMFIN	Mood=Sub|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	11	aux	_	_
+3	sie	sie	PRON	ADJD	_	11	obj	_	_
+4	vor	vor	ADP	NE	Case=Gen|Number=Sing	6	case	_	_
+5	jeder	jed	PRON	PIAT	Case=Gen|Definite=Ind|Gender=Fem|Number=Sing|PronType=Ind	6	det	_	_
+6	Schule	Schule	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	11	obl	_	_
+7	und	und	CCONJ	NE	Case=Acc|Gender=Neut|Number=Sing	9	cc	_	_
+8	jeder	jed	PRON	PIAT	Case=Nom|Definite=Ind|Gender=Masc|Number=Sing|PronType=Ind	9	det	_	_
+9	Kita	Kita	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	11	nsubj	_	_
+10	Bremsbuckel	Bremsbuckel	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	9	flat	_	_
+11	aufpflastern	aufpflastern	VERB	VVINF	VerbForm=Inf	0	root	_	_
+12	.	.	PUNCT	$.	_	11	punct	_	_
+
+1	Das	der	PRON	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	4	nsubj	_	_	B-Segment
+2	wäre	sein	AUX	NN	Case=Acc|Gender=Masc|Number=Sing	4	aux	_	_
+3	vielleicht	vielleicht	ADV	NE	Foreign=Yes	4	advmod	_	_
+4	wünschenswert	wünschenswert	ADJ	VVPP	VerbForm=Part	0	root	_	_
+5	,	,	PUNCT	$,	_	6	punct	_	_
+6	zugleich	zugleich	ADJ	NN	Case=Nom|Gender=Fem|Number=Sing	4	conj	_	_	B-Segment
+7	aber	aber	CCONJ	ADV	_	8	cc	_	_
+8	unbezahlbar	unbezahlbar	ADJ	ADJD	_	4	conj	_	_
+9	.	.	PUNCT	$.	_	4	punct	_	_

@@ -1,0 +1,227 @@
+1	Da	da	ADV	ADV	_	2	adv	_	_
+2	fehlt	fehlen	V	VVFIN	_|_|Pres|Ind	0	root	_	_
+3	noch	noch	ADV	ADV	_	2	adv	_	_
+4	was	was	PRO	PWS	Neut|_|Sg	0	root	_	_
+
+1	Als	Als	KOKOM	KOKOM	_	10	kom	_	_
+2	1999	1999	CARD	CARD	_	1	cj	_	_
+3	die	die	ART	ART	Def|Fem|Nom|Sg	10	det	_	_
+4	im	in	PREP	APPRART	Dat	8	pp	_	_
+5	Rahmen	Rahmen	N	NN	_|Dat|_	4	pn	_	_
+6	der	die	ART	ART	Def|Fem|Gen|Sg	7	det	_	_
+7	Dorferneuerung	Dorferneuerung	N	NN	Fem|Gen|Sg	5	gmod	_	_
+8	neu	neu	ADV	ADJD	Pos|	9	adv	_	_
+9	gestaltete	gestaltet	ADJA	ADJA	Pos|Fem|Nom|Sg|_|	10	attr	_	_
+10	Radeweger	Radeweger	N	NN	Fem|Nom|Sg	18	subj	_	(0)
+11	Ablage	Ablage	N	NN	Fem|Nom|Sg	10	app	_	_
+12	inklusive	inklusive	PREP	APPR	_	11	pp	_	_
+13	Seebrücke	Seebrücke	N	NN	Fem|_|Sg	12	pn	_	_
+14	mit	mit	PREP	APPR	Dat	13	pp	_	_
+15	viel	viel	ART	PIDAT	Masc|Dat|Sg	16	det	_	_
+16	Pomp	Pomp	N	NN	Masc|Dat|Sg	14	pn	_	_
+17	eingeweiht	einweihen	V	VVPP	_	18	aux	_	_
+18	wurde	werden	V	VAFIN	3|Sg|Past|Ind	0	root	_	_
+19	,	,	$,	$,	_	0	root	_	_
+
+1	war	sein	V	VAFIN	_|Sg|Past|Ind	0	root	_	_
+2	klar	klar	ADV	ADJD	Pos|	1	pred	_	_
+3	:	:	$.	$.	_	0	root	_	_
+
+1	Da	da	ADV	ADV	_	2	adv	_	_
+2	fehlt	fehlen	V	VVFIN	3|Sg|Pres|Ind	0	root	_	_
+3	noch	noch	ADV	ADV	_	2	adv	_	_
+4	was	was	PRO	PIS	_|Nom|Sg	2	subj	_	_
+5	.	.	$.	$.	_	0	root	_	_
+
+1	Wer	wer	PRO	PWS	_|Nom|Sg	8	subj	_	_
+2	die	die	ART	ART	Def|Fem|_|Sg	3	det	_	_
+3	Infrastruktur	Infrastruktur	N	NN	Fem|_|Sg	7	obja	_	_
+4	für	für	PREP	APPR	Acc	3	pp	_	_
+5	den	die	ART	ART	Def|Masc|Acc|Sg	6	det	_	_
+6	Wassertourismus	Wassertourismus	N	NN	Masc|Acc|Sg	4	pn	_	_
+7	vorantreiben	vorantreiben	V	VVINF	_	8	aux	_	_
+8	will	wollen	V	VMFIN	3|Sg|Pres|Ind	0	root	_	_
+9	,	,	$,	$,	_	0	root	_	_
+
+1	darf	dürfen	V	VMFIN	_|Sg|Pres|Ind	0	root	_	_
+2	nicht	nicht	PTKNEG	PTKNEG	_	8	adv	_	_
+3	nur	nur	ADV	ADV	_	8	adv	_	_
+4	bis	bis	PREP	APPR	Acc	8	pp	_	_
+5	zum	zu	PREP	APPRART	Dat	4	pp	_	_
+6	nächsten	nah	ADJA	ADJA	_|Masc|Dat|Sg|Wk|	7	attr	_	_
+7	Steg	Steg	N	NN	Masc|Dat|Sg	5	pn	_	_
+8	denken	denken	V	VVINF	_	1	aux	_	_
+9	.	.	$.	$.	_	0	root	_	_
+
+1	Sanitäre	Sanitäre	N	NE	Fem|Nom|Pl	3	subj	_	_
+2	Anlagen	Anlage	N	NN	Fem|Nom|Pl	1	app	_	_
+3	gehören	gehören	V	VVFIN	3|Pl|Pres|_	0	root	_	_
+4	heute	heute	ADV	ADV	_	3	adv	_	_
+5	zum	zu	PREP	APPRART	Dat	3	objp	_	_
+6	Standard	Standard	N	NN	Masc|Dat|Sg	5	pn	_	_
+7	großer	groß	ADJA	ADJA	Pos|Masc|Gen|Pl|St|	8	attr	_	_
+8	Liegeplätze	Liegeplatz	N	NN	Masc|Gen|Pl	6	gmod	_	_
+9	.	.	$.	$.	_	0	root	_	_
+
+1	Doch	doch	KON	KON	_	0	root	_	_
+2	mit	mit	PREP	APPR	Dat	5	objp	_	(1
+3	der	die	ART	ART	Def|Fem|Dat|Sg	4	det	_	_
+4	Nachrüstung	Nachrüstung	N	NN	Fem|Dat|Sg	2	pn	_	1)
+5	tut	tun	V	VVFIN	_|_|Pres|Ind	1	cj	_	_
+6	sich	sie	PRO	PRF	3|_|Dat	5	objd	_	_
+7	Radewege	Radeweg	N	NN	Masc|_|_	5	obja	_	(0)
+8	schwer	schwer	ADV	ADJD	Pos|	5	pred	_	_
+9	.	.	$.	$.	_	0	root	_	_
+
+1	Was	was	PRO	PWS	Neut|Nom|Sg	4	subj	_	_
+2	einst	einst	ADV	ADV	_	3	adv	_	_
+3	beschlossen	beschließen	V	VVPP	_	4	aux	_	_
+4	wurde	werden	V	VAFIN	3|Sg|Past|Ind	0	root	_	_
+5	,	,	$,	$,	_	0	root	_	_
+
+1	zählt	zählen	V	VVFIN	_|_|Pres|Ind	0	root	_	_
+2	nicht	nicht	PTKNEG	PTKNEG	_	1	adv	_	_
+3	mehr	mehr	ADV	ADV	_	2	adv	_	_
+4	.	.	$.	$.	_	0	root	_	_
+
+1	Zu	Zu	PTKA	PTKA	_	2	adv	_	_
+2	teuer	teuer	ADV	ADJD	Pos|	0	root	_	_
+3	,	,	$,	$,	_	0	root	_	_
+4	zu	zu	PTKA	PTKA	_	5	adv	_	_
+5	hässlich	hässlich	ADV	ADJD	Pos|	6	pred	_	_
+6	sei	sein	V	VAFIN	3|Sg|Pres|Subj	0	root	_	_
+7	die	die	ART	ART	Def|Fem|Nom|Sg	8	det	_	(1
+8	Anlage	Anlage	N	NN	Fem|Nom|Sg	6	subj	_	1)
+9	,	,	$,	$,	_	0	root	_	_
+
+1	sagen	sagen	V	VVFIN	3|Pl|Pres|_	0	root	_	_
+2	die	die	ART	ART	Def|Masc|Nom|Pl	3	det	_	_
+3	Meinungsführer	Meinungsführer	N	NN	Masc|Nom|Pl	1	subj	_	_
+4	im	in	PREP	APPRART	Dat	1	pp	_	_
+5	Gemeinderat	Gemeinderat	N	NN	Masc|Dat|Sg	4	pn	_	_
+6	.	.	$.	$.	_	0	root	_	_
+
+1	Beschlüsse	Beschluss	N	NN	Masc|_|Pl	3	obja	_	_
+2	zu	zu	PTKZU	PTKZU	_	3	part	_	_
+3	überdenken	überdenken	V	VVINF	_	4	aux	_	_
+4	ist	sein	V	VAFIN	3|Sg|Pres|Ind	0	root	_	_
+5	legitim	legitim	ADV	ADJD	Pos|	0	root	_	_
+6	,	,	$,	$,	_	0	root	_	_
+7	doch	doch	KON	KON	_	0	root	_	_
+8	nur	nur	ADV	ADV	_	12	adv	_	_
+9	von	von	PREP	APPR	_	12	pp	_	_
+10	Alternativen	Alternative	N	NN	_|_|_	9	pn	_	_
+11	zu	zu	PTKZU	PTKZU	_	12	part	_	_
+12	reden	reden	V	VVINF	_	7	cj	_	_
+13	,	,	$,	$,	_	0	root	_	_
+14	ohne	ohne	KOUI	KOUI	_	21	konj	_	_
+15	brauchbare	brauchbar	ADJA	ADJA	Pos|Masc|_|Pl|St|	16	attr	_	_
+16	Vorschläge	Vorschlag	N	NN	Masc|_|Pl	21	obja	_	_
+17	auf	auf	PREP	APPR	Acc	21	objp	_	_
+18	den	die	ART	ART	Def|Masc|Acc|Sg	19	det	_	_
+19	Tisch	Tisch	N	NN	Masc|Acc|Sg	17	pn	_	_
+20	zu	zu	PTKZU	PTKZU	_	21	part	_	_
+21	legen	legen	V	VVINF	_	12	neb	_	_
+22	,	,	$,	$,	_	0	root	_	_
+
+1	ist	sein	V	VAFIN	3|Sg|Pres|Ind	0	root	_	_
+2	zu	zu	PTKA	PTKA	_	3	adv	_	_
+3	billig	billig	ADV	ADJD	Pos|	1	pred	_	_
+4	.	.	$.	$.	_	0	root	_	_
+
+1	Ein	ein	ART	ART	Indef|Neut|Nom|Sg	3	det	_	_
+2	multifunktionales	multifunktional	ADJA	ADJA	Pos|Neut|Nom|Sg|St|	3	attr	_	_
+3	Objekt	Objekt	N	NN	Neut|Nom|Sg	12	subj	_	_
+4	mit	mit	PREP	APPR	Dat	3	pp	_	_
+5	Umkleide-	Umkleide-	TRUNC	TRUNC	Fem|_|Pl	4	pn	_	_
+6	und	und	KON	KON	_	5	kon	_	_
+7	Treffmöglichkeiten	Treffmöglichkeit	N	NN	Fem|_|Pl	6	cj	_	_
+8	als	als	KOKOM	KOKOM	_	7	kom	_	_
+9	angeblich	angeblich	ADV	ADJD	Pos|	10	adv	_	_
+10	bessere	gut	ADJA	ADJA	Comp|Fem|_|Sg|_|	11	attr	_	_
+11	Variante	Variante	N	NN	Fem|_|Sg	8	cj	_	_
+12	ist	sein	V	VAFIN	3|Sg|Pres|Ind	0	root	_	_
+13	bisher	bisher	ADV	ADV	_	20	adv	_	_
+14	nicht	nicht	PTKNEG	PTKNEG	_	20	adv	_	_
+15	mehr	mehr	ADV	ADV	_	14	adv	_	_
+16	als	als	KOKOM	KOKOM	_	20	kom	_	_
+17	eine	eine	ART	ART	Indef|Fem|_|Sg	19	det	_	(2
+18	fiktive	fiktiv	ADJA	ADJA	Pos|Fem|_|Sg|_|	19	attr	_	_
+19	Idee	Idee	N	NN	Fem|_|Sg	16	cj	_	2)
+20	geblieben	bleiben	V	VVPP	_	12	aux	_	_
+21	.	.	$.	$.	_	0	root	_	_
+
+1	Und	und	KON	KON	_	0	root	_	_
+2	ob	ob	KOUS	KOUS	_	5	konj	_	_
+3	diese	diese	PRO	PDS	Fem|Nom|Sg	5	subj	_	(2)
+4	billiger	billig	ADV	ADJD	Comp|	5	pred	_	_
+5	wird	werden	V	VAFIN	3|Sg|Pres|Ind	1	cj	_	_
+6	,	,	$,	$,	_	0	root	_	_
+
+1	steht	stehen	V	VVFIN	_|_|Pres|Ind	0	root	_	_
+2	auf	auf	PREP	APPR	Dat	1	objp	_	_
+3	einem	eine	ART	ART	Indef|Neut|Dat|Sg	5	det	_	_
+4	anderen	anderen	ADJA	ADJA	_|Neut|Dat|Sg|_	5	attr	_	_
+5	Blatt	Blatt	N	NN	Neut|Dat|Sg	2	pn	_	_
+6	.	.	$.	$.	_	0	root	_	_
+
+1	Außerdem	Außerdem	PROAV	PROAV	_	2	pp	_	_
+2	hat	haben	V	VAFIN	3|Sg|Pres|Ind	0	root	_	_
+3	Radewege	Radeweg	N	NN	Masc|_|_	2	obja	_	(0)
+4	mit	mit	PREP	APPR	Dat	2	pp	_	_
+5	dem	die	ART	ART	Def|Neut|Dat|Sg	9	det	_	_
+6	nicht	nicht	PTKNEG	PTKNEG	_	8	adv	_	_
+7	weit	weit	ADV	ADJD	Pos|	8	adv	_	_
+8	entfernten	entfernt	ADJA	ADJA	Pos|Neut|Dat|Sg|Wk|	9	attr	_	_
+9	Haus	Haus	N	NN	Neut|Dat|Sg	4	pn	_	_
+10	des	die	ART	ART	Def|_|Gen|Sg	11	det	_	_
+11	Beetzseetreffs	Beetzseetreffs	N	NN	_|Gen|Sg	9	gmod	_	_
+12	e.	e.	N	NE	_|Gen|Sg	11	app	_	_
+13	V.	V.	N	NN	_|Gen|Sg	12	app	_	_
+14	ein	eine	ART	ART	Indef|Neut|Nom|Sg	15	det	_	_
+15	Gebäude	Gebäude	N	NN	Neut|Nom|Sg	2	subj	_	_
+16	,	,	$,	$,	_	0	root	_	_
+
+1	das	die	ART	ART	Def|Neut|_|Sg	3	det	_	_
+2	vielen	viele	ART	PIDAT	_|_|_	3	attr	_	_
+3	Freizeitbedürfnissen	Freizeitbedürfnis	N	NN	Neut|_|Sg	0	root	_	_
+4	gerecht	gerecht	ADV	ADJD	Pos|	5	pred	_	_
+5	werden	werden	V	VAINF	_	6	aux	_	_
+6	kann	können	V	VMFIN	_|Sg|Pres|Ind	0	root	_	_
+7	.	.	$.	$.	_	0	root	_	_
+
+1	Kommt	kommen	V	VVFIN	3|Sg|Pres|Ind	10	neb	_	_
+2	der	die	ART	ART	Def|Masc|Nom|Sg	3	det	_	_
+3	Sanitärtrakt	Sanitärtrakt	N	NN	Masc|Nom|Sg	1	subj	_	_
+4	nicht	nicht	PTKNEG	PTKNEG	_	1	adv	_	_
+5	spätestens	spätestens	ADV	ADV	_	6	adv	_	_
+6	zur	zu	PREP	APPRART	Dat	1	objp	_	_
+7	nächsten	nah	ADJA	ADJA	_|Fem|Dat|Sg|Wk|	8	attr	_	_
+8	Saison	Saison	N	NN	Fem|Dat|Sg	6	pn	_	_
+9	,	,	$,	$,	_	0	root	_	_
+10	droht	drohen	V	VVFIN	_|_|Pres|Ind	0	root	_	_
+11	Radewege	Radeweg	N	NN	Masc|Dat|Sg	10	objd	_	(0)
+12	,	,	$,	$,	_	0	root	_	_
+13	den	die	ART	ART	Def|Masc|Acc|Sg	14	det	_	_
+14	Wettbewerb	Wettbewerb	N	NN	Masc|Acc|Sg	24	obja	_	_
+15	um	um	PREP	APPR	_	24	pp	_	_
+16	Freizeitkapitäne	Freizeitkapitän	N	NN	Masc|_|Pl	15	pn	_	_
+17	auf	auf	PREP	APPR	Dat	24	pp	_	_
+18	dem	die	ART	ART	Def|_|Dat|Sg	19	det	_	_
+19	Beetzsee	Beetzsee	N	NN	_|Dat|Sg	17	pn	_	_
+20	mit	mit	PREP	APPR	Dat	24	pp	_	_
+21	anderen	anderen	ADJA	ADJA	_|Masc|Dat|_|_	22	attr	_	_
+22	Anbietern	Anbieter	N	NN	Masc|Dat|_	20	pn	_	_
+23	zu	zu	PTKZU	PTKZU	_	24	part	_	_
+24	verlieren	verlieren	V	VVINF	_	10	obji	_	_
+25	.	.	$.	$.	_	0	root	_	_
+
+1	Dabei	Dabei	PROAV	PROAV	_	2	pp	_	_
+2	hätte	haben	V	VAFIN	3|Sg|Past|Subj	0	root	_	_
+3	das	die	ART	ART	Def|Neut|Nom|Sg	4	det	_	(0
+4	Dorf	Dorf	N	NN	Neut|Nom|Sg	2	subj	_	0)
+5	jede	jede	ART	PIDAT	Fem|_|Sg	6	det	_	_
+6	Einnahme	Einnahme	N	NN	Fem|_|Sg	2	obja	_	_
+7	nötig	nötig	ADV	ADJD	Pos|	2	pred	_	_
+8	.	.	$.	$.	_	0	root	_	_
+

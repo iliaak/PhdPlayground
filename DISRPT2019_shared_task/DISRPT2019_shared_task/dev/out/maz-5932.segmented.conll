@@ -1,0 +1,194 @@
+1	Das	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	3	det	_	_	B-Segment
+2	kleinere	klein	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Sing	3	amod	_	_
+3	Übel	Übel	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	0	root	_	_
+
+1	Es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	4	expl	_	_	B-Segment
+2	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	aux	_	_
+3	lange	lange	ADJ	ADV	_	4	advmod	_	_
+4	gedauert	dauern	VERB	VVPP	VerbForm=Part	0	root	_	_
+5	,	,	PUNCT	$,	_	14	punct	_	_
+6	bis	bis	ADP	KOUS	_	14	case	_	_
+7	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	14	obj	_	_
+8	im	im	ADJ	NN	Case=Acc|Gender=Neut|Number=Sing	9	amod	_	_
+9	Bereich	Bereich	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	14	obl	_	_
+10	des	der	DET	ART	Case=Gen|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	11	det	_	_
+11	Amtes	Amt	NOUN	NN	Case=Gen|Gender=Neut|Number=Sing	9	nmod	_	_
+12	Dahme	Dahme	PROPN	NN	Case=Gen|Gender=Fem|Number=Sing	11	appos	_	_
+13	etwas	etwas	PRON	PIAT	Definite=Ind|PronType=Ind	14	advmod	_	_
+14	bewegt	bewegen	VERB	VVPP	VerbForm=Part	4	conj	_	_
+15	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	14	aux	_	_
+16	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	3	det	_	_	B-Segment
+2	zahlreichen	zahlreich	ADJ	ADJA	Case=Nom|Gender=Fem|Number=Plur	3	amod	_	_
+3	Appelle	Appelle	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	13	nsubj	_	_
+4	,	,	PUNCT	$,	_	10	punct	_	_
+5	die	der	PRON	PRELS	Case=Nom|Gender=Fem|Number=Sing|PronType=Rel	10	nsubj:pass	_	_
+6	in	in	ADP	APPR	_	8	case	_	_
+7	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	8	det	_	_
+8	Landeshauptstadt	Landeshauptstadt	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	10	obl	_	_
+9	Potsdam	Potsdam	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	8	appos	_	_
+10	formuliert	formulieren	VERB	VVPP	VerbForm=Part	3	acl	_	_
+11	wurden	werden	AUX	ADJD	_	10	aux:pass	_	_
+12	,	,	PUNCT	$,	_	10	punct	_	_
+13	verhallten	verhallten	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+14	in	in	ADP	APPR	_	16	case	_	_
+15	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	16	det	_	_
+16	Provinz	Provinz	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	13	obl	_	_
+17	meist	meist	ADV	ADV	_	13	advmod	_	_
+18	ohne	ohne	ADP	CARD	_	19	case	_	_
+19	Wirkung	Wirkung	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	21	obl	_	_
+20	zu	zu	PART	NN	Case=Acc|Gender=Fem|Number=Plur	21	mark	_	_
+21	zeigen	zeigen	VERB	VVINF	VerbForm=Inf	13	xcomp	_	_
+22	.	.	PUNCT	$.	_	13	punct	_	_
+
+1	Die	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	3	det	_	_	B-Segment
+2	lokalen	lokal	ADJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	3	amod	_	_
+3	Akteure	Akteur	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	4	nsubj	_	_
+4	legten	legen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
+5	bei	bei	ADP	APPR	_	7	case	_	_
+6	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	7	det	_	_
+7	Bildung	Bildung	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	4	obl	_	_
+8	größerer	groß	ADJ	ADJA	Case=Gen|Gender=Fem|Number=Plur	9	amod	_	_
+9	Gemeinden	Gemeinde	NOUN	NN	Case=Gen|Gender=Fem|Number=Plur	7	nmod	_	_
+10	wahrlich	wahrlich	ADV	ADV	_	4	advmod	_	_
+11	keine	kein	PRON	PIAT	Case=Acc|Definite=Ind|Gender=Fem|Number=Sing|Polarity=Neg|PronType=Neg	12	advmod	_	_
+12	Eile	Eil	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	4	obj	_	_
+13	an	an	ADP	APPR	_	15	case	_	_
+14	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	15	det	_	_
+15	Tag	Tag	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	4	obl	_	_
+16	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Hauptgrund	Hauptgrund	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	13	nsubj	_	_	B-Segment
+2	für	für	ADP	APPR	_	4	case	_	_
+3	dieses	dies	PRON	PDAT	Case=Acc|Gender=Neut|Number=Sing|PronType=Dem	4	det	_	_
+4	Zaudern	Zaud	NOUN	NN	Case=Dat|Gender=Neut|Number=Plur	1	nmod	_	_
+5	:	:	PUNCT	$.	_	11	punct	_	_
+6	Die	der	PRON	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Plur|PronType=Art	11	nmod	_	_	B-Segment
+7	als	als	ADP	KOKOM	_	11	case	_	_
+8	hoch	hoch	ADJ	ADJD	_	10	advmod	_	_
+9	verschuldet	verschuldet	ADJ	ADJD	_	10	advmod	_	_
+10	geltende	geltend	ADJ	ADJA	Case=Nom|Gender=Fem|Number=Sing	11	amod	_	_
+11	Stadt	Stadt	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	1	appos	_	_
+12	Dahme	Dahme	PROPN	NN	Case=Nom|Gender=Fem|Number=Sing	11	appos	_	_
+13	erschien	erscheinen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
+14	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	16	det	_	_
+15	umliegenden	umliegend	ADJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	16	amod	_	_
+16	Dörfern	Dorf	NOUN	NN	Case=Dat|Gender=Neut|Number=Plur	13	iobj	_	_
+17	kein	kein	PRON	PIAT	Case=Nom|Definite=Ind|Gender=Masc|Number=Sing|Polarity=Neg|PronType=Neg	18	advmod	_	_
+18	geeigneter	geeignet	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Sing	19	amod	_	_
+19	Partner	Partner	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	20	nsubj	_	_
+20	zu	zu	PART	NE	Case=Nom|Gender=Masc|Number=Sing	21	mark	_	_
+21	sein	sein	AUX	VAINF	VerbForm=Inf	13	cop	_	_
+22	.	.	PUNCT	$.	_	13	punct	_	_
+
+1	Mittlerweile	mittlerweile	ADV	ADV	_	13	advmod	_	_	B-Segment
+2	haben	haben	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	13	aux	_	_
+3	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Plur|Person=3|PronType=Prs|Reflex=Yes	13	obj	_	_
+4	indes	indes	ADV	ADV	_	13	advmod	_	_
+5	auch	auch	ADV	ADV	_	9	advmod	_	_
+6	in	in	ADP	APPR	_	9	case	_	_
+7	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	9	det	_	_
+8	Dahmer	Dahm	ADJ	ADJA	_	9	amod	_	_
+9	Region	Region	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	13	obl	_	_
+10	neue	neu	ADJ	NN	Case=Dat|Gender=Neut|Number=Plur	12	amod	_	_
+11	politische	politisch	ADJ	NN	_	12	amod	_	_
+12	Strukturen	Struktur	NOUN	NN	Case=Dat|Gender=Fem|Number=Plur	13	obj	_	_
+13	manifestiert	manifestieren	VERB	VVPP	VerbForm=Part	0	root	_	_
+14	.	.	PUNCT	$.	_	13	punct	_	_
+
+1	Beschlossene	beschlossen	ADJ	ADJA	Case=Nom|Gender=Fem|Number=Sing	2	amod	_	_	B-Segment
+2	Sache	Sache	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	5	nsubj	_	_
+3	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	cop	_	_
+4	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+5	Fusion	Fusion	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	0	root	_	_
+6	von	von	ADP	NE	Case=Gen|Gender=Masc|Number=Sing	7	case	_	_
+7	Ihlow	Ihlow	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	5	nmod	_	_
+8	,	,	PUNCT	$,	_	9	punct	_	_
+9	Illmersdorf	Illmersdorf	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	7	conj	_	_
+10	,	,	PUNCT	$,	_	11	punct	_	_
+11	Rietdorf	Rietdorf	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	7	conj	_	_
+12	,	,	PUNCT	$,	_	13	punct	_	_
+13	Niendorf	Niendorf	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	7	conj	_	_
+14	,	,	PUNCT	$,	_	15	punct	_	_
+15	Bollensdorf	Bollensdorf	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	7	conj	_	_
+16	und	und	CCONJ	NE	Case=Nom|Gender=Neut|Number=Sing	17	cc	_	_
+17	Mehlsdorf	Mehlsdorf	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	7	conj	_	_
+18	zu	zu	ADP	NE	Foreign=Yes	19	case	_	_
+19	Groß-Ihlow	Groß-Ihlow	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	5	nmod	_	_
+20	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Dieses	dies	PRON	PDAT	Case=Nom|Gender=Neut|Number=Sing|PronType=Dem	3	det	_	_	B-Segment
+2	neue	neu	ADJ	NN	Case=Dat|Gender=Neut|Number=Plur	3	amod	_	_
+3	Gebilde	Gebilde	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	14	nsubj	_	_
+4	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	14	cop	_	_
+5	sowohl	sowohl	CCONJ	NE	Case=Acc|Gender=Neut|Number=Sing	8	cc	_	_
+6	von	von	ADP	NN	Case=Dat|Gender=Masc|Number=Sing	8	case	_	_
+7	den	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	8	det	_	_
+8	Bürgern	Bürger	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	14	nmod	_	_
+9	als	als	CCONJ	KON	_	14	cc	_	_
+10	auch	auch	ADV	ADV	_	9	advmod	_	_
+11	durch	durch	ADP	APPR	_	13	case	_	_
+12	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	13	det	_	_
+13	Kreistag	Kreistag	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	14	obl	_	_
+14	legitimiert	legitimieren	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+15	.	.	PUNCT	$.	_	14	punct	_	_
+
+1	Was	was	ADV	NN	Case=Nom|Gender=Fem|Number=Plur	6	advmod	_	_	B-Segment
+2	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+3	anderen	ander	ADJ	ADJA	Case=Gen|Gender=Masc|Number=Plur	5	amod	_	_
+4	größeren	groß	ADJ	ADJA	Case=Gen|Gender=Fem|Number=Plur	5	amod	_	_
+5	Gemeinden	Gemeinde	NOUN	NN	Case=Gen|Gender=Fem|Number=Plur	6	nsubj	_	_
+6	betrifft	betreffen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	16	advcl	_	_
+7	,	,	PUNCT	$,	_	6	punct	_	_
+8	so	so	ADV	NN	Case=Nom|Gender=Fem|Number=Sing	16	advmod	_	_	B-Segment
+9	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	16	aux:pass	_	_
+10	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	16	obj	_	_
+11	beim	beim	ADV	NE	Case=Nom|Gender=Masc|Number=Sing	12	advmod	_	_
+12	Urnengang	Urnengang	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	16	nsubj	_	_
+13	am	am	ADJ	ADJD	_	16	advmod	_	_
+14	nächsten	nah	ADJ	ADJA	Case=Acc|Gender=Neut|Number=Plur	15	amod	_	_
+15	Sonntag	Sonntag	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	16	obj	_	_
+16	erweisen	erweisen	VERB	VVINF	VerbForm=Inf	0	root	_	_
+17	,	,	PUNCT	$,	_	24	punct	_	_
+18	ob	ob	SCONJ	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	24	mark	_	_
+19	sie	sie	PRON	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	24	nsubj	_	_
+20	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	21	det	_	_
+21	Willen	Wille	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	24	iobj	_	_
+22	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	23	det	_	_
+23	Einwohner	Einwohner	NOUN	NN	Case=Gen|Gender=Masc|Number=Plur	21	nmod	_	_
+24	entsprechen	entsprechen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	16	advcl	_	_
+25	.	.	PUNCT	$.	_	16	punct	_	_
+
+1	Große	groß	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Sing	2	amod	_	_	B-Segment
+2	Ämter	Amt	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	11	nsubj	_	_
+3	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	4	cc	_	_
+4	Gemeinden	Gemeinde	NOUN	NN	Case=Gen|Gender=Fem|Number=Plur	2	conj	_	_
+5	sind	sein	AUX	NN	Case=Gen|Gender=Fem|Number=Sing	11	cop	_	_
+6	sicherlich	sicherlich	ADJ	ADJD	_	9	advmod	_	_
+7	nicht	nicht	PART	NN	Case=Gen|Number=Plur	9	advmod	_	_
+8	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	9	det	_	_
+9	Weisheit	Weisheit	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	11	nmod	_	_
+10	letzter	letzt	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Sing	11	amod	_	_
+11	Schluss	Schluß	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	0	root	_	_
+12	.	.	PUNCT	$.	_	11	punct	_	_
+
+1	Im	Im	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	2	amod	_	_	B-Segment
+2	Vergleich	Vergleich	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	18	nsubj	_	_
+3	zur	zur	ADV	NE	Foreign=Yes	6	advmod	_	_
+4	bislang	bislang	ADV	ADV	_	5	advmod	_	_
+5	praktizierten	praktiziert	ADJ	ADJA	Case=Dat|Gender=Fem|Number=Sing	6	amod	_	_
+6	Kleinstaaterei	Kleinstaaterei	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	2	nmod	_	_
+7	im	im	ADV	NE	Case=Dat|Gender=Neut|Number=Sing	10	advmod	_	_
+8	ländlich	ländlich	ADJ	ADJD	_	9	advmod	_	_
+9	geprägten	geprägt	ADJ	ADJA	Case=Dat|Gender=Neut|Number=Sing	10	amod	_	_
+10	Süden	Süden	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	6	nmod	_	_
+11	des	der	DET	ART	Case=Gen|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	12	det	_	_
+12	Kreisgebietes	Kreisgebiet	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing	10	nmod	_	_
+13	sind	sein	AUX	NN	Case=Gen|Gender=Masc|Number=Sing	18	cop	_	_
+14	sie	sie	PRON	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	18	nsubj	_	_
+15	jedoch	jedoch	ADV	ADV	_	18	advmod	_	_
+16	das	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	18	det	_	_
+17	kleinere	klein	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Sing	18	amod	_	_
+18	Übel	Übel	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	0	root	_	_
+19	.	.	PUNCT	$.	_	18	punct	_	_

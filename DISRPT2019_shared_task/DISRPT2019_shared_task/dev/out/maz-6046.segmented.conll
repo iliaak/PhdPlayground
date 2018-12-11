@@ -1,0 +1,156 @@
+1	Veronas	Veronas	PROPN	NE	Case=Nom|Number=Plur	2	dep	_	_	B-Segment
+2	Tränen	Träne|Tränen	PROPN	NN	Case=Nom|Gender=Fem|Number=Plur	0	root	_	_
+
+1	Seit	seit	ADP	APPR	_	4	case	_	_	B-Segment
+2	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
+3	11.	11	NUM	CARD	NumType=Card	4	nmod	_	_
+4	September	September	PROPN	NN	Case=Dat|Gender=Masc|Number=Sing	7	nmod	_	_
+5	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	7	cop	_	_
+6	alles	alle	PRON	PIS	Case=Acc|Definite=Ind|Gender=Neut|Number=Sing|PronType=Ind	7	nsubj	_	_
+7	anders	anders	ADV	ADV	_	0	root	_	_
+8	?	?	PUNCT	$.	_	7	punct	_	_
+
+1	Von	von	ADP	APPR	_	0	root	_	_	B-Segment
+2	wegen	wegen	ADP	NE	Case=Nom|Number=Plur	1	case	_	_
+3	.	.	PUNCT	$.	_	1	punct	_	_
+
+1	Bin	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	5	aux	_	_	B-Segment
+2	Laden	Laden	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	5	obj	_	_
+3	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	aux	_	_
+4	Amerika	Amerika	PROPN	NE	Case=Nom|Gender=Neut|Number=Sing	5	nsubj	_	_
+5	getroffen	treffen|triefen	VERB	VVPP	VerbForm=Part	10	advcl	_	_
+6	,	,	PUNCT	$,	_	10	punct	_	_
+7	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	9	det	_	_	B-Segment
+8	westliche	westlich	ADJ	NE	Case=Nom|Gender=Fem|Number=Sing	9	amod	_	_
+9	Welt	Welt	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	10	nsubj	_	_
+10	herausgefordert	herausgefordern	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+11	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	12	cc	_	_	B-Segment
+12	Krieg	Krieg	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	10	conj	_	_
+13	ausgelöst	auslösen	VERB	VVPP	VerbForm=Part	10	conj	_	_
+14	-	-	PUNCT	$(	_	13	punct	_	_
+15	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	17	det	_	_	B-Segment
+16	deutsche	deutsch	ADJ	ADJA	Case=Nom|Gender=Fem|Number=Sing	17	amod	_	_
+17	Spaßkultur	Spaßkultur	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	18	nsubj	_	_
+18	widersteht	widerstehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	13	conj	_	_
+19	ihm	er	PRON	PPER	Case=Dat|Gender=Masc|Number=Sing|Person=3|PronType=Prs	18	iobj	_	_
+20	.	.	PUNCT	$.	_	10	punct	_	_
+
+1	Deutschland	Deutschland	PROPN	NE	Case=Nom|Gender=Neut|Number=Sing	2	nsubj	_	_	B-Segment
+2	diskutiert	diskutieren	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+3	:	:	PUNCT	$.	_	2	punct	_	_
+
+1	Waren	sein	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	4	aux	_	_	B-Segment
+2	Veronas	Veronas	PROPN	NE	Case=Nom|Number=Plur	4	nsubj	_	_
+3	Tränen	Träne|Tränen	PROPN	NN	Case=Nom|Gender=Fem|Number=Plur	2	flat	_	_
+4	echt	echen	VERB	VVFIN	_	0	root	_	_
+5	?	?	PUNCT	$.	_	4	punct	_	_
+
+1	Und	und	CCONJ	NN	Case=Nom|Gender=Masc|Number=Sing	2	cc	_	_	B-Segment
+2	Johannes	Johannes	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	5	nsubj	_	_
+3	B.	B.	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	2	flat	_	_
+4	Kerner	Kern	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	2	flat	_	_
+5	gibt	geben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+6	Interviews	Interviews	NOUN	NE	Case=Gen|Gender=Masc|Number=Sing	5	obj	_	_
+7	über	über	ADP	ADJA	Case=Dat|Gender=Masc|Number=Sing	9	case	_	_
+8	seine	sein	DET	PPOSAT	Case=Acc|Gender=Fem|Number=Sing|Poss=Yes	9	det:poss	_	_
+9	Vermittlerrolle	Vermittlerrolle	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	5	obl	_	_
+10	im	im	PROPN	NN	Case=Acc|Gender=Neut|Number=Sing	9	appos	_	_
+11	Ehekrieg	Ehekrieg	PROPN	NN	Case=Acc|Gender=Masc|Number=Sing	10	flat	_	_
+12	,	,	PUNCT	$,	_	18	punct	_	_
+13	gegen	gegen	ADP	APPR	_	15	case	_	_	B-Segment
+14	die	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	15	det	_	_
+15	Bushs	Bushs	PROPN	NN	Case=Gen|Gender=Masc|Number=Sing	18	obl	_	_
+16	Medienauftritte	Medienauftritte	PROPN	NN	Case=Acc|Gender=Masc|Number=Plur	15	flat	_	_
+17	alt	alt	ADJ	ADJD	_	18	advmod	_	_
+18	aussehen	aussehen	VERB	VVFIN	VerbForm=Inf	5	acl	_	_
+19	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Wer	wer	PRON	PWS	Case=Nom|Number=Sing|PronType=Int	2	nsubj	_	_	B-Segment
+2	gehofft	hoffen	VERB	VVPP	VerbForm=Part	19	acl	_	_
+3	hatte	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	2	aux	_	_
+4	,	,	PUNCT	$,	_	18	punct	_	_
+5	dass	dass	SCONJ	KOUS	_	18	mark	_	_
+6	uns	wir	PRON	NE	Case=Nom|Gender=Masc|Number=Sing	18	iobj	_	_
+7	künftig	künftig	ADJ	ADJD	_	18	advmod	_	_
+8	wenigstens	wenigstens	ADV	ADV	_	9	advmod	_	_
+9	Veronas	Veronas	PROPN	NE	Case=Nom|Number=Plur	18	nsubj	_	_
+10	Tränen	Träne|Tränen	PROPN	NN	Case=Nom|Gender=Fem|Number=Plur	9	flat	_	_
+11	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	13	cc	_	_
+12	Dieters	Dieter	PRON	NE	Case=Gen|Gender=Masc|Number=Sing	13	nmod	_	_
+13	Geschwätz	Geschwätz	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	9	conj	_	_
+14	auf	auf	ADP	APPR	_	16	case	_	_
+15	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	16	det	_	_
+16	Bildschirm	Bildschirm	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	13	nmod	_	_
+17	erspart	ersparen	ADJ	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	18	xcomp	_	_
+18	bleiben	bleiben	VERB	VVINF	VerbForm=Inf	2	ccomp	_	_
+19	,	,	PUNCT	$,	_	20	punct	_	_
+20	sieht	sehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_	B-Segment
+21	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	22	obj	_	_
+22	getäuscht	täuschen	VERB	VVPP	VerbForm=Part	20	xcomp	_	_
+23	.	.	PUNCT	$.	_	20	punct	_	_
+
+1	Es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	5	expl	_	_	B-Segment
+2	muss	müssen	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	aux	_	_
+3	wohl	wohl	ADV	NE	Case=Nom|Gender=Masc|Number=Sing	5	advmod	_	_
+4	mehr	mehr	ADV	ADV	_	5	advmod	_	_
+5	passieren	passieren	VERB	VVINF	VerbForm=Inf	0	root	_	_
+6	,	,	PUNCT	$,	_	14	punct	_	_
+7	bevor	bevor	SCONJ	KOUS	_	14	mark	_	_	B-Segment
+8	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	9	det	_	_
+9	Boulevard	Boulevard	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	14	nsubj	_	_
+10	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	14	obj	_	_
+11	von	von	ADP	NN	Case=Dat|Gender=Masc|Number=Sing	13	case	_	_
+12	seinen	sein	DET	PPOSAT	Case=Dat|Gender=Masc|Number=Plur|Poss=Yes	13	det:poss	_	_
+13	Schießbudenfiguren	Schießbudenfigur	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur	14	obl	_	_
+14	trennt	trennen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	advcl	_	_
+15	.	.	PUNCT	$.	_	5	punct	_	_
+
+1	Solange	solange	SCONJ	KOUS	_	4	mark	_	_	B-Segment
+2	wir	wir	PRON	ADJD	_	4	nsubj	_	_
+3	sie	sie	PRON	ADJD	_	4	obj	_	_
+4	sehen	sehen	VERB	VVINF	VerbForm=Inf	17	advcl	_	_
+5	,	,	PUNCT	$,	_	6	punct	_	_
+6	lesen	lesen	VERB	VVINF	VerbForm=Inf	4	conj	_	_
+7	,	,	PUNCT	$,	_	8	punct	_	_
+8	kaufen	kaufen	VERB	VVINF	VerbForm=Inf	4	conj	_	_
+9	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	11	cc	_	_
+10	darüber	darüber	ADV	PAV	_	11	advmod	_	_
+11	reden	reden	VERB	VVINF	VerbForm=Inf	4	conj	_	_
+12	wollen	wollen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	11	aux	_	_
+13	,	,	PUNCT	$,	_	4	punct	_	_
+14	werden	werden	AUX	NN	Case=Nom|Gender=Masc|Number=Plur	17	aux	_	_	B-Segment
+15	wir	wir	PRON	ADJD	_	17	nsubj	_	_
+16	damit	damit	ADV	PAV	_	17	advmod	_	_
+17	leben	leben	VERB	VVINF	VerbForm=Inf	0	root	_	_
+18	müssen	müssen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	17	aux	_	_
+19	.	.	PUNCT	$.	_	17	punct	_	_
+
+1	Einen	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Trost	Trost	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	3	nsubj	_	_
+3	gibt	geben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+4	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	3	expl	_	_
+5	:	:	PUNCT	$.	_	3	punct	_	_
+
+1	Veronas	Veronas	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	4	nsubj	_	_	B-Segment
+2	Tränen	Träne|Tränen	NOUN	NN	Case=Nom|Gender=Fem|Number=Plur	1	flat	_	_
+3	sind	sein	AUX	NN	Case=Nom|Gender=Fem|Number=Sing	4	cop	_	_
+4	stärker	stark	ADJ	ADJD	_	0	root	_	_
+5	als	als	ADP	KOKOM	_	8	case	_	_
+6	bin	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin	8	cop	_	_
+7	Ladens	Laden	NOUN	NE	Case=Gen|Gender=Neut|Number=Sing	8	nmod	_	_
+8	Schläfer	Schläfer	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	4	nmod	_	_
+9	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Berlusconi	Berlusconi	PROPN	NE	Case=Nom|Gender=Masc|Number=Sing	2	nsubj	_	_	B-Segment
+2	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+3	schon	schon	ADV	ADV	_	4	advmod	_	_
+4	Recht	Recht	NOUN	NN	Case=Acc|Gender=Neut|Number=Sing	2	obj	_	_
+5	:	:	PUNCT	$.	_	2	punct	_	_
+
+1	Der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Westen	Weste|Westen	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	6	nsubj	_	_
+3	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	6	cop	_	_
+4	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	5	det	_	_
+5	Islam	Islam	PROPN	NN	Case=Dat|Gender=Masc|Number=Sing	6	iobj	_	_
+6	überlegen	überlegen	ADJ	ADJD	_	0	root	_	_
+7	.	.	PUNCT	$.	_	6	punct	_	_

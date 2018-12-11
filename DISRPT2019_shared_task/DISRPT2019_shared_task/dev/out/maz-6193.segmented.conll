@@ -1,0 +1,224 @@
+1	Honigsüße	Honigsüß	ADJ	ADJA	Case=Nom|Gender=Neut|Number=Sing	2	amod	_	_	B-Segment
+2	Nachricht	Nachricht	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	0	root	_	_
+
+1	Sollte	sollen	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	3	aux	_	_	B-Segment
+2	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	3	nsubj	_	_
+3	Wirklichkeit	Wirklichkeit	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	0	root	_	_
+4	werden	werden	AUX	NE	Case=Nom|Gender=Fem|Number=Sing	3	cop	_	_
+5	,	,	PUNCT	$,	_	11	punct	_	_
+6	was	was	PRON	NE	Case=Nom|Gender=Fem|Number=Sing	11	obj	_	_
+7	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	8	det	_	_
+8	Procurand	Procurand	NOUN	NE	Foreign=Yes	11	nsubj	_	_
+9	AG	AG	PROPN	NN	Case=Nom|Gender=Fem|Number=Sing	8	flat	_	_
+10	gestern	gestern	ADJ	ADV	_	11	advmod	_	_
+11	verkündete	verkünden	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	3	acl	_	_
+12	,	,	PUNCT	$,	_	3	punct	_	_
+13	wäre	sein	AUX	NN	Case=Acc|Gender=Masc|Number=Sing	16	cop	_	_	B-Segment
+14	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	16	nsubj	_	_
+15	fast	fast	ADV	ADV	_	16	advmod	_	_
+16	zu	zu	ADP	NN	Foreign=Yes	3	case	_	_
+17	schön	schön	ADJ	NN	Case=Nom|Gender=Neut|Number=Plur	16	dep	_	_
+18	,	,	PUNCT	$,	_	20	punct	_	_
+19	um	um	ADP	KOUI	_	20	mark	_	_
+20	wahr	wahr	PRON	NE	Case=Dat|Gender=Fem|Number=Sing	17	advcl	_	_
+21	zu	zu	PART	NN	Foreign=Yes	22	mark	_	_
+22	sein	sein	AUX	VAINF	VerbForm=Inf	20	cop	_	_
+23	.	.	PUNCT	$.	_	17	punct	_	_
+
+1	40	40	NUM	CARD	NumType=Card	3	nummod	_	_	B-Segment
+2	neue	neu	ADJ	ADJA	_	3	amod	_	_
+3	Jobs	Jobs	NOUN	NN	Case=Acc|Gender=Masc|Number=Plur	7	nmod	_	_
+4	-	-	PUNCT	$(	_	3	punct	_	_
+5	allein	allein	ADV	ADV	_	7	advmod	_	_
+6	diese	dies	PRON	PDAT	Case=Nom|Gender=Fem|Number=Sing|PronType=Dem	7	det	_	_
+7	Nachricht	Nachricht	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	9	nsubj	_	_
+8	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	9	cop	_	_
+9	Honig	Honig	PROPN	NN	Case=Nom|Gender=Masc|Number=Sing	0	root	_	_
+10	auf	auf	ADP	APPR	_	12	case	_	_
+11	den	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Plur|PronType=Art	12	det	_	_
+12	Lippen	Lippe	NOUN	NN	Case=Dat|Gender=Fem|Number=Plur	9	nmod	_	_
+13	vieler	viel	PRON	PIAT	Case=Gen|Definite=Ind|Gender=Masc|Number=Plur|PronType=Ind	14	det	_	_
+14	Mittelmärker	Mittelmärker	NOUN	ADJD	_	12	nmod	_	_
+15	.	.	PUNCT	$.	_	9	punct	_	_
+
+1	Wünschenswert	Wünschenswert	PROPN	ADJD	_	7	nsubj	_	_	B-Segment
+2	wäre	sein	AUX	NN	Case=Acc|Gender=Masc|Number=Sing	7	cop	_	_
+3	nicht	nicht	PART	CARD	NumType=Card	7	advmod	_	_
+4	nur	nur	ADV	XY	_	3	advmod	_	_
+5	das	der	PRON	PDS	Case=Nom|Gender=Neut|Number=Sing|PronType=Dem	7	nsubj	_	_
+6	,	,	PUNCT	$,	_	7	punct	_	_
+7	sondern	sondern	CCONJ	ADJD	_	0	root	_	_	B-Segment
+8	auch	auch	ADV	ADV	_	7	advmod	_	_
+9	,	,	PUNCT	$,	_	18	punct	_	_
+10	dass	dass	SCONJ	KOUS	_	18	mark	_	_
+11	mit	mit	ADP	APPR	_	13	case	_	_
+12	der	der	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	13	det	_	_
+13	Investruine	Ruin|Investruine	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	18	obl	_	_
+14	am	am	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	13	appos	_	_
+15	Görnsee	Görnsee	PROPN	NE	Case=Dat|Gender=Neut|Number=Sing	14	flat	_	_
+16	endlich	endlich	ADJ	ADV	_	18	advmod	_	_
+17	etwas	etwas	PRON	PIS	Definite=Ind|PronType=Ind	18	obj	_	_
+18	geschieht	geschehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	7	ccomp	_	_
+19	.	.	PUNCT	$.	_	7	punct	_	_
+
+1	Nie	nie	ADV	ADV	_	6	advmod	_	_	B-Segment
+2	ist	sein	AUX	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	6	aux	_	_
+3	das	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	5	det	_	_
+4	halbfertige	halbfertig	ADJ	ADJA	Case=Nom|Gender=Neut|Number=Sing	5	amod	_	_
+5	Hotel	Hotel	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	6	nsubj:pass	_	_
+6	bezogen	beziehen	VERB	VVPP	VerbForm=Part	0	root	_	_
+7	worden	werden	AUX	NN	Case=Nom|Gender=Masc|Number=Sing	6	aux:pass	_	_
+8	.	.	PUNCT	$.	_	6	punct	_	_
+
+1	Im	Im	PROPN	NE	Case=Nom|Gender=Neut|Number=Sing	9	nsubj	_	_	B-Segment
+2	Erdgeschoss	Erdgeschoß	PROPN	VVFIN	_	1	flat	_	_
+3	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	7	cc	_	_
+4	vermutlich	vermutlich	ADJ	ADV	_	6	advmod	_	_
+5	nicht	nicht	PART	CARD	NumType=Card	6	advmod	_	_
+6	nur	nur	ADV	XY	_	7	advmod	_	_
+7	dort	dort	ADV	ADV	_	1	advmod	_	_
+8	,	,	PUNCT	$,	_	1	punct	_	_
+9	macht	machen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+10	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	12	obj	_	_
+11	Schimmel	Schimmel	NOUN	NE	Case=Nom|Gender=Masc|Number=Sing	12	nsubj	_	_
+12	breit	breit	ADJ	PTKVZ	_	9	xcomp	_	_
+13	.	.	PUNCT	$.	_	9	punct	_	_
+
+1	Mit	mit	ADP	APPR	_	3	case	_	_	B-Segment
+2	anderen	ander	ADJ	ADJA	Case=Dat|Gender=Neut|Number=Plur	3	amod	_	_
+3	Worten	Wort	NOUN	NN	Case=Dat|Gender=Neut|Number=Plur	12	nmod	_	_
+4	,	,	PUNCT	$,	_	12	punct	_	_
+5	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	Bausubstanz	Bausubstanz	NOUN	NN	Case=Nom|Gender=Fem|Number=Sing	12	nsubj	_	_
+7	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Pass	12	cop	_	_
+8	durch	durch	ADP	APPR	_	10	case	_	_
+9	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	10	det	_	_
+10	Leerstand	Leerstand	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	12	nmod	_	_
+11	nicht	nicht	PART	ADJA	_	12	advmod	_	_
+12	besser	gut	ADJ	ADJD	_	0	root	_	_
+13	.	.	PUNCT	$.	_	12	punct	_	_
+
+1	Zudem	zudem	ADV	PAV	_	2	advmod	_	_	B-Segment
+2	erinnert	erinnern	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	_
+3	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	5	det	_	_
+4	wuchtige	wuchtig	ADJ	ADJA	Case=Nom|Gender=Masc|Number=Sing	5	amod	_	_
+5	Mehrgeschosser	Mehrgeschosser	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	2	nsubj	_	_
+6	an	an	ADP	APPR	_	8	case	_	_
+7	ein	ein	DET	ART	Case=Nom|Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	8	det	_	_
+8	Kapitel	Kapitel	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	2	obl	_	_
+9	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	12	det	_	_
+10	jüngsten	jung	ADJ	ADJA	Case=Dat|Gender=Fem|Number=Plur	12	amod	_	_
+11	Grebser	Grebser	PROPN	NN	Case=Acc|Gender=Neut|Number=Plur	12	amod	_	_
+12	Geschichte	Geschichte	NOUN	NN	Case=Acc|Gender=Neut|Number=Plur	8	nmod	_	_
+13	,	,	PUNCT	$,	_	23	punct	_	_
+14	die	der	PRON	PRELS	Case=Nom|Number=Plur|PronType=Rel	23	nsubj	_	_	B-Segment
+15	nicht	nicht	PART	CARD	NumType=Card	23	advmod	_	_
+16	nur	nur	ADV	XY	_	18	advmod	_	_
+17	die	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Plur|PronType=Art	18	det	_	_
+18	Gemeindevertreter	Gemeindevertreter	NOUN	NN	Case=Nom|Gender=Masc|Number=Plur	23	nsubj	_	_
+19	nur	nur	ADV	XY	_	21	advmod	_	_
+20	zu	zu	ADP	NN	Foreign=Yes	21	case	_	_
+21	gerne	gerne	ADV	ADV	_	23	advmod	_	_
+22	langsam	langsam	ADJ	ADJD	_	23	advmod	_	_
+23	vergessen	vergessen	VERB	VVPP	VerbForm=Part	8	acl	_	_
+24	würden	werden	AUX	NE	Case=Nom|Gender=Neut|Number=Sing	23	aux	_	_
+25	.	.	PUNCT	$.	_	2	punct	_	_
+
+1	Gebaut	bauen	VERB	VVPP	VerbForm=Part	0	root	_	_	B-Segment
+2	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	1	aux	_	_
+3	das	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	4	det	_	_
+4	Hotel	Hotel	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	1	nsubj	_	_
+5	nämlich	nämlich	ADV	CARD	NumType=Card	1	advmod	_	_
+6	ein	ein	DET	ART	Case=Nom|Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	7	det	_	_
+7	Investor	Investor	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	1	obj	_	_
+8	mit	mit	ADP	APPR	_	9	case	_	_
+9	Geld	Geld	NOUN	NN	Case=Acc|Gender=Neut|Number=Sing	7	nmod	_	_
+10	,	,	PUNCT	$,	_	17	punct	_	_
+11	das	der	PRON	PRELS	Case=Acc|Gender=Neut|Number=Sing|PronType=Rel	17	nsubj	_	_
+12	er	er	PRON	PPER	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	17	nsubj	_	_
+13	sich	er|es|sie	PRON	PRF	Case=Acc|Number=Sing|Person=3|PronType=Prs|Reflex=Yes	17	obj	_	_
+14	von	von	ADP	NN	Case=Acc|Gender=Masc|Number=Sing	16	case	_	_
+15	der	der	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	16	det	_	_
+16	Kommune	Kommune	NOUN	NN	Case=Gen|Gender=Fem|Number=Sing	17	nmod	_	_
+17	erschlich	erschlich	ADJ	ADJD	_	1	conj	_	_
+18	.	.	PUNCT	$.	_	1	punct	_	_
+
+1	Fördergeld	Fördergeld	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	0	root	_	_	B-Segment
+2	aus	aus	ADP	APPR	_	4	case	_	_
+3	einem	ein	DET	ART	Case=Dat|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	4	det	_	_
+4	Kommunalkredit	Kommunalkredit	NOUN	NN	Case=Dat|Gender=Neut|Number=Sing	1	nmod	_	_
+5	.	.	PUNCT	$.	_	1	punct	_	_
+
+1	Der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	2	det	_	_	B-Segment
+2	Mann	Mann	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	3	nsubj	_	_
+3	bezahlte	bezahlen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
+4	viele	viel	DET	NE	Case=Nom|Gender=Masc|Number=Sing	5	amod	_	_
+5	Handwerker	Handwerker	NOUN	NE	Case=Nom|Gender=Masc|Number=Sing	3	obj	_	_
+6	nicht	nicht	PART	ADJA	_	3	advmod	_	_
+7	und	und	CCONJ	ADJA	Case=Acc|Gender=Masc|Number=Sing	15	cc	_	_	B-Segment
+8	wurde	werden	AUX	ADV	_	15	aux:pass	_	_
+9	voriges	voriges	PRON	ADJA	Case=Acc|Gender=Neut|Number=Sing	10	det	_	_
+10	Jahr	Jahr	NOUN	NN	Case=Acc|Gender=Neut|Number=Sing	15	obl	_	_
+11	zu	zu	ADP	FM	Foreign=Yes	14	case	_	_
+12	einer	ein	DET	ART	Case=Dat|Definite=Ind|Gender=Fem|Number=Sing|PronType=Art	14	det	_	_
+13	mehrjährigen	mehrjährig	ADJ	ADJA	Case=Dat|Gender=Fem|Number=Sing	14	amod	_	_
+14	Haftstrafe	Haftstrafe	NOUN	NN	Case=Dat|Gender=Fem|Number=Sing	15	obl	_	_
+15	verurteilt	verurteilen	VERB	VVPP	VerbForm=Part	3	conj	_	_
+16	.	.	PUNCT	$.	_	3	punct	_	_
+
+1	Doch	doch	ADV	KON	_	4	advmod	_	_	B-Segment
+2	seine	sein	DET	PPOSAT	Case=Acc|Gender=Fem|Number=Sing|Poss=Yes	3	det:poss	_	_
+3	Vergangenheit	Vergangenheit	NOUN	NN	Case=Acc|Gender=Fem|Number=Sing	4	nsubj	_	_
+4	schien	scheinen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
+5	wie	wie	ADP	NE	Case=Acc|Gender=Neut|Number=Sing	7	case	_	_
+6	ein	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Neut|Number=Sing|PronType=Art	7	det	_	_
+7	Fluch	Fluch	NOUN	NN	Case=Acc|Gender=Neut|Number=Sing	12	obl	_	_
+8	über	über	ADP	ADJA	Case=Dat|Gender=Masc|Number=Sing	10	case	_	_
+9	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	10	det	_	_
+10	Hotelkomplex	Hotelkomplex	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing	7	nmod	_	_
+11	zu	zu	PART	FM	Foreign=Yes	12	mark	_	_
+12	liegen	liegen	VERB	VVINF	VerbForm=Inf	4	xcomp	_	_
+13	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Jahrelang	jahrelang	NOUN	ADV	_	7	dep	_	_	B-Segment
+2	hatte	haben	VERB	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	7	aux	_	_
+3	das	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	4	det	_	_
+4	Amtsgericht	Amtsgericht	NOUN	NN	Case=Nom|Gender=Neut|Number=Sing	7	nsubj	_	_
+5	Potsdam	Potsdam	PROPN	NE	Case=Nom|Gender=Neut|Number=Sing	4	appos	_	_
+6	umsonst	umsonst	ADV	NN	Case=Acc|Gender=Fem|Number=Sing	7	advmod	_	_
+7	versucht	versuchen	VERB	VVPP	VerbForm=Part	0	root	_	_
+8	,	,	PUNCT	$,	_	14	punct	_	_
+9	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	14	obj	_	_
+10	an	an	ADP	APPR	_	12	case	_	_
+11	den	der	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	12	det	_	_
+12	Mann	Mann	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	14	obl	_	_
+13	zu	zu	PART	NN	Case=Acc|Gender=Fem|Number=Plur	14	mark	_	_
+14	bringen	bringen	VERB	VVINF	VerbForm=Inf	7	xcomp	_	_
+15	.	.	PUNCT	$.	_	7	punct	_	_
+
+1	Einmal	einmal	ADV	ADV	_	2	advmod	_	_	B-Segment
+2	schien	scheinen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
+3	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	_
+4	schon	schon	ADV	ADV	_	5	advmod	_	_
+5	geglückt	glücken	VERB	ADJD	_	2	xcomp	_	_
+6	zu	zu	PART	NE	Case=Nom|Gender=Masc|Number=Sing	7	mark	_	_
+7	sein	sein	AUX	VAINF	VerbForm=Inf	5	aux	_	_
+8	.	.	PUNCT	$.	_	2	punct	_	_
+
+1	Doch	doch	ADV	KON	_	4	advmod	_	_	B-Segment
+2	der	der	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	3	det	_	_
+3	Käufer	Käufer	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	4	nsubj	_	_
+4	zahlte	zahlen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	_
+5	nicht	nicht	PART	CARD	NumType=Card	4	advmod	_	_
+6	.	.	PUNCT	$.	_	4	punct	_	_
+
+1	Jetzt	jetzt	ADV	ADV	_	9	advmod	_	_	B-Segment
+2	könnte	können	AUX	VMFIN	Mood=Sub|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	9	aux	_	_
+3	das	der	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	4	det	_	_
+4	Seniorenheim	Seniorenheim	NOUN	NN	Case=Dat|Gender=Neut|Number=Sing	9	nsubj	_	_
+5	dem	der	DET	ART	Case=Dat|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	6	det	_	_
+6	Haus	Haus	NOUN	NN	Case=Dat|Gender=Neut|Number=Sing	9	iobj	_	_
+7	einen	ein	DET	ART	Case=Acc|Definite=Ind|Gender=Masc|Number=Sing|PronType=Art	8	det	_	_
+8	Sinn	Sinn	NOUN	NN	Case=Acc|Gender=Masc|Number=Sing	9	obj	_	_
+9	geben	geben	VERB	VVINF	VerbForm=Inf	0	root	_	_
+10	.	.	PUNCT	$.	_	9	punct	_	_
