@@ -16,7 +16,7 @@ import pandas
 import random
 import numpy
 
-from keras.layers import LSTM, Activation, Dense, Dropout, Input, Embedding, Concatenate, concatenate
+from keras.layers import LSTM, Activation, Dense, Dropout, Input, Embedding, Concatenate, concatenate, Reshape
 from keras.models import Model
 from keras.optimizers import RMSprop, Adam
 from keras.callbacks import EarlyStopping
@@ -74,7 +74,10 @@ class CustomCONLLToken:
         self.token = token
         self.pos_coarse = pos_coarse
         self.pos_fine = pos_fine
-        self.head = int(head)
+        try:
+            self.head = int(head)
+        except ValueError:
+            self.head = '_'
         self.deprel = deprel
         self.segmentStarter = segmentStarter
 
@@ -93,20 +96,6 @@ lexParser = stanford.StanfordParser(model_path=config['lexparser']['germanModel'
 
 
 def RNN_internalEmbeddings(dim, voc_size, bsize):
-    """
-    inputs = Input(name='inputs',shape=[dim])
-    layer = Embedding(voc_size,50,input_length=dim)(inputs)
-    layer = LSTM(64)(layer)
-    layer = Dense(256,name='FC1')(layer)
-    layer = Activation('relu')(layer)
-    layer = Dropout(0.5)(layer)
-    layer = Dense(1,name='out_layer')(layer)
-    layer = Activation('sigmoid')(layer)
-    model = Model(inputs=inputs,outputs=layer)
-    """
-    print('debugging dim:', dim)
-    print('debugging voc_size:', voc_size)
-    print('debugging bsize:', bsize)
 
     #inputs1 = Input(name='i1',shape=[bsize,dim])
     inputs1 = Input(name='i1',shape=[bsize,dim])# this one is oh encoding dim (without the word index), play around with the 20 (bsize) afterward
@@ -114,29 +103,34 @@ def RNN_internalEmbeddings(dim, voc_size, bsize):
     # voc_size is just that now: nr of unique words
     
     emblayer = Embedding(voc_size,50)(inputs2) # 50 is prediction size # inputs2 because this one is about words only
-    
+    emblayer = Reshape((bsize,50))(emblayer)
 
     layer = Concatenate()([inputs1, emblayer])
-    #layer = concatenate([inputs1, emblayer])
     layer = LSTM(64,return_sequences=True)(layer)
     layer = Dense(256,name='FC1')(layer)
     layer = Activation('relu')(layer)
     layer = Dropout(0.5)(layer)
-    layer = Dense(1,name='out_layer')(layer)
-    layer = Activation('softmax')(layer)
+    layer = Dense(1)(layer)
+    #layer = Activation('softmax', name='output_layer')(layer)
+    layer = Activation('sigmoid', name='output_layer')(layer)
     model = Model(inputs=[inputs1, inputs2],outputs=layer)
     return model
 
 
-def RNN_externalEmbeddings(dim):
-    inputs = Input(name='inputs',shape=[dim])
-    layer = LSTM(64)(inputs)
+def RNN_externalEmbeddings(dim, bsize):
+
+    inputs1 = Input(name='i1',shape=[bsize,dim])
+    inputs2 = Input(name='i2',shape=[bsize,dim])
+
+    layer = Concatenate(axis=-1)([inputs1, inputs2])
+    layer = LSTM(64,return_sequences=True)(layer)
     layer = Dense(256,name='FC1')(layer)
     layer = Activation('relu')(layer)
     layer = Dropout(0.5)(layer)
-    layer = Dense(1,name='out_layer')(layer)
-    layer = Activation('sigmoid')(layer)
-    model = Model(inputs=inputs,outputs=layer)
+    layer = Dense(1)(layer)
+    #layer = Activation('softmax', name='output_layer')(layer)
+    layer = Activation('sigmoid', name='output_layer')(layer)
+    model = Model(inputs=[inputs1, inputs2],outputs=layer)
     return model
 
 
@@ -161,9 +155,8 @@ def customConllParser(cfile):
     HEAD (index of syntactic parent, 0 for ROOT)
     DEPREL (syntactic relationship between HEAD and this word)
     """
-    
     tokens = []
-    reader = csv.reader(codecs.open(cfile), delimiter='\t')
+    #reader = csv.reader(codecs.open(cfile), delimiter='\t')
     sentences = []
     sent = []
     uid2sid = defaultdict(str)
@@ -171,8 +164,11 @@ def customConllParser(cfile):
     sid = 1
     uid = 0
     nrrows = len(codecs.open(cfile).readlines())
-    for row in reader:
+    #for row in reader:
+    for line in codecs.open(cfile).readlines():
+        row = line.split('\t')
         if len(row) > 5:
+            #print('considering row:', row)
             sTokenId = row[0]
             token = row[1]
             lemma = row[2]
@@ -193,6 +189,17 @@ def customConllParser(cfile):
             segmentStarter = False
             if re.search('BeginSeg=Yes', ' '.join(row[8:])):
                 segmentStarter = True
+            """
+            print('uid:', uid)
+            print('sid:', sid)
+            print('sTokenId:', sTokenId)
+            print('token:', token)
+            print('pos_coarse:', pos_coarse)
+            print('pos_fine:', pos_fine)
+            print('segmentStarter:', segmentStarter)
+            print('head_tokenid:', head_tokenid)
+            print('deprel:', deprel)
+            """
             cct = CustomCONLLToken(uid, sid, sTokenId, token, pos_coarse, pos_fine, segmentStarter, head_tokenid, deprel)
             uid2sid[uid] = sid
             sent.append(token)
@@ -276,7 +283,11 @@ def getMatrix(conlltokens, nonfilterLowFreq=False):
             last = True
         row.append(last)
         #('dist2par', '=', 0.03922734913136085)  # distance in tokens to dependency parent
-        dist2par = ct.stid - ct.head # could experiment with absolute distance here
+        dist2par = None
+        try:
+            dist2par = ct.stid - ct.head # could experiment with absolute distance here
+        except TypeError: # ct.head is probably _
+            dist2par = 0
         row.append(dist2par)
         #('parent_func', '=', 0.03496516497209843)  # gram. func of parent
         parent_func = None
@@ -358,7 +369,31 @@ def trainClassifier(matrix, headers):
 
     return clf
 
-def evalClassifier(clf, testmatrix, le, headers):
+def writeOutputFile(method, gold_testfile, pred):
+
+    from colorama import Fore
+    from colorama import Style
+    sys.stderr.write(f'{Fore.YELLOW}WARNING!: {Fore.RED}This method will have to be changed for the actual task data; currently based on gold test file (with segment boundaries in final column); which wont be there for test file in shared task.\n{Style.RESET_ALL}')
+    outf_name = os.path.splitext(gold_testfile)[0] + '.%s.pred.conll' % method
+    outf = codecs.open(outf_name, 'w')
+    ind = 0
+    
+    for line in codecs.open(gold_testfile, 'r').readlines():
+        if re.search('\t', line):
+            if pred[ind] == 0:
+                outf.write(line)
+            elif pred[ind] == 1:
+                if re.search('BeginSeg=Yes$', line):
+                    outf.write(line)
+                else:
+                    outf.write(re.sub('_BeginSeg=Yes', 'BeginSeg=Yes', '%sBeginSeg=Yes\n' % line.strip()))
+            ind += 1
+        else:
+            outf.write(line)    
+    outf.close()
+    
+
+def evalClassifier(clf, testmatrix, le, headers, testfile):
 
     tdf = pandas.DataFrame(testmatrix, columns=headers)
     Y = tdf.class_label
@@ -367,6 +402,8 @@ def evalClassifier(clf, testmatrix, le, headers):
     X = tdf.iloc[:,:len(headers)-1]
     X = numpy.array(X)
     results = clf.predict(X)
+    writeOutputFile('randomforest', testfile, results)
+    
     p, r, f, tp, fp, fn, tn = getNumbers(X, Y, results, le)
     #tp, fp, fn, tn = getNumbers(X, Y, results, le)
 
@@ -376,16 +413,15 @@ def evalClassifier(clf, testmatrix, le, headers):
 
     tn, fp, fn, tp = confusion_matrix(Y, results).ravel()
     
-    sys.stderr.write('\nTEST RESULTS:\n\n')
+    sys.stderr.write('\nTEST RESULTS RANDOMFOREST:\n\n')
     sys.stderr.write('sklearn precision:'+ str(p) + '\n')
     sys.stderr.write('sklearn recall:' + str(r) + '\n')
     sys.stderr.write('sklearn f:' + str(f) + '\n')
-    sys.stderr.write('custom precision:' + str(cp) + '\n')
-    sys.stderr.write('custom recall:' + str(cr) + '\n')
-    sys.stderr.write('custom f:' + str(cf) + '\n')
+    #sys.stderr.write('custom precision:' + str(cp) + '\n')
+    #sys.stderr.write('custom recall:' + str(cr) + '\n')
+    #sys.stderr.write('custom f:' + str(cf) + '\n' + '\n\n')
     
     
-
 def getNumbers(test_features, test_labels, results, le):
         
     tp = 0
@@ -456,13 +492,15 @@ def getFeaturesForTestData(matrix, headers, le, f2ohvlen, f2ohvpos, embd=False):
         else:
             token = row[0]
         nrow = []
+        embrow = []
         if embd:
             if token in embd:
                 for item in embd[token]:
-                    nrow.append(item)
+                    embrow.append(item)
             else:
                 for item in numpy.ndarray.flatten(numpy.random.random((1, dim))):
-                    nrow.append(item)
+                    embrow.append(item)
+            X1.append(embrow)
         else:
             #nextrows = [0] * f2ohvlen[0]
             #if token in f2ohvpos[0]:
@@ -493,7 +531,7 @@ def createEmbeddingMatrix(matrix, headers, le, embd=False):
     Y = df.class_label
     labels = list(set(Y))
     Y = numpy.array([labels.index(x) for x in Y])
-
+    #print('debugging Y here:', Y)
 
     f2ohvpos = defaultdict(lambda : defaultdict(int))
     f2 = defaultdict(set)
@@ -509,7 +547,6 @@ def createEmbeddingMatrix(matrix, headers, le, embd=False):
             f2ohvpos[i][i2] = c
 
     dim = 300
-
     
     X1 = []
     X2 = []
@@ -522,13 +559,15 @@ def createEmbeddingMatrix(matrix, headers, le, embd=False):
         else:
             token = row[0]
         nrow = []
+        embrow = []
         if embd:
             if token in embd:
                 for item in embd[token]:
-                    nrow.append(item)
+                    embrow.append(item)
             else:
                 for item in numpy.ndarray.flatten(numpy.random.random((1, dim))):
-                    nrow.append(item)
+                    embrow.append(item)
+            X1.append(embrow) # perhaps this needs to be .append([embrow]) instead
         else:
             #nextrows = [0] * f2ohvlen[0]
             #nextrows[f2ohvpos[0][token]] = 1
@@ -548,19 +587,11 @@ def createEmbeddingMatrix(matrix, headers, le, embd=False):
         
     return X1, X2, Y, f2ohvlen, f2ohvpos, input_dim
 
-def randomforest(le, e_train, e_test, headers):
+def randomforest(le, e_train, e_test, headers, testfile):
 
     clf = trainClassifier(e_train, headers)
-    evalClassifier(clf, e_test, le, headers)
+    evalClassifier(clf, e_test, le, headers, testfile)
 
-    #TEST RESULTS:
-    
-    #sklearn precision:0.9029850746268657
-    #sklearn recall:0.8231292517006803
-    #sklearn f:0.8612099644128115
-    #custom precision:0.9029850746268657
-    #custom recall:0.8231292517006803
-    #custom f:0.8612099644128115
 
 def prepareDataInBatchSize(X, bsize, step_size):
 
@@ -570,122 +601,165 @@ def prepareDataInBatchSize(X, bsize, step_size):
     # and this should not be 0 to 20, 20 to 40, 40 to 60, but instead 0 to 20, 5 to 25, 10 to 30, etc.
     n = []
     for i in range(0, len(X), step_size):
-        n.append(X[i:i+bsize]) # this may go wrong because the len of sequences are probably not the same (the last one may differ, because the nr of features may not be divisible by the bsize)
-    n = numpy.array(n)
-    # or, just trying with keras:
-    #n = keras.backend.reshape(X, bsize)
+        if len(X[i:i+bsize]) == bsize:
+            n.append(numpy.array(X[i:i+bsize])) # this may go wrong because the len of sequences are probably not the same (the last one may differ, because the nr of features may not be divisible by the bsize)
+        #else:
+            #print('sanity check: skipped row here')
     
+    n = numpy.stack(n)
+
     return n
 
-def internalEmbeddings(train, test, headers, epochs):
+def padInputs(X1, X2, dim, dim2):
 
-    #embd = loadExternalEmbeddings('/home/peter/phd/PhdPlayground/cc.de.300.vec')
+    target = max(dim, dim2)
+    diff = target - min(dim, dim2)
+    X1_padded = []
+    X2_padded = []
+    if numpy.shape(X1)[1] == target:
+        for row in X2:
+            row = numpy.concatenate([row,numpy.zeros(diff, dtype=float)])
+            X2_padded.append(row)
+        X1_padded = X1
+        X2_padded = numpy.array(X2_padded)
+    elif numpy.shape(X2)[1] == target:
+        for row in X1:
+            row = numpy.concatenate([row,numpy.zeros(diff, dtype=float)])
+            X1_padded.append(row)
+        X2_padded = X2
+        X1_padded = numpy.array(X1_padded)
+
+    return X1_padded, X2_padded
+
+def interpret_keras_results(results, step_size, bsize, nr_test_items):
+
+    # from 20 onward, each has 5 figures, average these (nr 15 has 4, 10 has 3, 5 has 2, 0-4 have 1, and len(Y)-15 have 4 again, etc.)
+    pos2vals = defaultdict(list)
+    offset = 0
+    for i in results:
+        for p, j in enumerate(i):
+            pos2vals[p+offset].append(j)
+        offset += step_size
+
+    # at the beginning and end, I will have fewer numbers per position. And may not have something all the way to the end. Append these with 0s
+    float_vals = []
+    for pos in pos2vals:
+        float_vals.append(sum(pos2vals[pos]) / len(pos2vals[pos]))
+    binary_results = [0 if x  < 0.5 else 1 for x in float_vals]
+
+    # append 0s at the end the ones I haven't got (due to bsize; nr of test items is not likely to be divisible by bsize)
+    for jk in range(len(binary_results), nr_test_items):
+        binary_results.append(0)
+
+    return binary_results
+    
+def internalEmbeddings(train, test, headers, epochs, testfile):
+
     le = CustomLabelEncoder()
     le.vocabIndex(train)
     X1, X2, Y, f2ohvlen, f2ohvpos, dim = createEmbeddingMatrix(train, headers, le, False) # there's probably a whole bunch of keras utils to do exactly this, but for understanding how it works, want to build it myself
-    sys.stderr.write('INFO: Number of training samples: %i\n' % len(X1))
+    #sys.stderr.write('INFO: Number of training samples: %i\n' % len(X1))
     # with embeddings and one-hot vectors for categorical features:
     X1_test, X2_test, Y_test = getFeaturesForTestData(test, headers, le, f2ohvlen, f2ohvpos, False)
-    sys.stderr.write('INFO: Number of test samples: %i\n' % len(X1_test))
+    nr_test_items = len(X1_test)
+    #sys.stderr.write('INFO: Number of test samples: %i\n' % len(X1_test))
+    binary_gold = Y_test
 
     # NOTE: X1 are the words, X2 are the oh features
     
-    #dim = len(headers)-1 # use this for same feature set as randomforest
     voc_size = (X1.max()+1).astype('int64')
     bsize = 20
     step_size = 5
     X1 = prepareDataInBatchSize(X1, bsize, step_size)
     X2 = prepareDataInBatchSize(X2, bsize, step_size)
-    print('debug X1 shape:', numpy.shape(X1))
-    print('debug X2 shape:', numpy.shape(X2))
-
+    Y = prepareDataInBatchSize(Y, bsize, step_size)
+    Y = numpy.expand_dims(Y, -1)
     
     model = RNN_internalEmbeddings(dim, voc_size, bsize)
     model.compile(loss='binary_crossentropy',optimizer=RMSprop(),metrics=['accuracy'])
 
     # preparing data in right dimension
     #split up X1 and X2 in, such that X2 is [[[33, 44, 56], [1,45,7], ... til 20], [[], [], []], [[], [], [],[], [], [],[], [], [],[], [], [],[], [], [],[], [], [],[], []]] # last one should be len of 20, corresponding to 20 in rnn definition
-    # and this should not be 0 to 20, 2o to 40, 40 to 60, but instead 0 to 20, 5 to 25, 10 to 30, etc.
+    # and this should not be 0 to 20, 20 to 40, 40 to 60, but instead 0 to 20, 5 to 25, 10 to 30, etc.
     
     #X1 is now [[0,0,0,1,0,0,1,0,0,1,1],....]
     #X2 is [[33], 56, 111] # find out if this should be [33,44,56] or [[33],[44], etc
-    model.fit((X2, X1), Y, batch_size=128,epochs=epochs,
-          validation_split=0.2,callbacks=[EarlyStopping(monitor='val_loss',min_delta=0.0001)])
+    model.fit({'i1': X2, 'i2': X1}, {'output_layer' :Y }, batch_size=128,epochs=epochs,validation_split=0.2,callbacks=[EarlyStopping(monitor='val_loss',min_delta=0.0001)])
 
     X1_test = prepareDataInBatchSize(X1_test, bsize, step_size)
     X2_test = prepareDataInBatchSize(X2_test, bsize, step_size)
-    results = model.predict((X2_test, X1_test))
-    binary_results = [0 if x  < 0.5 else 1 for x in results]
-    p, r, f, tp, fp, fn, tn = getNumbers(X1_test, Y_test, binary_results, le)
+    Y_test = prepareDataInBatchSize(Y_test, bsize, step_size)
+    Y_test = numpy.expand_dims(Y_test, -1)
+    results = model.predict([X2_test, X1_test])
 
-    cp = tp/(tp+fp)
-    cr = tp/(tp+fn)
-    cf = 2 * ((cp * cr) / (cp + cr))
+    binary_pred = interpret_keras_results(results, step_size, bsize, nr_test_items)
 
-    tn, fp, fn, tp = confusion_matrix(Y_test, binary_results).ravel()
-    print('sklearn confusion matrix:')
-    print('tn:', tn)
-    print('fp:', fp)
-    print('tp:', tp)
-    print('fn:', fn)
-
-    tn, fp, fn, tp = confusion_matrix(Y_test, results).ravel()
-    print('sklearn confusion matrix:')
-    print('tn:', tn)
-    print('fp:', fp)
-    print('tp:', tp)
-    print('fn:', fn)
-
+    writeOutputFile('internal_embeddings', testfile, binary_pred)
     
+    precision = precision_score(binary_gold, binary_pred)
+    recall = recall_score(binary_gold, binary_pred)
+    f1 = f1_score(binary_gold, binary_pred)
+
     sys.stderr.write('\nTEST RESULTS WITH INTERNAL EMBEDDINGS:\n\n')
-    sys.stderr.write('sklearn precision:'+ str(p) + '\n')
-    sys.stderr.write('sklearn recall:' + str(r) + '\n')
-    sys.stderr.write('sklearn f:' + str(f) + '\n')
-    sys.stderr.write('custom precision:' + str(cp) + '\n')
-    sys.stderr.write('custom recall:' + str(cr) + '\n')
-    sys.stderr.write('custom f:' + str(cf) + '\n')
+    sys.stderr.write('sklearn precision:'+ str(precision) + '\n')
+    sys.stderr.write('sklearn recall:' + str(recall) + '\n')
+    sys.stderr.write('sklearn f:' + str(f1) + '\n' + '\n\n')
 
-
-def externalEmbeddings(le, e_train, e_test, headers, epochs):
-
-    embd = loadExternalEmbeddings('/home/peter/phd/PhdPlayground/cc.de.300.vec')
-    # NOTE: the feature part needs work anyway to get it working with external embeddings, fix things like vocab size etc.
-    X, Y, f2ohvlen, f2ohvpos, dim = createEmbeddingMatrix(e_train, headers, le, embd) # there's probably a whole bunch of keras utils to do exactly this, but for understanding how it works, want to build it myself
-
-    sys.stderr.write('INFO: Number of training samples: %i\n' % len(X))
-
-    model = RNN_externalEmbeddings(dim)
-    #model.compile(loss='binary_crossentropy',optimizer=RMSprop(),metrics=['accuracy'])
-    model.compile(loss='binary_crossentropy',optimizer=Adam(),metrics=['accuracy'])
-
-    model.fit(X, Y, batch_size=128,epochs=epochs,
-          validation_split=0.2,callbacks=[EarlyStopping(monitor='val_loss',min_delta=0.0001)])
-    
-    # with embeddings and one-hot vectors for categorical features:
-    X_test, Y_test = getFeaturesForTestData(e_test, headers, le, f2ohvlen, f2ohvpos, embd)
-
-    sys.stderr.write('INFO: Number of test samples: %i\n' % len(X_test))
-    results = model.predict(X_test)
-    binary_results = [0 if x  < 0.5 else 1 for x in results]
-    print('results:', results)
-
-    p, r, f, tp, fp, fn, tn = getNumbers(X_test, Y_test, binary_results, le)
-
-    cp = tp/(tp+fp)
-    cr = tp/(tp+fn)
-    cf = 2 * ((cp * cr) / (cp + cr))
-
-    tn, fp, fn, tp = confusion_matrix(Y_test, binary_results).ravel()
 
     
+def externalEmbeddings(train, test, headers, epochs, testfile, language):
+
+    embd = loadExternalEmbeddings('cc.%s.300.filtered_for_dev_test_train.vec' % language)
+    le = CustomLabelEncoder()
+    le.vocabIndex(train)
+    X1, X2, Y, f2ohvlen, f2ohvpos, dim2 = createEmbeddingMatrix(train, headers, le, embd)
+    dim = 300
+
+    X1, X2 = padInputs(X1, X2, dim, dim2) # dim is len of ohv features, dim2 is external embeddings dim (hardcoded to 300 elsewhere in code)
+    
+    #sys.stderr.write('INFO: Number of training samples: %i\n' % len(X))
+    X1_test, X2_test, Y_test = getFeaturesForTestData(test, headers, le, f2ohvlen, f2ohvpos, embd)
+    X1_test, X2_test = padInputs(X1_test, X2_test, dim, dim2)
+    
+    nr_test_items = len(X1_test)
+    #sys.stderr.write('INFO: Number of test samples: %i\n' % len(X1_test))
+    binary_gold = Y_test
+
+    bsize = 20
+    step_size = 5
+    X1 = prepareDataInBatchSize(X1, bsize, step_size)
+    X2 = prepareDataInBatchSize(X2, bsize, step_size)
+    Y = prepareDataInBatchSize(Y, bsize, step_size)
+    Y = numpy.expand_dims(Y, -1)
+
+
+    #for Spanish run, I got the following error:
+    #ValueError: Error when checking input: expected i1 to have shape (20, 270) but got array with shape (20, 300)
+    # which probably is due to the oh features being smaller than 300 (the external embedding dimension). In the data population, it automatically padds to the longest one, but in the model def it assumes the ohv to be the longest (hardcoded)
+    
+    model = RNN_externalEmbeddings(dim2, bsize)
+    model.compile(loss='binary_crossentropy',optimizer=RMSprop(),metrics=['accuracy'])
+
+    model.fit({'i1': X2, 'i2': X1}, {'output_layer' :Y }, batch_size=128,epochs=epochs,validation_split=0.2,callbacks=[EarlyStopping(monitor='val_loss',min_delta=0.0001)])
+
+    X1_test = prepareDataInBatchSize(X1_test, bsize, step_size)
+    X2_test = prepareDataInBatchSize(X2_test, bsize, step_size)
+    Y_test = prepareDataInBatchSize(Y_test, bsize, step_size)
+    Y_test = numpy.expand_dims(Y_test, -1)
+    results = model.predict([X2_test, X1_test])
+
+    binary_pred = interpret_keras_results(results, step_size, bsize, nr_test_items)
+
+    writeOutputFile('external_embeddings', testfile, binary_pred)
+    
+    precision = precision_score(binary_gold, binary_pred)
+    recall = recall_score(binary_gold, binary_pred)
+    f1 = f1_score(binary_gold, binary_pred)
+
     sys.stderr.write('\nTEST RESULTS WITH EXTERNAL EMBEDDINGS:\n\n')
-    sys.stderr.write('sklearn precision:'+ str(p) + '\n')
-    sys.stderr.write('sklearn recall:' + str(r) + '\n')
-    sys.stderr.write('sklearn f:' + str(f) + '\n')
-    sys.stderr.write('custom precision:' + str(cp) + '\n')
-    sys.stderr.write('custom recall:' + str(cr) + '\n')
-    sys.stderr.write('custom f:' + str(cf) + '\n')
-    
+    sys.stderr.write('sklearn precision:'+ str(precision) + '\n')
+    sys.stderr.write('sklearn recall:' + str(recall) + '\n')
+    sys.stderr.write('sklearn f:' + str(f1) + '\n' + '\n\n')
 
 
 
@@ -718,10 +792,12 @@ if __name__ == '__main__':
         pickle.dump(memorymap, handle, protocol=pickle.HIGHEST_PROTOCOL)
     """
 
-    traintokens, sentences, sid2tokens =  customConllParser('train.conll')
+    language = 'en'
+    
+    traintokens, sentences, sid2tokens =  customConllParser('%s_data/train.conll' % language)
     addFullSentences(traintokens, sid2tokens)
     trainmatrix = getMatrix(traintokens)
-    testtokens, sentences, sid2tokens =  customConllParser('test.conll')
+    testtokens, sentences, sid2tokens =  customConllParser('%s_data/test.conll' % language)
     addFullSentences(testtokens, sid2tokens)
     testmatrix = getMatrix(testtokens)
     le = CustomLabelEncoder()
@@ -730,7 +806,7 @@ if __name__ == '__main__':
     headers = ['word', 'last', 'dist2par', 'parent_func', 'next_func', 'next_pos', 'func', 'prev_func', 'parent_pos', 'prev_pos', 'pos', 'next_upper', 'parent_upper', 'prev_upper', 'word_upper', 'class_label']
 
 
-    randomforest(le, e_train, e_test, headers)
+    randomforest(le, e_train, e_test, headers, '%s_data/test.conll' % language)
     
     
     """
@@ -758,6 +834,12 @@ if __name__ == '__main__':
     trainmatrix = getMatrix(traintokens, True) # re-generating matrices, because not taking POS tag for non-top-n words here
     testmatrix = getMatrix(testtokens, True)
     epochs = 10
-    internalEmbeddings(trainmatrix, testmatrix, headers, epochs)
+    internalEmbeddings(trainmatrix, testmatrix, headers, epochs, '%s_data/test.conll' % language)
 
-    #externalEmbeddings(le, e_train, e_test, headers, epochs)
+    externalEmbeddings(trainmatrix, testmatrix, headers, epochs, '%s_data/test.conll' % language, language)
+
+
+
+    # for translated PDTB; include source of data in training (as feature), look into auxiliary loss, multi task learning
+    # can equally do this with the concatenate stuff; one layer for features, one for source (and one for encoding?)
+    # 
