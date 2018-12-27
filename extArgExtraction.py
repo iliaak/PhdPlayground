@@ -39,6 +39,7 @@ import time
 from nltk.tree import ParentedTree
 from nltk.translate.ribes_score import position_of_ngram
 import spacy
+from nltk.tag.stanford import CoreNLPPOSTagger
 
 embd = {}
 posembd = {}
@@ -48,11 +49,20 @@ KERAS_OUTPUT_DIM = 0
 
 DEBUG_MODE = False
 
-def getFeatureMatrix(fileversions, sent2tagged):
+jar = '/home/peter/Downloads/stanford-postagger-full-2018-10-16/stanford-postagger.jar'
+model = '/home/peter/Downloads/stanford-postagger-full-2018-10-16/models/german-fast.tagger'
+
+pos_tagger = stanford.StanfordPOSTagger(model, jar, encoding='utf8')
+#pos_tagger = CoreNLPPOSTagger(model, jar, encoding='utf8')
+
+
+
+def getFeatureMatrix(fileversions, sent2tagged, goldpostags):
 
     someId2extArgPosition = defaultdict(int)
     someId2connective = defaultdict(str)
 
+    samesentbaselinedict = defaultdict(lambda : defaultdict(int))
     matrix = []
     samesentmatrix = []
     headers = ['id', 'connective', 'pos', 'sentencePosition', 'pathToRoot', 'sentenceId', 'class_label']
@@ -68,95 +78,50 @@ def getFeatureMatrix(fileversions, sent2tagged):
     file2discourseRelations = defaultdict(list)
     for fno, name in enumerate(fileversions):
         #sys.stderr.write('Processing file %s (%i of %i).\n' % (name, fno+1, len(fileversions)))
-        tokenlist = PCCParser.parseConnectorFile(fileversions[name]['connectors'])
+        #tokenlist = PCCParser.parseConnectorFile(fileversions[name]['connectors'])
+        tokenlist, discourseRelations, tid2dt = PCCParser.parseStandoffConnectorFile(fileversions[name]['connectors'])
         tokenlist = PCCParser.parseSyntaxFile(fileversions[name]['syntax'], tokenlist)
         tokenlist = PCCParser.parseRSTFile(fileversions[name]['rst'], tokenlist)
         tokenlist = PCCParser.parseTokenizedFile(fileversions[name]['tokens'], tokenlist)
         file2tokenlist[name] = tokenlist
         file2discourseRelations[name] = PCCParser.discourseRelations
-        rid2connsentid = defaultdict(set)
-        rid2conn = defaultdict(list)
-        rid2extargsentid = defaultdict(set)
-        rid2conndt = defaultdict(list)
-        rid2extargtokens = defaultdict(list)
-        rid2intargtokens = defaultdict(list)
-        
-        for token in tokenlist:
-            if token.segmentType == 'connective':
-                connectiveSingleTokens += 1
-                rid2connsentid[token.unitId].add(token.sentenceId)
-                rid2conn[token.unitId].append(token.token)
-                rid2conndt[token.unitId].append(token)
-            elif token.segmentType == 'unit':
-                if token.intOrExt == 'ext':
-                    rid2extargsentid[token.unitId].add(token.sentenceId)
-                    rid2extargtokens[token.unitId].append(token)
-                elif token.intOrExt == 'int':
-                    rid2intargtokens[token.unitId].append(token)
-            for rid in token.embeddedUnits:
-                if token.embeddedUnits[rid] == 'ext':
-                    rid2extargsentid[rid].add(token.sentenceId)
+        gtid2ct, sid2tokens = flipdict(tokenlist)
 
-        for rid in rid2connsentid:
-            c = ' '.join([dt.token for dt in rid2conndt[rid]])
+        for dr in discourseRelations:
+            # discourseRelations contains tokenIds, instead of DiscourseToken objects. Change this at some point.
+            conntokens = [gtid2ct[int(x)] for x in dr.connectiveTokens]
+            intargtokens = [gtid2ct[int(x)] for x in dr.intArgTokens]
+            extargtokens = [gtid2ct[int(x)] for x in dr.extArgTokens]
+            c = ' '.join([dt.token for dt in conntokens])
             p = 0
-            someId2connective[name + '_' + str(rid)] = ' '.join(rid2conn[rid])
-            reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
-            p = reldist
-            """
-            if reldist <= 0:
-                p = 0 # using three class only
-            if reldist == 1:
-                p = 1
+            if set.intersection(set([dt.sentenceId for dt in conntokens]), set([dt.sentenceId for dt in extargtokens])): # if at least one token of conn and ext arg are in same sentence, assume same sentence scenario
+                pass
             else:
-                p = 2
-            """
-            someId2extArgPosition[name + '_' + str(rid)] = reldist # WARNING; not the same as p
-            """
-            if sorted(rid2connsentid[rid])[0] == sorted(rid2extargsentid[rid])[0]:
-                someId2extArgPosition[name + '_' + str(rid)] = 2
-                p = 2
-            elif sorted(rid2extargsentid[rid])[0] - sorted(rid2connsentid[rid])[0] > 0:
-                someId2extArgPosition[name + '_' + str(rid)] = 3
-                p = 3
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 1:
-                someId2extArgPosition[name + '_' + str(rid)] = 1
-                p = 1
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 2:
-                someId2extArgPosition[name + '_' + str(rid)] = 0
-                p = 0
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 3:
-                someId2extArgPosition[name + '_' + str(rid)] = 0
-                p = 0
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 4:
-                someId2extArgPosition[name + '_' + str(rid)] = 0
-                p = 0
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] > 4:
-                someId2extArgPosition[name + '_' + str(rid)] = 0
-                p = 0
-            """
-            fullsent = rid2conndt[rid][0].fullSentence
+                p = conntokens[0].sentenceId - extargtokens[0].sentenceId
+            fullsent = conntokens[0].fullSentence
             tagged = None
             if fullsent in sent2tagged:
                 tagged = sent2tagged[fullsent]
             else:
                 tagged = pos_tagger.tag(fullsent.split()) # assuming tokenization
                 sent2tagged[fullsent] = tagged
-            currpos = tagged[rid2conndt[rid][0].sentencePosition][1]
-            nextpos = tagged[rid2conndt[rid][len(c.split())-1].sentencePosition + 1][1]
-            
-            row = [str(mid), c, currpos, rid2conndt[rid][0].sentencePosition, rid2conndt[rid][0].pathToRoot, rid2conndt[rid][0].sentenceId, p]
+            currpos = tagged[conntokens[0].sentencePosition][1]
+            if goldpostags:
+                currpos = conntokens[0].pos
+            nextpos = tagged[conntokens[len(conntokens)-1].sentencePosition + 1][1]
+            row = [str(mid), c, currpos, conntokens[0].sentencePosition, conntokens[0].pathToRoot, conntokens[0].sentenceId, p]
             mid += 1
             matrix.append(row)
             if p == 0:
                 sspos = 0 # default/extarg is before conn
-                if rid2extargtokens[rid]:
-                    if rid2conndt[rid][-1].tokenId < rid2extargtokens[rid][0].tokenId:
-                        sspos = 1
-                    ssrow = [str(mid), c, currpos, rid2conndt[rid][0].sentencePosition, rid2conndt[rid][0].pathToRoot, rid2conndt[rid][0].sentenceId, sspos] # mid will not be consecutive, but think it is not really used anyway. And now at least it corresponds to the other matrix, should that come in handy some time.
-                    samesentmatrix.append(ssrow)
+                if int(conntokens[-1].tokenId) < int(extargtokens[0].tokenId):
+                    sspos = 1
+                samesentbaselinedict[conntokens[0].token][sspos] += 1
+                ssrow = [str(mid), c, currpos, conntokens[0].sentencePosition, conntokens[0].pathToRoot, conntokens[0].sentenceId, sspos] # mid will not be consecutive, but think it is not really used anyway. And now at least it corresponds to the other matrix, should that come in handy some time.
+                samesentmatrix.append(ssrow)
 
-    return matrix, samesentmatrix, sent2tagged
+    return matrix, samesentmatrix, samesentbaselinedict, sent2tagged
+
 
 def getDataSplits(numIterations, dataSize):
 
@@ -309,8 +274,8 @@ def evaluatePositionOnlyNeural(fmatrix, numIterations):
     embd = {}
     posembd = {}
     #print('WAAAARNING! NOT LOADING EMBS!')
-    embd = loadExternalEmbeddings('cc.de.300.vec')
-    posembd = loadExternalEmbeddings('tiger_pos_model.vec')
+    embd = loadExternalEmbeddings('/home/peter/github/PhdPlayground/customEmbeddings/cc.de.300.PCC.vec')
+    posembd = loadExternalEmbeddings('/home/peter/github/PhdPlayground/customEmbeddings/tiger_pos_model.vec.vec')
     
     dim = 300
     nmatrix = []
@@ -502,7 +467,7 @@ def loadExternalEmbeddings(embfile):
 def loadParserMemoryMap():
 
     parsermemorymap = {}
-    pmname = 'parsermemory.pickle'
+    pmname = '/home/peter/github/PhdPlayground/picklejars/parsermemory.pickle'
     if os.path.exists(pmname):
         parsermemorymap = pickle.load(codecs.open(pmname, 'rb'))
         sys.stderr.write('INFO: Loaded parse trees from pickled dict.\n')
@@ -535,102 +500,46 @@ def classifyExtArgs_baseline_approach(testfiles, positionClassifier, sent2tagged
     fn = 0
     for fno, name in enumerate(testfiles):
         #sys.stderr.write('Processing file %s (%i of %i).\n' % (name, fno+1, len(fileversions)))
-        tokenlist = PCCParser.parseConnectorFile(testfiles[name]['connectors'])
-        tokenlist = PCCParser.parseSyntaxFile(testfiles[name]['syntax'], tokenlist)
-        tokenlist = PCCParser.parseRSTFile(testfiles[name]['rst'], tokenlist)
-        tokenlist = PCCParser.parseTokenizedFile(testfiles[name]['tokens'], tokenlist)
+        tokenlist, discourseRelations, tid2dt = PCCParser.parseStandoffConnectorFile(fileversions[name]['connectors'])
+        tokenlist = PCCParser.parseSyntaxFile(fileversions[name]['syntax'], tokenlist)
+        tokenlist = PCCParser.parseRSTFile(fileversions[name]['rst'], tokenlist)
+        tokenlist = PCCParser.parseTokenizedFile(fileversions[name]['tokens'], tokenlist)
         file2tokenlist[name] = tokenlist
         file2discourseRelations[name] = PCCParser.discourseRelations
-        rid2connsentid = defaultdict(set)
-        rid2conn = defaultdict(list)
-        rid2extargsentid = defaultdict(set)
-        rid2conndt = defaultdict(list)
-        rid2extargtokens = defaultdict(list)
-        rid2intargtokens = defaultdict(list)
+        gtid2ct, sid2tokens = flipdict(tokenlist)
 
+        for dr in discourseRelations:
+            # discourseRelations contains tokenIds, instead of DiscourseToken objects. Change this at some point.
+            conntokens = [gtid2ct[int(x)] for x in dr.connectiveTokens]
+            intargtokens = [gtid2ct[int(x)] for x in dr.intArgTokens]
+            extargtokens = [gtid2ct[int(x)] for x in dr.extArgTokens]
+            c = ' '.join([dt.token for dt in conntokens])
+            p = 0
+            if set.intersection(set([dt.sentenceId for dt in conntokens]), set([dt.sentenceId for dt in extargtokens])): # if at least one token of conn and ext arg are in same sentence, assume same sentence scenario
+                pass
+            else:
+                p = conntokens[0].sentenceId - extargtokens[0].sentenceId
 
-        sid2tokens = defaultdict(list)
-        
-        for token in tokenlist:
-            sid2tokens[token.sentenceId].append(token)
-            if token.segmentType == 'connective':
-                rid2connsentid[token.unitId].add(token.sentenceId)
-                rid2conn[token.unitId].append(token.token)
-                rid2conndt[token.unitId].append(token)
-            elif token.segmentType == 'unit':
-                if token.intOrExt == 'ext':
-                    rid2extargsentid[token.unitId].add(token.sentenceId)
-                    rid2extargtokens[token.unitId].append(token)
-                elif token.intOrExt == 'int':
-                    rid2intargtokens[token.unitId].append(token)
-            for rid in token.embeddedUnits:
-                if token.embeddedUnits[rid] == 'ext':
-                    rid2extargsentid[rid].add(token.sentenceId)
-
-        for rid in rid2extargtokens:
-            sid = rid2conndt[rid][0].sentenceId
-            actualtokens = rid2extargtokens[rid]
-            c = ' '.join([dt.token for dt in rid2conndt[rid]])
-            fullsent = rid2conndt[rid][0].fullSentence
+            sid = conntokens[0].sentenceId
+            actualtokens = extargtokens
+            fullsent = conntokens[0].fullSentence
             tagged = None
             if fullsent in sent2tagged:
                 tagged = sent2tagged[fullsent]
             else:
                 tagged = pos_tagger.tag(fullsent.split()) # assuming tokenization
                 sent2tagged[fullsent] = tagged
-            currpos = tagged[rid2conndt[rid][0].sentencePosition][1]
-            nextpos = tagged[rid2conndt[rid][len(c.split())-1].sentencePosition + 1][1]
-            ### only need this p for debugging...
-            #reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
-            #p = reldist
-            reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
-            p = reldist
-            """
-            if reldist <= 0:
-                p = 0 # using three class only
-            if reldist == 1:
-                p = 1
-            else:
-                p = 2
-            """
-            """
-            p = 0
-            if sorted(rid2connsentid[rid])[0] == sorted(rid2extargsentid[rid])[0]:
-                p = 2
-            elif sorted(rid2extargsentid[rid])[0] - sorted(rid2connsentid[rid])[0] > 0:
-                p = 3
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] == 1:
-                p = 1
-            elif sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0] > 1:
-                p = 0
-            """
+            currpos = tagged[conntokens[0].sentencePosition][1]
+            nextpos = tagged[conntokens[len(conntokens)-1].sentencePosition + 1][1]
             #features = [c, currpos, rid2conndt[rid][0].sentencePosition, rid2conndt[rid][0].pathToRoot, sid]
-            
             #localheaders = ['connective', 'pos', 'sentencePosition', 'pathToRoot', 'sentenceId']
-            #intfeatures, d = intifyFeatures([str(x) for x in features], d)
-            #df = pandas.DataFrame([intfeatures], columns=localheaders)
-            #test_features = df.iloc[:,:]
-            #test_features = numpy.array(test_features)
-            #relativeSentPos = positionClassifier.predict(test_features)
-
-            # this below fails silently if key not in dict (feat2ohvlen and feat2ohvpos are default dicts), in which case it sets the first elem to 1 (because val is 0 I think). Guess random would be better, but assuming that this happen that often, it's not so bad I guess.
             ###_id, tok, postag, sentencePosition, rootroute, sentenceId, label = row
             nrow = []
             position_ohv = [0] * feat2ohvlen[3]
-            position_ohv[feat2ohvpos[3][str(rid2conndt[rid][0].sentencePosition)]] = 1
-            #postag_ohv = [0] * feat2ohvlen[2]
-            #postag_ohv[feat2ohvpos[2][currpos]] = 1
+            position_ohv[feat2ohvpos[3][str(conntokens[0].sentencePosition)]] = 1
             rootroute_ohv = [0] * feat2ohvlen[4]
-            rootroute_ohv[feat2ohvpos[4][str(rid2conndt[rid][0].pathToRoot)]] = 1
-            #print('debugging position ohv len:', len(position_ohv))
-            #print('hot index:', feat2ohvpos[3][str(rid2conndt[rid][0].sentencePosition)])
-            #print('debugging postag ohv len:', len(postag_ohv))
-            #print('hot index:', feat2ohvpos[2][currpos])
-            #print('debugging postag ohv len:', len(rootroute_ohv))
-            #print('hot index:', feat2ohvpos[4][str(rid2conndt[rid][0].pathToRoot)])
-            #print()
+            rootroute_ohv[feat2ohvpos[4][str(conntokens[0].pathToRoot)]] = 1
             nrow += position_ohv
-            #nrow += postag_ohv
             nrow += rootroute_ohv
 
             dim = 300
@@ -640,69 +549,26 @@ def classifyExtArgs_baseline_approach(testfiles, positionClassifier, sent2tagged
             else:
                 for item in numpy.ndarray.flatten(numpy.random.random((1, dim))):
                     nrow.append(item)
-            #"""        
+
             if currpos in posembd:
                 for item in posembd[currpos]:
                     nrow.append(item)
             else:
                 for item in numpy.ndarray.flatten(numpy.random.random((1, dim))):
                     nrow.append(item)
-            #"""
+
                     
             relativeSentPos = positionClassifier.predict(numpy.array([nrow,]))
-            #print('com,ing back from pos classifier:', relativeSentPos)
-            #print('revert to_cat:', numpy.argmax(relativeSentPos, axis=None, out=None))
-            #"""
-            print('rid:', rid)
-            print('actualtokens:', [(t.token, t.tokenId) for t in actualtokens])
-            print('conn sent:', [(ttt.token, ttt.tokenId) for ttt in sid2tokens[sorted(rid2connsentid[rid])[0]]])
-            print('c:', c)
-            print('postag:', currpos)
-            print('rel pos:', relativeSentPos)
-            print('actual pos:', p)
             targetSentId = sid - relativeSentPos[0]
-            print('actual sid:', rid2extargsentid[rid])
-            print('predicted sid:', targetSentId)
-            # reminder: 0 is (any of the) previous sentence(s), 1 is same sentence and 2 is following sentence
-            #"""
-            # taking all tokens of the sentence:
-            targetSentId = None
-            #reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
-            #p = reldist
-            targetSentId = sid - relativeSentPos[0]
-            
-            """
-            if relativeSentPos[0] == 0:
-                targetSentId = max(sid - 2, 0)
-            elif relativeSentPos[0] == 1:
-                targetSentId = max(sid - 1, 0)
-            elif relativeSentPos[0] == 2:
-                targetSentId = sid
-            elif relativeSentPos[0] == 3:
-                targetSentId = sid + 1 # hoping I'm not hitting the end here. Will return IndexError if this is the case.
-            #else:
-                #print('DEBG: Weird value:', relativeSentPos, c, rid, name)
-            """
-            #fullsent = refcon.fullSentence
-            #tree = parsermemorymap[fullsent]
-
             predictedTokens = [(tt.token, tt.tokenId) for tt in sid2tokens[targetSentId]]
-            """ # taking this out of the baseline, as in the const_approach with rules, taking previous S if same sent and conn is in middle, and taking next S if same sent and conn is at beginning
-            if targetSentId == sid: # if same sentence, take only tokens up to the connective
-                print('debugging pred tokens before cutting:', predictedTokens)
-                predictedTokens = [(tt.token, tt.tokenId) for tt in sid2tokens[targetSentId] if tt.tokenId < rid2conndt[rid][0].tokenId]
-                print('debugging pred tokens after cutting:', predictedTokens)
-            print('predicted tokens:', predictedTokens)
-            if not [(t.token, t.tokenId) for t in actualtokens] == predictedTokens:
-                print('DOES NOT MATCH!!!')
-            print()
-            print()
-            """
+
             total += 1
-            if targetSentId in rid2extargsentid[rid]:
+            if targetSentId in set([x.sentenceId for x in extargtokens]):
                 correct += 1
             predictedIds = [t[1] for t in predictedTokens]
             actualIds = [t.tokenId for t in actualtokens]
+            predictedIds = [int(x) for x in predictedIds]
+            actualIds = [int(x) for x in actualIds]
             
             for tokenId in set(predictedIds + actualIds):
                 if tokenId in actualIds and tokenId in predictedIds:
@@ -717,78 +583,79 @@ def classifyExtArgs_baseline_approach(testfiles, positionClassifier, sent2tagged
     f1 = 2 * ((precision * recall) / (precision + recall))
 
                     
-    return correct / total, precision, recall, f1 #  TODO: acc here is for position classification, not for token ext args
+    return correct / total, precision, recall, f1, set(), total #  TODO: acc here is for position classification, not for token ext args
 
-def classifyExtArgs_deps_approach(testfiles, positionClassifier, sent2tagged, feat2ohvpos, feat2ohvlen, sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen, nlp):
+
+def flipdict(tokenlist): # not actually a dict as input.  # and also adding ct.fullsent in this function
+
+    d = defaultdict()
+    sid2tokens = defaultdict(list)
+    for ct in tokenlist:
+        sid2tokens[ct.sentenceId].append(ct)
+    
+    for ct in tokenlist:
+        d[int(ct.tokenId)] = ct
+
+    return d, sid2tokens
+
+
+def classifyExtArgs_deps_approach(testfiles, positionClassifier, sent2tagged, feat2ohvpos, feat2ohvlen, sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen, nlp, outputset, samesentbaselinepred):
 
     file2tokenlist = defaultdict(list)
     file2discourseRelations = defaultdict(list)
     total = 0
     correct = 0
+    s_total = 0
+    s_correct = 0
     tp = 0
     fp = 0
     fn = 0
     for fno, name in enumerate(testfiles):
         #sys.stderr.write('Processing file %s (%i of %i).\n' % (name, fno+1, len(fileversions)))
-        tokenlist = PCCParser.parseConnectorFile(testfiles[name]['connectors'])
-        tokenlist = PCCParser.parseSyntaxFile(testfiles[name]['syntax'], tokenlist)
-        tokenlist = PCCParser.parseRSTFile(testfiles[name]['rst'], tokenlist)
-        tokenlist = PCCParser.parseTokenizedFile(testfiles[name]['tokens'], tokenlist)
+
+        tokenlist, discourseRelations, tid2dt = PCCParser.parseStandoffConnectorFile(fileversions[name]['connectors'])
+        tokenlist = PCCParser.parseSyntaxFile(fileversions[name]['syntax'], tokenlist)
+        tokenlist = PCCParser.parseRSTFile(fileversions[name]['rst'], tokenlist)
+        tokenlist = PCCParser.parseTokenizedFile(fileversions[name]['tokens'], tokenlist)
         file2tokenlist[name] = tokenlist
         file2discourseRelations[name] = PCCParser.discourseRelations
-        rid2connsentid = defaultdict(set)
-        rid2conn = defaultdict(list)
-        rid2extargsentid = defaultdict(set)
-        rid2conndt = defaultdict(list)
-        rid2extargtokens = defaultdict(list)
-        rid2intargtokens = defaultdict(list)
+        gtid2ct, sid2tokens = flipdict(tokenlist)
 
+        for dr in discourseRelations:
+            # discourseRelations contains tokenIds, instead of DiscourseToken objects. Change this at some point.
+            conntokens = [gtid2ct[int(x)] for x in dr.connectiveTokens]
+            intargtokens = [gtid2ct[int(x)] for x in dr.intArgTokens]
+            extargtokens = [gtid2ct[int(x)] for x in dr.extArgTokens]
+            c = ' '.join([dt.token for dt in conntokens])
+            p = 0
+            if set.intersection(set([dt.sentenceId for dt in conntokens]), set([dt.sentenceId for dt in extargtokens])): # if at least one token of conn and ext arg are in same sentence, assume same sentence scenario
+                pass
+            else:
+                p = conntokens[0].sentenceId - extargtokens[0].sentenceId
 
-        sid2tokens = defaultdict(list)
-        
-        for token in tokenlist:
-            sid2tokens[token.sentenceId].append(token)
-            if token.segmentType == 'connective':
-                rid2connsentid[token.unitId].add(token.sentenceId)
-                rid2conn[token.unitId].append(token.token)
-                rid2conndt[token.unitId].append(token)
-            elif token.segmentType == 'unit':
-                if token.intOrExt == 'ext':
-                    rid2extargsentid[token.unitId].add(token.sentenceId)
-                    rid2extargtokens[token.unitId].append(token)
-                elif token.intOrExt == 'int':
-                    rid2intargtokens[token.unitId].append(token)
-            for rid in token.embeddedUnits:
-                if token.embeddedUnits[rid] == 'ext':
-                    rid2extargsentid[rid].add(token.sentenceId)
-
-        for rid in rid2extargtokens:
-            sid = rid2conndt[rid][0].sentenceId
-            actualtokens = rid2extargtokens[rid]
-            c = ' '.join([dt.token for dt in rid2conndt[rid]])
-            refcon = rid2conndt[rid][0]
-            fullsent = rid2conndt[rid][0].fullSentence
+            sid = conntokens[0].sentenceId
+            actualtokens = extargtokens
+            fullsent = conntokens[0].fullSentence
             tagged = None
             if fullsent in sent2tagged:
                 tagged = sent2tagged[fullsent]
             else:
                 tagged = pos_tagger.tag(fullsent.split()) # assuming tokenization
                 sent2tagged[fullsent] = tagged
-            currpos = tagged[rid2conndt[rid][0].sentencePosition][1]
-            nextpos = tagged[rid2conndt[rid][len(c.split())-1].sentencePosition + 1][1]
-            reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
-            p = reldist
-            ###_id, tok, postag, sentencePosition, rootroute, sentenceId, label = row
+            currpos = tagged[conntokens[0].sentencePosition][1]
+            nextpos = tagged[conntokens[len(conntokens)-1].sentencePosition + 1][1]
+
+        ###_id, tok, postag, sentencePosition, rootroute, sentenceId, label = row
             p_nrow = []
             s_nrow = []
             p_position_ohv = [0] * pfeat2ohvlen[3]
-            p_position_ohv[pfeat2ohvpos[3][str(rid2conndt[rid][0].sentencePosition)]] = 1
+            p_position_ohv[pfeat2ohvpos[3][str(conntokens[0].sentencePosition)]] = 1
             s_position_ohv = [0] * sfeat2ohvlen[3]
-            s_position_ohv[sfeat2ohvpos[3][str(rid2conndt[rid][0].sentencePosition)]] = 1
+            s_position_ohv[sfeat2ohvpos[3][str(conntokens[0].sentencePosition)]] = 1
             p_rootroute_ohv = [0] * pfeat2ohvlen[4]
-            p_rootroute_ohv[pfeat2ohvpos[4][str(rid2conndt[rid][0].pathToRoot)]] = 1
+            p_rootroute_ohv[pfeat2ohvpos[4][str(conntokens[0].pathToRoot)]] = 1
             s_rootroute_ohv = [0] * sfeat2ohvlen[4]
-            s_rootroute_ohv[sfeat2ohvpos[4][str(rid2conndt[rid][0].pathToRoot)]] = 1
+            s_rootroute_ohv[sfeat2ohvpos[4][str(conntokens[0].pathToRoot)]] = 1
             p_nrow += p_position_ohv
             s_nrow += s_position_ohv
             #nrow += postag_ohv
@@ -817,34 +684,31 @@ def classifyExtArgs_deps_approach(testfiles, positionClassifier, sent2tagged, fe
                     
             relativeSentPos = positionClassifier.predict(numpy.array([p_nrow,]))
             
-            #print('com,ing back from pos classifier:', relativeSentPos)
-            #print('revert to_cat:', numpy.argmax(relativeSentPos, axis=None, out=None))
-            #"""
-            print('rid:', rid)
-            print('actualtokens:', [(t.token, t.tokenId) for t in actualtokens])
-            print('conn sent:', [(ttt.token, ttt.tokenId) for ttt in sid2tokens[sorted(rid2connsentid[rid])[0]]])
-            print('c:', c)
-            print('postag:', currpos)
-            print('rel pos:', relativeSentPos)
-            print('actual pos:', p)
             targetSentId = sid - relativeSentPos[0]
-            print('actual sid:', rid2extargsentid[rid])
-            print('predicted sid:', targetSentId)
-            # reminder: 0 is (any of the) previous sentence(s), 1 is same sentence and 2 is following sentence
-            #"""
-            targetSentId = sid - relativeSentPos[0]
-            
+            refcon = conntokens[0]
             fullsent = refcon.fullSentence
+
+            # do MV baseline, because this is going nowhere, either based on string or pos tag/syn cat:
+            sameSentPosPrediction = 0
+            if refcon.sentencePosition == 0: # this is also coded implicitly below
+                sameSentPosPrediction = 0
+            elif samesentbaselinepred[refcon.token] == 1:
+                sameSentPosPrediction = 1
+            s_total += 1
+            sameSentPosActual = 0
+            if extargtokens[0].tokenId > conntokens[0].tokenId:
+                sameSentPosActual = 1
+            if sameSentPosPrediction == sameSentPosActual:
+                s_correct += 1
+
             
 
             predictedTokens = [(tt.token, tt.tokenId) for tt in sid2tokens[targetSentId]]
 
             if relativeSentPos[0] == 0 and p == 0: # if same sentence, take only tokens up to the connective
-                print('debugging pred tokens before cutting:', predictedTokens)
-                refcon = rid2conndt[rid][0]
+                refcon = conntokens[0]
                 fullsent = refcon.fullSentence
                 tree = nlp(fullsent)
-                print('debugging dep tree:', tree)
                 for index, token in enumerate(tree):
                     if index == refcon.sentencePosition and refcon.token == token.text: # not always the case, due to some tokenisation differences (spacy is not very configurable...)
                         if index == 0:
@@ -852,49 +716,38 @@ def classifyExtArgs_deps_approach(testfiles, positionClassifier, sent2tagged, fe
                             negativeOfPredictedSentIdExtArgTokens = [x.i for x in token.head.subtree]
                             predictedSentIdExtArgTokens = [y for y, x in enumerate(tree) if not y in negativeOfPredictedSentIdExtArgTokens]
                             predictedTokens = convertSentIdstoDocIds(tree, predictedSentIdExtArgTokens, refcon)
-                            print('debugging rule A:')
-                            print('neg:', negativeOfPredictedSentIdExtArgTokens)
-                            print('pos:', predictedSentIdExtArgTokens)
-                            print('res:', predictedTokens)
                         else:
                             # get all parent of conn dep, and take either left or right, depending on classifier prediction
-                            sameSentPos = sameSentClassifier.predict(numpy.array([s_nrow,]))
-                            if sameSentPos[0] == 0:
+                            
+                            if sameSentPosPrediction == 0:
                                 sortOfNegativeOfPredictedSentIdExtArgTokens = [x.i for x in token.head.subtree]
                                 predictedSentIdExtArgTokens = [y for y, x in enumerate(tree) if y < refcon.sentencePosition]
                                 predictedTokens = convertSentIdstoDocIds(tree, predictedSentIdExtArgTokens, refcon)
-                                print('debugging rule B:')
-                                print('neg:', sortOfNegativeOfPredictedSentIdExtArgTokens)
-                                print('pos:', predictedSentIdExtArgTokens)
-                                print('res:', predictedTokens)
-                            elif sameSentPos[0] == 1:
+                            elif sameSentPosPrediction == 1:
                                 sortOfNegativeOfPredictedSentIdExtArgTokens = [x.i for x in token.head.subtree]
                                 predictedSentIdExtArgTokens = [y for y, x in enumerate(tree) if y > refcon.sentencePosition]
                                 predictedTokens = convertSentIdstoDocIds(tree, predictedSentIdExtArgTokens, refcon)
-                                print('debugging rule C:')
-                                print('neg:', sortOfNegativeOfPredictedSentIdExtArgTokens)
-                                print('pos:', predictedSentIdExtArgTokens)
-                                print('res:', predictedTokens)
-                # stripping first comma if it is initial (annotation decision, I guess)
-                #if predictedTokens:
-                    #if predictedTokens[0][0] == ',':
-                        #predictedTokens = predictedTokens[1:]
 
-                
-            
-            # do something about discontinuous ones here
-            if not [t.tokenId for t in actualtokens] == [t[1] for t in predictedTokens]:
-                print('DOES NOT MATCH!!!')
+            # section to print out non-adjacent ones. Basing this on actual tokens (not predicted ones) for now. Interesting would be to score only non-adjacent ones (get f score for this subset only).
 
+            if intargtokens:
+                if int(actualtokens[-1].tokenId) < int(conntokens[0].tokenId) - 1 and int(actualtokens[-1].tokenId) < int(intargtokens[0].tokenId) - 1:
+                    outputset.add('connective:%s\nconn postag:%s\nintarg:%s\nextarg:%s\next-int\nin between tokens:%s' % (c, currpos, str([(t.token, t.tokenId) for t in intargtokens]), str([(t.token, t.tokenId) for t in actualtokens]), ' '.join([gtid2ct[x].token for x in range(int(actualtokens[-1].tokenId), int(intargtokens[0].tokenId))])))
 
-            print('\n\n\n')
+                elif int(actualtokens[0].tokenId) > int(conntokens[-1].tokenId) + 1 and int(actualtokens[0].tokenId) > int(intargtokens[-1].tokenId) + 1:
+                    outputset.add('connective:%s\nconn postag:%s\nintarg:%s\nextarg:%s\nint-ext\nin between tokens:%s' % (c, currpos, str([(t.token, t.tokenId) for t in intargtokens]), str([(t.token, t.tokenId) for t in actualtokens]), ' '.join([gtid2ct[x].token for x in range(int(intargtokens[-1].tokenId), int(actualtokens[0].tokenId))])))
+
+                else:
+                    pass
+            #outputinstance = 'connective:%s\nconnective postag:%s\n' % (c, currpos, 
             
             total += 1
-            if targetSentId in rid2extargsentid[rid]:
+            if targetSentId in set([x.sentenceId for x in extargtokens]):
                 correct += 1
             predictedIds = [t[1] for t in predictedTokens]
-
             actualIds = [t.tokenId for t in actualtokens]
+            predictedIds = [int(x) for x in predictedIds]
+            actualIds = [int(x) for x in actualIds]
             
             for tokenId in set(predictedIds + actualIds):
                 if tokenId in actualIds and tokenId in predictedIds:
@@ -907,9 +760,9 @@ def classifyExtArgs_deps_approach(testfiles, positionClassifier, sent2tagged, fe
     precision = tp / float(tp + fp)
     recall = tp / float(tp + fn)
     f1 = 2 * ((precision * recall) / (precision + recall))
-
+    sys.stderr.write('p, r, f: %f, %f, %f\n' %  (precision, recall, f1))
                     
-    return correct / total, precision, recall, f1 #  TODO: acc here is for position classification, not for token ext args
+    return correct / total, precision, recall, f1, outputset, total #  TODO: acc here is for position classification, not for token ext args
             
                                 
 
@@ -917,7 +770,7 @@ def convertSentIdstoDocIds(tree, predictedSentIdTokens, refcon): # NOTE: this on
 
     tempmap = {}
     for i, tsid in enumerate(tree):
-        print('i, tsid:', i, tsid)
+        #print('i, tsid:', i, tsid)
         if i == refcon.sentencePosition:
             for j, tsid2 in enumerate(tree):
                 if j < i:
@@ -933,12 +786,12 @@ def convertSentIdstoDocIds(tree, predictedSentIdTokens, refcon): # NOTE: this on
         #for k in range(predictedSentIdTokens[0],predictedSentIdTokens[-1]):
             #output.append(tuple((tree[k].text, tempmap[k])))
     output = [tuple((tree[k].text, tempmap[k])) for k in predictedSentIdTokens]
-    print('output;', output)
+    #print('output;', output)
     return output
             
     
 
-def classifyExtArgs_const_approach(testfiles, positionClassifier, sent2tagged, feat2ohvpos, feat2ohvlen, sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen):
+def classifyExtArgs_const_approach(testfiles, positionClassifier, sent2tagged, feat2ohvpos, feat2ohvlen, sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen, samesentbaselinepred):
 
     parsermemorymap = loadParserMemoryMap()
     
@@ -951,77 +804,56 @@ def classifyExtArgs_const_approach(testfiles, positionClassifier, sent2tagged, f
     tp = 0
     fp = 0
     fn = 0
+    total = 0
     for fno, name in enumerate(testfiles):
         #sys.stderr.write('Processing file %s (%i of %i).\n' % (name, fno+1, len(fileversions)))
-        tokenlist = PCCParser.parseConnectorFile(testfiles[name]['connectors'])
-        tokenlist = PCCParser.parseSyntaxFile(testfiles[name]['syntax'], tokenlist)
-        tokenlist = PCCParser.parseRSTFile(testfiles[name]['rst'], tokenlist)
-        tokenlist = PCCParser.parseTokenizedFile(testfiles[name]['tokens'], tokenlist)
+        tokenlist, discourseRelations, tid2dt = PCCParser.parseStandoffConnectorFile(fileversions[name]['connectors'])
+        tokenlist = PCCParser.parseSyntaxFile(fileversions[name]['syntax'], tokenlist)
+        tokenlist = PCCParser.parseRSTFile(fileversions[name]['rst'], tokenlist)
+        tokenlist = PCCParser.parseTokenizedFile(fileversions[name]['tokens'], tokenlist)
         file2tokenlist[name] = tokenlist
         file2discourseRelations[name] = PCCParser.discourseRelations
-        rid2connsentid = defaultdict(set)
-        rid2conn = defaultdict(list)
-        rid2extargsentid = defaultdict(set)
-        rid2conndt = defaultdict(list)
-        rid2extargtokens = defaultdict(list)
-        rid2intargtokens = defaultdict(list)
+        gtid2ct, sid2tokens = flipdict(tokenlist)
 
+        for dr in discourseRelations:
+            total += 1
+            # discourseRelations contains tokenIds, instead of DiscourseToken objects. Change this at some point.
+            conntokens = [gtid2ct[int(x)] for x in dr.connectiveTokens]
+            intargtokens = [gtid2ct[int(x)] for x in dr.intArgTokens]
+            extargtokens = [gtid2ct[int(x)] for x in dr.extArgTokens]
+            c = ' '.join([dt.token for dt in conntokens])
+            p = 0
+            if set.intersection(set([dt.sentenceId for dt in conntokens]), set([dt.sentenceId for dt in extargtokens])): # if at least one token of conn and ext arg are in same sentence, assume same sentence scenario
+                pass
+            else:
+                p = conntokens[0].sentenceId - extargtokens[0].sentenceId
 
-        sid2tokens = defaultdict(list)
-        
-        for token in tokenlist:
-            sid2tokens[token.sentenceId].append(token)
-            if token.segmentType == 'connective':
-                rid2connsentid[token.unitId].add(token.sentenceId)
-                rid2conn[token.unitId].append(token.token)
-                rid2conndt[token.unitId].append(token)
-            elif token.segmentType == 'unit':
-                if token.intOrExt == 'ext':
-                    rid2extargsentid[token.unitId].add(token.sentenceId)
-                    rid2extargtokens[token.unitId].append(token)
-                elif token.intOrExt == 'int':
-                    rid2intargtokens[token.unitId].append(token)
-            for rid in token.embeddedUnits:
-                if token.embeddedUnits[rid] == 'ext':
-                    rid2extargsentid[rid].add(token.sentenceId)
-
-        for rid in rid2extargtokens:
-            sid = rid2conndt[rid][0].sentenceId
-            actualtokens = rid2extargtokens[rid]
-            c = ' '.join([dt.token for dt in rid2conndt[rid]])
-            refcon = rid2conndt[rid][0]
-            fullsent = rid2conndt[rid][0].fullSentence
+            sid = conntokens[0].sentenceId
+            actualtokens = extargtokens
+            fullsent = conntokens[0].fullSentence
             tagged = None
             if fullsent in sent2tagged:
                 tagged = sent2tagged[fullsent]
             else:
                 tagged = pos_tagger.tag(fullsent.split()) # assuming tokenization
                 sent2tagged[fullsent] = tagged
-            currpos = tagged[rid2conndt[rid][0].sentencePosition][1]
-            nextpos = tagged[rid2conndt[rid][len(c.split())-1].sentencePosition + 1][1]
-            ### only need this p for debugging...
-            #reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
-            #p = reldist
-            reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
-            p = reldist
+            currpos = tagged[conntokens[0].sentencePosition][1]
+            nextpos = tagged[conntokens[len(conntokens)-1].sentencePosition + 1][1]
 
             # this below fails silently if key not in dict (feat2ohvlen and feat2ohvpos are default dicts), in which case it sets the first elem to 1 (because val is 0 I think). Guess random would be better, but assuming that this happen that often, it's not so bad I guess.
             ###_id, tok, postag, sentencePosition, rootroute, sentenceId, label = row
             p_nrow = []
             s_nrow = []
             p_position_ohv = [0] * pfeat2ohvlen[3]
-            p_position_ohv[pfeat2ohvpos[3][str(rid2conndt[rid][0].sentencePosition)]] = 1
+            p_position_ohv[pfeat2ohvpos[3][str(conntokens[0].sentencePosition)]] = 1
             s_position_ohv = [0] * sfeat2ohvlen[3]
-            s_position_ohv[sfeat2ohvpos[3][str(rid2conndt[rid][0].sentencePosition)]] = 1
-            #postag_ohv = [0] * feat2ohvlen[2]
-            #postag_ohv[feat2ohvpos[2][currpos]] = 1
+            s_position_ohv[sfeat2ohvpos[3][str(conntokens[0].sentencePosition)]] = 1
             p_rootroute_ohv = [0] * pfeat2ohvlen[4]
-            p_rootroute_ohv[pfeat2ohvpos[4][str(rid2conndt[rid][0].pathToRoot)]] = 1
+            p_rootroute_ohv[pfeat2ohvpos[4][str(conntokens[0].pathToRoot)]] = 1
             s_rootroute_ohv = [0] * sfeat2ohvlen[4]
-            s_rootroute_ohv[sfeat2ohvpos[4][str(rid2conndt[rid][0].pathToRoot)]] = 1
+            s_rootroute_ohv[sfeat2ohvpos[4][str(conntokens[0].pathToRoot)]] = 1
             p_nrow += p_position_ohv
             s_nrow += s_position_ohv
-            #nrow += postag_ohv
             p_nrow += p_rootroute_ohv
             s_nrow += s_rootroute_ohv
 
@@ -1034,7 +866,6 @@ def classifyExtArgs_const_approach(testfiles, positionClassifier, sent2tagged, f
                 for item in numpy.ndarray.flatten(numpy.random.random((1, dim))):
                     p_nrow.append(item)
                     s_nrow.append(item)
-            #"""        
             if currpos in posembd:
                 for item in posembd[currpos]:
                     p_nrow.append(item)
@@ -1043,49 +874,37 @@ def classifyExtArgs_const_approach(testfiles, positionClassifier, sent2tagged, f
                 for item in numpy.ndarray.flatten(numpy.random.random((1, dim))):
                     p_nrow.append(item)
                     s_nrow.append(item)                    
-            #"""
-                    
             relativeSentPos = positionClassifier.predict(numpy.array([p_nrow,]))
-            
-            #print('com,ing back from pos classifier:', relativeSentPos)
-            #print('revert to_cat:', numpy.argmax(relativeSentPos, axis=None, out=None))
-            #"""
-            print('rid:', rid)
-            print('actualtokens:', [(t.token, t.tokenId) for t in actualtokens])
-            print('conn sent:', [(ttt.token, ttt.tokenId) for ttt in sid2tokens[sorted(rid2connsentid[rid])[0]]])
-            print('c:', c)
-            print('postag:', currpos)
-            print('rel pos:', relativeSentPos)
-            print('actual pos:', p)
             targetSentId = sid - relativeSentPos[0]
-            print('actual sid:', rid2extargsentid[rid])
-            print('predicted sid:', targetSentId)
-            # reminder: 0 is (any of the) previous sentence(s), 1 is same sentence and 2 is following sentence
-            #"""
-            # taking all tokens of the sentence:
-            targetSentId = None
-            #reldist = sorted(rid2connsentid[rid])[0] - sorted(rid2extargsentid[rid])[0]
-            #p = reldist
-            targetSentId = sid - relativeSentPos[0]
-            
-            fullsent = refcon.fullSentence
+            fullsent = conntokens[0].fullSentence
+            refcon = conntokens[0]
             tree = parsermemorymap[fullsent]
 
             predictedTokens = [(tt.token, tt.tokenId) for tt in sid2tokens[targetSentId]]
-
-            sameSentPosPrediction = sameSentClassifier.predict(numpy.array([s_nrow,]))
-            #print('deb samesentpred:', sameSentPosPrediction)
+            """
+            print('conn:', c)
+            print('intarg:', [(tt.token, tt.tokenId) for tt in intargtokens])
+            print('actual tokens:', [(tt.token, tt.tokenId) for tt in extargtokens])
+            print('predicted/actual sid:', targetSentId, sid)
+            print('baseline tokens:', predictedTokens)
+            """
+            
+            
+            #sameSentPosPrediction = sameSentClassifier.predict(numpy.array([s_nrow,]))
+            # do MV baseline, because this is going nowhere, either based on string or pos tag/syn cat:
+            sameSentPosPrediction = 0
+            if refcon.sentencePosition == 0: # this is also coded implicitly below
+                sameSentPosPrediction = 0
+            elif samesentbaselinepred[refcon.token] == 1:
+                sameSentPosPrediction = 1
             s_total += 1
             sameSentPosActual = 0
-            if rid2extargtokens[rid][0].tokenId > rid2conndt[rid][0].tokenId:
+            if extargtokens[0].tokenId > conntokens[0].tokenId:
                 sameSentPosActual = 1
-            if sameSentPosPrediction[0] == sameSentPosActual:
+            if sameSentPosPrediction == sameSentPosActual:
                 s_correct += 1
             
             if relativeSentPos[0] == 0 and p == 0: # if same sentence, take only tokens up to the connective
-                #if len(rid2extargsentid[rid]) == 1:
-                print('debugging pred tokens before cutting:', predictedTokens)
-                #predictedTokens = [(tt.token, tt.tokenId) for tt in sid2tokens[targetSentId] if tt.tokenId < rid2conndt[rid][0].tokenId]
                 if tree.leaves()[refcon.sentencePosition] == refcon.token:
                     leaveno = refcon.sentencePosition
                 else:
@@ -1121,13 +940,11 @@ def classifyExtArgs_const_approach(testfiles, positionClassifier, sent2tagged, f
                                             right_leaves += r_r.leaves()
                                         for l_r in left_remaining:
                                             left_leaves += l_r.leaves()
-                                        predictedTokens = [tuple((x, sid2tokens[sid][0].tokenId + y + len(left_leaves))) for y, x in enumerate(right_leaves)]
+                                        predictedTokens = [tuple((x, int(sid2tokens[sid][0].tokenId) + y + len(left_leaves))) for y, x in enumerate(right_leaves)]
                                         # deleting first comma (annotation design decision)
                                         if predictedTokens[0][0] == ',':
                                             predictedTokens = predictedTokens[1:]
-
-                            print('debugging pred tokens after cutting with rule B:', predictedTokens)
-
+               
 
                 else: # take next or previous S, depending on sameSentClassifier prediction
                     labels = ['S', 'CS', 'VP']
@@ -1138,65 +955,54 @@ def classifyExtArgs_const_approach(testfiles, positionClassifier, sent2tagged, f
                             children = pt[nodePosition[:1]]
                             labelnode = climb_tree(tree, nodePosition, labels)
                             left_remaining = left_siblings(labelnode, []) # leaving out node itself here on purpose
-                            sameSentPos = sameSentClassifier.predict(numpy.array([s_nrow,]))
+                            
                             firstwordpos = position_of_ngram(tuple(labelnode.leaves()), fullsent.split()) # not perfect, let's hope there aren't multiple matches
                             if not firstwordpos: # as a fallback, just take first occ in sent str. Probably labelnode is empty here too, should check...
                                 firstwordpos = fullsent.split().index(c.split()[0])
-                                print('firstwordpos not found through nltk method, falling back to default:', firstwordpos)
-                                if sameSentPos[0] == 0:
-                                    print('case ab1!')
+                                if sameSentPosPrediction == 0:
                                     predictedTokens = [tuple((x, int(sid2tokens[sid][y].tokenId))) for y, x in enumerate(tree.leaves()) if y < firstwordpos]
-                                elif sameSentPos[0] == 1:
-                                    print('case ab2!')
+                                elif sameSentPosPrediction == 1:
                                     predictedTokens = [tuple((x, int(sid2tokens[sid][y].tokenId))) for y, x in enumerate(tree.leaves()) if y > firstwordpos]
                             else:
-                                print('fwpos found!:', firstwordpos)
 
-                                if sameSentPos[0] == 0:
+                                if sameSentPosPrediction == 0:
                                     predictedTokens = [tuple((x, int(sid2tokens[sid][y].tokenId) + int(firstwordpos))) for y, x in enumerate(labelnode.leaves()) if y + firstwordpos < leaveno]
-                                    print('debugging pred tokens after cutting with rule A1:', predictedTokens)
-                                elif sameSentPos[0] == 1:
+               
+                                elif sameSentPosPrediction == 1:
                                     predictedTokens = [tuple((x, int(sid2tokens[sid][y].tokenId) + int(firstwordpos))) for y, x in enumerate(labelnode.leaves()) if y + firstwordpos > leaveno]
-                                    print('debugging pred tokens after cutting with rule A2:', predictedTokens)
+               
+                                    
+                                    
 
-                                
-                #else: # multi-sentence case, guess I will have to treat this separately
-                    #print('PASSING ABC!')
-                    #pass # for now. TODO!
-
-            # overwriting all of the above (not sure if this is a good idea); if the conn is discontinuous, take all tokens in between first and last conn token
             if len(c.split()) > 1:
-                print('multiTokenConn!!!')
-                first, last = rid2conndt[rid][0], rid2conndt[rid][-1]
-                conntokenids = [ct.tokenId for ct in rid2conndt[rid]]
-                if last.tokenId - first.tokenId > 1: # if it is potentially discontinuous. The if not ... condition in next list comprehension excludes thre-or-more-token connectives that are continuous (in combination with the if alt in the following line)
+
+                first, last = conntokens[0], conntokens[-1]
+                conntokenids = [ct.tokenId for ct in conntokens]
+                if int(last.tokenId) - int(first.tokenId) > 1: # if it is potentially discontinuous. The if not ... condition in next list comprehension excludes thre-or-more-token connectives that are continuous (in combination with the if alt in the following line)
                     #alt2 = [tuple((sid2tokens[first.sentenceId][y].token, sid2tokens[last.sentenceId][y].tokenId)) for y in range(first.sentencePosition+1, last.sentencePosition)]
                     #print('deb alt2:', alt2)
-                    print('conntokenids:', conntokenids)
+
                     #alt = [tuple((sid2tokens[sid][y].token, sid2tokens[sid][y].tokenId)) for y in range(first.sentencePosition+1, last.sentencePosition) if not sid2tokens[sid][y].tokenId in conntokenids]
                     alt = []
-                    if last.sentenceId == first.sentenceId or last.sentenceId - first.sentenceId == 1:
-                        for j in range(first.tokenId, last.tokenId):
+                    if last.sentenceId == first.sentenceId or int(last.sentenceId) - int(first.sentenceId) == 1:
+                        for j in range(int(first.tokenId), int(last.tokenId)):
                             alt.append(tuple(('dummy', j))) # appending dummy because it is difficult to get actual token here, but comparison later on is done based on ids only anyway
                             predictedTokens = alt
 
                     else: # just take the entire sentence of the first token. TODO: check if first and last (i.e. rid2conndt) is something I have available at runtime, or if it is taken directly from the gold annotations...
                         predictedTokens = [(tt.token, tt.tokenId) for tt in sid2tokens[first.sentenceId]]
                     predictedTokens = [x for x in predictedTokens if not x[1] == first.tokenId and not x[1] == last.tokenId]
-                    print('predictedtokens rule C:', predictedTokens)
-
+               
                     
-                            
-            print('final predicted tokens:', predictedTokens)
-            if not [t.tokenId for t in actualtokens] == [t[1] for t in predictedTokens]:
-                print('DOES NOT MATCH!!!')
-            print()
-            print()
+            
             p_total += 1
-            if targetSentId in rid2extargsentid[rid]:
+            if targetSentId in set([x.sentenceId for x in extargtokens]):
                 p_correct += 1
             predictedIds = [t[1] for t in predictedTokens]
             actualIds = [t.tokenId for t in actualtokens]
+            # fucking python, without its type checking. took me way too much time to locate this inconsistency (tokenIds inside predicted were sometimes str, sometimes int)
+            predictedIds = [int(x) for x in predictedIds]
+            actualIds = [int(x) for x in actualIds]
             
             for tokenId in set(predictedIds + actualIds):
                 if tokenId in actualIds and tokenId in predictedIds:
@@ -1205,13 +1011,16 @@ def classifyExtArgs_const_approach(testfiles, positionClassifier, sent2tagged, f
                     fn += 1
                 else:
                     fp += 1
+            
 
     precision = tp / float(tp + fp)
     recall = tp / float(tp + fn)
     f1 = 2 * ((precision * recall) / (precision + recall))
+    sys.stderr.write('p, r, f: %f, %f, %f\n' %  (precision, recall, f1))
+    sys.stderr.write('pos, samesent accs: %f, %f\n' % (p_correct / p_total, s_correct / s_total))
 
-                    
-    return p_correct / p_total, s_correct / s_total, precision, recall, f1 #  TODO: accs here are for position and samesent classification, not for token ext args
+
+    return p_correct / p_total, s_correct / s_total, precision, recall, f1, set(), total #  TODO: accs here are for position and samesent classification, not for token ext args
 
 def left_siblings(st, l):
 
@@ -1266,18 +1075,18 @@ def loadEmbeddingsOnce():
         posembd = {}
         print('WARNING:NOT LOADING ANYTHING!!!')
     else:
-        posembd = loadExternalEmbeddings('tiger_pos_model.vec')
-        embd = loadExternalEmbeddings('cc.de.300.vec')
+        posembd = loadExternalEmbeddings('/home/peter/github/PhdPlayground/customEmbeddings/tiger_pos_model.vec.vec')
+        embd = loadExternalEmbeddings('/home/peter/github/PhdPlayground/customEmbeddings/cc.de.300.PCC.vec')
     
 
 
 if __name__ == '__main__':
 
-    #global DEBUG_MODE
+    ##global DEBUG_MODE
     #DEBUG_MODE = True
 
     
-    connectorfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.1/connectives/')
+    connectorfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.1/connectives-standoff/')
     #connectorfiles = PCCParser.getInputfiles('/share/corrected_connectives/')
     syntaxfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.1/syntax/')
     rstfiles = PCCParser.getInputfiles('/share/potsdam-commentary-corpus-2.1/rst/')
@@ -1286,7 +1095,7 @@ if __name__ == '__main__':
     fileversions = PCCParser.getFileVersionsDict(connectorfiles, syntaxfiles, rstfiles, tokenfiles)
 
     import pickle
-    pfname = 'sent2tagged.pickle'
+    pfname = '/home/peter/github/PhdPlayground/picklejars/sent2tagged.pickle'
     
     sent2tagged = {}
     if os.path.exists(pfname):
@@ -1295,8 +1104,18 @@ if __name__ == '__main__':
 
     ### Section below is to train and eval only the position classifier
     
+
+    goldpostags = False
+    matrix, samesentmatrix, samesentbaselinedict, sent2tagged = getFeatureMatrix(fileversions, sent2tagged, goldpostags)
+    # think the samesentbaselinedict always favors pos 0, but let's keep it dynamic anyway:
+    samesentbaselinepred = defaultdict(int)
+    for k in samesentbaselinedict:
+        if samesentbaselinedict[k][1] > samesentbaselinedict[k][1]:
+            samesentbaselinepred[k] = 1
+        else:
+            samesentbaselinepred[k] = 0
+
     
-    matrix, samesentmatrix, sent2tagged = getFeatureMatrix(fileversions, sent2tagged)
     classd = defaultdict(int)
     for row in matrix[1:]:
         classd[row[-1]] += 1
@@ -1365,22 +1184,25 @@ if __name__ == '__main__':
     nlp = spacy.load('de_core_news_sm')
     sys.stderr.write('INFO: Done.\n')
 
+    outputset = set()
+    all_rids = 0
     for i in range(numIterations):
         sys.stderr.write('INFO: Starting iteration %i of %i...\n' % (i+1, numIterations))
         test, train = getTestAndTrainFiles(fileversions, numIterations, i)
-        trainmatrix, trainsamesentmatrix, sent2tagged = getFeatureMatrix(train, sent2tagged)
+        trainmatrix, trainsamesentmatrix, samesentbaselinedict, sent2tagged  = getFeatureMatrix(train, sent2tagged, goldpostags)
         positionClassifier, pfeat2ohvpos, pfeat2ohvlen = trainKerasPositionClassifier(trainmatrix)
         sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen = trainKerasPositionClassifier(trainsamesentmatrix)
         
         #tp, fp, fn = classifyExtArgs(test, positionClassifier, sent2tagged, d, tp, fp, fn)
-        #a, p, r, f = classifyExtArgs_baseline_approach(test, positionClassifier, sent2tagged, pfeat2ohvpos, pfeat2ohvlen)
-        #a1, a2, p, r, f = classifyExtArgs_const_approach(test, positionClassifier, sent2tagged, pfeat2ohvpos, pfeat2ohvlen, sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen)
-        a, p, r, f = classifyExtArgs_deps_approach(test, positionClassifier, sent2tagged, pfeat2ohvpos, pfeat2ohvlen, sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen, nlp)
+        #a, p, r, f, outputset, total_rids = classifyExtArgs_baseline_approach(test, positionClassifier, sent2tagged, pfeat2ohvpos, pfeat2ohvlen)
+        #a, a2, p, r, f, outputset, total_rids = classifyExtArgs_const_approach(test, positionClassifier, sent2tagged, pfeat2ohvpos, pfeat2ohvlen, sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen, samesentbaselinepred)
+        a, p, r, f, outputset, total_rids = classifyExtArgs_deps_approach(test, positionClassifier, sent2tagged, pfeat2ohvpos, pfeat2ohvlen, sameSentClassifier, sfeat2ohvpos, sfeat2ohvlen, nlp, outputset, samesentbaselinepred)
         _a1.append(a)
         #_a2.append(a2)
         _p.append(p)
         _r.append(r)
         _f.append(f)
+        all_rids += total_rids
     print('avg a1:', sum(_a1) / len(_a1))
     #print('avg a2:', sum(_a2) / len(_a2))
     print('avg p:', sum(_p) / len(_p))
@@ -1400,7 +1222,11 @@ if __name__ == '__main__':
     #(stderr duplicate) avg f: 0.6419034475838139
 
 
-
+    print('nr of non adjacents:', len(outputset))
+    print('among nr of total instances:', all_rids)
+    for item in outputset:
+        print(item)
+        print()
     
 
 
