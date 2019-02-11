@@ -15,8 +15,13 @@ import utils
 def data2tokens(data):
 
     tokens = []
-    for f in utils.getInputfiles(data):
-        for line in codecs.open(f).readlines():
+    if os.path.isdir(data):
+        for f in utils.getInputfiles(data):
+            for line in codecs.open(f).readlines():
+                for token in line.split():
+                    tokens.append(token)
+    elif os.path.isfile(data):
+        for line in codecs.open(data).readlines():
             for token in line.split():
                 tokens.append(token)
     return set(tokens)
