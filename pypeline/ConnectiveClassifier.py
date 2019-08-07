@@ -25,12 +25,36 @@ import tensorflow as tf
 
 class ConnectiveClassifier:
 
+    mainclassdict = {'ADV':'adv', 'KON':'cco', 'APPR':'prep', 'KOUS':'csu', 'KOKOM':'cco', 'APPRART':'prep', 'KOUI':'csu'}
+    
     def __init__(self):
 
         self.dimension = 300
         self.customEncoder = defaultdict(int)
         self.maxEncoderId = 1
 
+    def getCategoricalLength(self, l):
+
+        if l < 5:
+            return 0
+        elif l < 10:
+            return 1
+        elif l < 15:
+            return 2
+        elif l < 20:
+            return 3
+        elif l < 25:
+            return 4
+        else:
+            return 5
+        
+    def isSInitial(self, token, ptree):
+
+        for s in ptree.subtrees(lambda t: t.label().startswith('S')):
+            if s.leaves()[0] == token: # sloppy coding; if a candidate occurs multiple times in a sentence, all its instances get True if this is true for one instance... (should not happen too often though)
+                return True
+
+        
     """
     # only needed for Keras classifier, currently using RandomForest one...
     def setGraph(self):
@@ -79,7 +103,12 @@ class ConnectiveClassifier:
                             break # always taking the first, assuming that this is the best scoring tree.
                         parsermemorymap[sentence] = ptree
                     features = self.getFeaturesFromTree(index, pccTokens, pcct, ptree)
-                    row = [mid] + features + [pcct.isConnective]
+                    mainclass = self.mainclassdict[pcct.pos] if pcct.pos in self.mainclassdict else 'other'
+                    catlen = self.getCategoricalLength(len(pcct.fullSentence.split())) # pcct.fullSentence is pre-tokenised (but one single string)
+                    sinit = 1 if self.isSInitial(pcct.token, ptree) else 0
+                    row = [mid] + features + [mainclass, catlen, sinit] + [pcct.isConnective]
+
+                    #row = [mid] + features + [pcct.isConnective]
                     encoded = []
                     for x in row:
                         if x in self.customEncoder:
@@ -92,7 +121,8 @@ class ConnectiveClassifier:
                     #row = [str(x) for x in row]
                     mid += 1
                     #matrix.append(row)
-        headers = ['id','token','pos','leftbigram','leftpos','leftposbigram','rightbigram','rightpos','rightposbigram','selfCategory','parentCategory','leftsiblingCategory','rightsiblingCategory','rightsiblingContainsVP','pathToRoot','compressedPath','class_label']
+        #headers = ['id','token','pos','leftbigram','leftpos','leftposbigram','rightbigram','rightpos','rightposbigram','selfCategory','parentCategory','leftsiblingCategory','rightsiblingCategory','rightsiblingContainsVP','pathToRoot','compressedPath','class_label']
+        headers = ['id','token','pos','leftbigram','leftpos','leftposbigram','rightbigram','rightpos','rightposbigram','selfCategory','parentCategory','leftsiblingCategory','rightsiblingCategory','rightsiblingContainsVP','pathToRoot','compressedPath', 'mainclass', 'sentencelength', 'sinitial','class_label']
         df = pandas.DataFrame(matrix, columns=headers)
         #self.d = defaultdict(LabelEncoder) # don't trust the LabelEncoder over different sessions, so implemented my own rudimentary one
         #fit = df.apply(lambda x: self.d[x.name].fit_transform(x))
@@ -232,47 +262,55 @@ class ConnectiveClassifier:
                     dimlextokens.add(tok)
                     dimlextokens2fullversions[tok].add(dc)
         
-        # TODO: assuming pre-tokenized input (whitespace splittable, one sentence per line). Fix tokenization at some point
+        # TODO: assuming pre-tokenized input (whitespace splittable, one sentence per line). Fix tokenization at some point. EDIT: fixed tokenisation at flaskcontroller level, because there I can ensure that tokenisation is the same as when the painting happens
         for sid, sentence in enumerate(sentences):
             tokens = sentence.split()
             ptree = None
-            ptree = memorymap[sentence]
-            sentenceFeatures = self.getVectorsForTree(ptree)
-            for tid, token in enumerate(tokens):
-                if token.lower() in dimlextokens:
-                    fulltextfound = False
-                    # this is the catch for multiword ones. singleword ones are found by definition, mwus not always
-                    # TODO: Does not work properly (or at all) for discontinuous ones
-                    for fullconn in dimlextokens2fullversions[token.lower()]:
-                        if re.search(fullconn.lower(), sentence.lower()):
-                            fulltextfound = True
-                    if fulltextfound:
-                        features = ['0']
-                        features.extend(sentenceFeatures[tid])
-                        encoded = []
-                        for x in features:
-                            if x in self.customEncoder:
-                                encoded.append(self.customEncoder[x])
-                            else:
-                                self.maxEncoderId += 1
-                                encoded.append(self.maxEncoderId)
-                                self.customEncoder[x] = self.maxEncoderId
-                        #features += [str(x) for x in sentenceFeatures[tid]]
+            if sentence in memorymap:
+                ptree = memorymap[sentence]
+                sentenceFeatures = self.getVectorsForTree(ptree)
+                for tid, token in enumerate(tokens):
+                    if token.lower() in dimlextokens:
+                        fulltextfound = False
+                        # this is the catch for multiword ones. singleword ones are found by definition, mwus not always
+                        # TODO: Does not work properly (or at all) for discontinuous ones
+                        for fullconn in dimlextokens2fullversions[token.lower()]:
+                            if re.search(fullconn.lower(), sentence.lower()):
+                                fulltextfound = True
+                        if fulltextfound:
+                            features = ['0']
+                            features.extend(sentenceFeatures[tid])
+                            pos = features[2]
+                            mainclass = self.mainclassdict[pos] if pos in self.mainclassdict else 'other'
+                            catlen = self.getCategoricalLength(len(tokens))
+                            sinit = 1 if self.isSInitial(token, ptree) else 0
+                            features.append(mainclass)
+                            features.append(catlen)
+                            features.append(sinit)
+                            encoded = []
+                            for x in features:
+                                if x in self.customEncoder:
+                                    encoded.append(self.customEncoder[x])
+                                else:
+                                    self.maxEncoderId += 1
+                                    encoded.append(self.maxEncoderId)
+                                    self.customEncoder[x] = self.maxEncoderId
+                            #features += [str(x) for x in sentenceFeatures[tid]]
 
-                        df = pandas.DataFrame([encoded], columns=None)
-                        #fit = df.apply(lambda x: self.d[x.name].fit_transform(x))
-                        #df = df.apply(lambda x: self.d[x.name].transform(x))
+                            df = pandas.DataFrame([encoded], columns=None)
+                            #fit = df.apply(lambda x: self.d[x.name].fit_transform(x))
+                            #df = df.apply(lambda x: self.d[x.name].transform(x))
 
-                        test_features = df.iloc[:,1:]
-                        test_features = numpy.array(test_features)
+                            test_features = df.iloc[:,1:]
+                            test_features = numpy.array(test_features)
 
-                        pred = self.classifier.predict(test_features)
-                        #print('debug sent:', sentence)
-                        #print('debug tok;', token)
-                        #print('debug features:', features)
-                        #print('debug pred:', pred)
-                        if pred[0] == 1:
-                            connectivePositions.append((sid, tid))
+                            pred = self.classifier.predict(test_features)
+                            #print('debug sent:', sentence)
+                            #print('debug tok;', token)
+                            #print('debug features:', features)
+                            #print('debug pred:', pred)
+                            if pred[0] == 1:
+                                connectivePositions.append((sid, tid))
 
         connectivePositions = utils.mergePhrasalConnectives(connectivePositions)
     

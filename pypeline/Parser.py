@@ -64,15 +64,17 @@ class Parser:
     def preParse(self, sentences):
         runtimeparsermemory = {}
         for sentence in sentences:
-            tokens = sentence.split()
-            ptree = None
-            tree = self.lexParser.parse(tokens)
-            ptreeiter = ParentedTree.convert(tree)
-            for t in ptreeiter:
-                ptree = t
-                break # always taking the first, assuming that this is the best scoring tree.
-            runtimeparsermemory[sentence] = ptree
-            
+            try:
+                tokens = sentence.split()
+                ptree = None
+                tree = self.lexParser.parse(tokens)
+                ptreeiter = ParentedTree.convert(tree)
+                for t in ptreeiter:
+                    ptree = t
+                    break # always taking the first, assuming that this is the best scoring tree.
+                runtimeparsermemory[sentence] = ptree
+            except:
+                sys.stderr.write('WARNING: Could not parse %s. Skipping...\n' % sentence)
         return runtimeparsermemory
 
 
