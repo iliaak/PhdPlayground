@@ -3,6 +3,5 @@ numpy==1.14.6
 pandas==0.24.2
 dill==0.2.9
 tqdm==4.34.0
-sklearn==0.20.3
-lxml.etree==4.3.0
-
+scikit-learn==0.21.3
+lxml==4.4.0
